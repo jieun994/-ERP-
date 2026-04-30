@@ -1,0 +1,15 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v3.2.1/dist/web/static/pretendard.css");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+/* 크롬 등 브라우저 자동완성(Autofill) 배경색 및 글자색 무효화 (비활성화 상태) */
+input:disabled:-webkit-autofill,
+input:disabled:-webkit-autofill:hover, 
+input:disabled:-webkit-autofill:focus, 
+input:disabled:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px #f3f4f6 inset !important;
+    -webkit-text-fill-color: #9ca3af !important;
+}
