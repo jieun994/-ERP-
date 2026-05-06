@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { X, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Dashboard from './Dashboard';
 
-type ViewState = 'gate' | 'login' | 'reset_email' | 'reset_password' | 'reset_complete' | 'dashboard' | 'otp_verify' | 'otp_register' | 'dashboard_tenant' | 'dashboard_ent_list' | 'dashboard_ent_register' | 'dashboard_ent_register_excel' | 'dashboard_ent_register_excel_uploaded' | 'dashboard_ent_register_delete' | 'dashboard_ent_register_step2' | 'dashboard_ent_register_step3' | 'dashboard_ent_users' | 'dashboard_fund_status' | 'dashboard_exception_management' | 'dashboard_admin_list' | 'dashboard_menu_management' | 'dashboard_notice_list' | 'dashboard_banner_management' | 'dashboard_faq_management' | 'dashboard_email_template' | 'dashboard_push_mgmt' | 'dashboard_code' | 'dashboard_message' | 'dashboard_statistics' | 'dashboard_service_status' | 'dashboard_log_history' | 'dashboard_firmbanking_fail';
+// ... (keep ViewState and other states, but we'll adapt them)
 
 export default function App() {
   const [view, setView] = useState<ViewState>('gate');

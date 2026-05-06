@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Building2, 
   Users, 
@@ -136,9 +137,12 @@ const menus: MenuConfig[] = [
 ];
 
 export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMenu = '', initialRegisterConfig }: DashboardProps) {
-  const [expandedMenu, setExpandedMenu] = useState<string | null>(initialMenu);
-  const [activeSubMenu, setActiveSubMenu] = useState<string>(initialSubMenu);
-  const [activeMenu, setActiveMenu] = useState<string>(initialMenu);
+  const navigate = useNavigate();
+  const { menu, subMenu } = useParams();
+  
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(menu || initialMenu);
+  const [activeSubMenu, setActiveSubMenu] = useState<string>(subMenu || initialSubMenu);
+  const [activeMenu, setActiveMenu] = useState<string>(menu || initialMenu);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Mock data for Dashboard
@@ -166,12 +170,14 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
       setActiveMenu(menuId);
       setActiveSubMenu('');
       setExpandedMenu(null);
+      navigate(`/dashboard/${menuId}`);
     }
   };
 
   const handleSubMenuClick = (subMenuId: string, parentId: string) => {
     setActiveSubMenu(subMenuId);
     setActiveMenu(parentId);
+    navigate(`/dashboard/${parentId}/${subMenuId}`);
   };
 
   return (
