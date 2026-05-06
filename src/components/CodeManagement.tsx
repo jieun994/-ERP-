@@ -221,8 +221,8 @@ export default function CodeManagement() {
   return (
     <div className="space-y-6 pb-20 flex flex-col">
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-2">
-        <div className="flex-1 bg-[#eef1f5] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 mb-8">
+        <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-6">
           <div className="flex items-center gap-4 flex-1">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
             <div className="relative w-full max-w-md">
@@ -231,22 +231,26 @@ export default function CodeManagement() {
                 placeholder="그룹명, 코드명, 코드값 입력"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                className="w-full h-[36px] bg-white border border-[#D1D6DB] rounded-md px-4 pr-10 text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
+                className="w-full h-[40px] bg-white border border-[#D1D6DB] rounded-lg px-4 pr-10 text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
+                onKeyDown={(e) => e.key === 'Enter' && alert('조회하기')}
               />
               <Search className="w-4 h-4 text-[#8B95A1] absolute right-3 top-1/2 -translate-y-1/2" />
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setSearchKeyword('')}
-            className="h-full px-8 bg-white border border-[#D1D6DB] text-gray-700 hover:bg-gray-50 rounded-md text-[15px] font-bold transition-colors shadow-sm whitespace-nowrap"
-          >
-            초기화
-          </button>
-          <button className="h-full px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm whitespace-nowrap">
-            조회하기
-          </button>
+          <div className="flex justify-end gap-3">
+            <button 
+              onClick={() => setSearchKeyword('')} 
+              className="h-[40px] px-6 bg-white border border-[#D1D6DB] text-[#333333] hover:bg-gray-50 rounded-lg text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap"
+            >
+              초기화
+            </button>
+            <button 
+              onClick={() => {}}
+              className="h-[40px] px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-lg text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap"
+            >
+              조회하기
+            </button>
+          </div>
         </div>
       </div>
 
@@ -254,7 +258,7 @@ export default function CodeManagement() {
       <div className="flex gap-6 min-h-[600px]">
         {/* Left: Group Code List */}
         <div className="w-80 flex flex-col space-y-3">
-          <div className="flex items-center justify-between pb-2 h-10">
+          <div className="flex items-center justify-between pb-2 border-b-[1px] border-[#191F28] h-10">
             <h3 className="text-[15px] font-bold text-[#191F28]">그룹 코드</h3>
             <button 
               onClick={() => {
@@ -380,7 +384,7 @@ export default function CodeManagement() {
 
         {/* Right: Detailed Code Table */}
         <div className="flex-1 flex flex-col space-y-3">
-          <div className="flex items-center justify-between pb-2 h-10">
+          <div className="flex items-center justify-between pb-2 border-b-[1px] border-[#191F28] h-10">
             <div className="text-[15px] font-bold flex items-center gap-3">
               <span className="text-[#191F28]">{activeGroup || '그룹 선택'}</span>
               <div className="w-[1px] h-3 bg-[#E5E8EB]"></div>

@@ -187,14 +187,14 @@ export default function FAQManagement() {
   return (
     <div className="w-full space-y-0 pb-20">
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#eef1f5] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
+      <div className="bg-white border border-[#E5E8EB] rounded-lg p-6 mb-8 shadow-sm">
+        <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-4">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색조건</span>
             <select 
               value={searchTopic}
               onChange={(e) => setSearchTopic(e.target.value)}
-              className="w-32 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               <option value="question">질문</option>
               <option value="answer">답변</option>
@@ -207,17 +207,17 @@ export default function FAQManagement() {
               placeholder="검색어 입력"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="w-64 h-[36px] px-4 bg-white border border-gray-300 rounded text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
+              className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="h-full px-8 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md text-[15px] font-bold transition-colors shadow-sm whitespace-nowrap">
-            초기화
-          </button>
-          <button className="h-full px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm whitespace-nowrap">
-            조회하기
-          </button>
+          <div className="flex items-center gap-2 ml-auto">
+            <button className="h-[40px] px-8 bg-white border border-[#D1D6DB] text-gray-700 hover:bg-gray-50 rounded-md text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
+              초기화
+            </button>
+            <button className="h-[40px] px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
+              조회하기
+            </button>
+          </div>
         </div>
       </div>
 
@@ -235,7 +235,13 @@ export default function FAQManagement() {
           >
             노출여부 변경
           </button>
-          <div className="w-[1px] h-3 bg-[#E5E8EB] mx-1"></div>
+          
+          <button 
+            onClick={() => openForm()}
+            className="h-[32px] bg-[#008d75] hover:bg-black text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
+          >
+             등록
+          </button>
           <button 
             onClick={() => {
               if (selectedIds.length !== 1) {
@@ -258,14 +264,10 @@ export default function FAQManagement() {
               setShowDeleteWarning('bulk');
             }}
             className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors"
-          >삭제</button>
-          <button 
-            onClick={() => openForm()}
-            className="h-[32px] px-4 bg-[#008d75] text-white rounded-md text-[13px] font-semibold hover:bg-[#007a65] transition-colors flex items-center gap-1.5"
           >
-            <Plus className="w-3.5 h-3.5" />
-             FAQ 등록
+            삭제
           </button>
+          
         </div>
       </div>
 
@@ -441,7 +443,7 @@ export default function FAQManagement() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">FAQ 상세 입략</h4>
+                    <h4 className="text-[15px] font-semibold text-[#191F28]">FAQ 상세 입력</h4>
                   </div>
                   
                   <div className="space-y-4">

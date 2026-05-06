@@ -197,7 +197,7 @@ export default function MenuManagement() {
         >
           사용여부 변경
         </button>
-        <div className="w-[1px] h-3 bg-[#E5E8EB] mx-1"></div>
+        
         <button 
           onClick={handleOpenEdit}
           className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors"

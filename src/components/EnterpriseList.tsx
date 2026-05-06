@@ -86,7 +86,7 @@ export default function EnterpriseList() {
         <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-6">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
-            <select className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] appearance-none transition-all">
+            <select className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
               <option value="all">전체</option>
               <option value="toss">(주)토스페이먼츠</option>
               <option value="woowahan">우아한형제들</option>
@@ -104,7 +104,7 @@ export default function EnterpriseList() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">사용여부</span>
-            <select className="w-32 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] appearance-none transition-all">
+            <select className="w-32 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
               <option value="all">전체</option>
               <option value="use">사용</option>
               <option value="unused">미사용</option>
@@ -139,14 +139,8 @@ export default function EnterpriseList() {
 
           <button 
             onClick={() => setIsRegisterModalOpen(true)}
-            className="h-[32px] bg-[#191F28] hover:bg-black text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
+            className="h-[32px] bg-[#008d75] hover:bg-[#007a65] text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
           >등록</button>
-          <button 
-            onClick={handleToggleUse}
-            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            사용여부 변경
-          </button>
           <button 
             onClick={handleEdit}
             className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
@@ -155,9 +149,15 @@ export default function EnterpriseList() {
           </button>
           <button 
             onClick={handleDelete}
-            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 bg-white text-[#333333] transition-colors shadow-sm"
+            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >
             삭제
+          </button>
+          <button 
+            onClick={handleToggleUse}
+            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >
+            사용여부 변경
           </button>
           <button 
             onClick={handleExcelDownload}

@@ -4,12 +4,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { EnterpriseBlock, ExcelRow } from './register/types';
 
 // Simplified Stepper
-const STEPS = ['기업 기본정보 등록', 'VAN/펌뱅킹 ID 등록', '인터페이스 설정'];
+const STEPS = ['기업 기본정보 등록', 'VAN/펌뱅킹 ID 등록', '기업 인터페이스/파라미터 설정'];
 
 
 // ... (imports)
 
-// 서브 컴포넌트: VAN/펌뱅킹 ID 등록
+import EnterpriseInterfaceSettings from './EnterpriseInterfaceSettings';
 const VanFirmBankingRegistration = ({ enterprises }) => {
   const [selectedEnt, setSelectedEnt] = useState(enterprises[0] || null);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -39,8 +39,6 @@ const VanFirmBankingRegistration = ({ enterprises }) => {
         <div className="flex-1 p-6 overflow-y-auto">
             {selectedEnt ? (
                 <div className="space-y-6">
-                    <h3 className="text-[16px] font-bold text-gray-900 border-b border-gray-200 pb-2">{selectedEnt.name}</h3>
-                    
                     {/* 기본 연동 정보 */}
                     <div>
                         <label className="block text-[13px] font-semibold text-gray-700 mb-2">기본 연동 정보</label>
@@ -206,8 +204,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
             </div>
           ))}
         </div>
-        <h2 className="text-[20px] font-bold text-gray-900 mb-1">신규 기업 등록</h2>
-        <p className="text-[14px] text-gray-500">기업 정보를 입력한 뒤 [추가]를 눌러 목록에 등록하세요.</p>
+        
       </div>
 
       {/* 2. Registration Content based on Step */}
@@ -283,8 +280,8 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                       <input className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px]" placeholder="13자리 숫자(선택)" value={formState.corpNumber} onChange={e => setFormState({...formState, corpNumber: e.target.value})} />
                     </div>
                     <div className="flex items-end gap-2">
-                      <button onClick={editingId ? handleCancelEdit : () => setFormState({ id: '', name: '', bizNumber: '', corpNumber: '' })} className="px-6 py-2 bg-white border border-gray-300 rounded-md text-[14px] font-semibold text-gray-700">{editingId ? '취소' : '초기화'}</button>
-                      <button onClick={handleAddOrUpdate} className="px-6 py-2 bg-[#008d75] rounded-md text-[14px] font-semibold text-white">{editingId ? '수정' : '추가'}</button>
+                      <button onClick={editingId ? handleCancelEdit : () => setFormState({ id: '', name: '', bizNumber: '', corpNumber: '' })} className="px-6 py-2 bg-white border border-[#008d75] rounded-md text-[14px] font-semibold text-[#008d75]">취소</button>
+                      <button onClick={handleAddOrUpdate} className="px-6 py-2 bg-[#008d75] rounded-md text-[14px] font-semibold text-white">{editingId ? '수정' : '등록'}</button>
                     </div>
                   </div>
                 </div>
@@ -295,7 +292,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                       <h3 className="text-[16px] font-bold text-gray-900 mb-1">기업 목록</h3>
                       <p className="text-[13px] text-gray-500">추가한 항목은 아래 목록에서 확인하고 삭제할 수 있습니다.</p>
                     </div>
-                    <button onClick={handleDeleteSelected} disabled={selectedIds.length === 0} className="px-4 py-2 border border-gray-300 rounded-md text-[12px] font-semibold text-gray-600 disabled:bg-gray-100">삭제</button>
+                    <button onClick={handleDeleteSelected} disabled={selectedIds.length === 0} className="px-4 py-2 border border-[#d32f2f] rounded-md text-[12px] font-semibold text-[#d32f2f] disabled:bg-gray-100 disabled:border-gray-300">삭제</button>
                   </div>
                   <table className="w-full text-left text-[13px]">
                     <thead className="bg-gray-50 text-gray-600">
@@ -357,7 +354,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
           <VanFirmBankingRegistration enterprises={enterprises} />
         )}
         {currentStep === 3 && (
-          <div className="py-12 text-center text-gray-500">기업 인터페이스 설정 단계 (구현 예정)</div>
+          <EnterpriseInterfaceSettings enterprises={enterprises} />
         )}
       </div>
 

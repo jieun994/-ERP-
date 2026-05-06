@@ -24,7 +24,7 @@
   input, select, textarea {
     @apply outline-none transition-all;
   }
-
+  
   /* Remove default focus ring for cleaner flat look */
   *:focus {
     @apply outline-none;

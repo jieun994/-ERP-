@@ -138,6 +138,15 @@ export default function AdminManagement() {
         <div className="flex items-center gap-2">
           <button 
             onClick={() => {
+              setEditAdmin(null);
+              setIsModalOpen(true);
+            }}
+            className="h-[32px] bg-[#008d75] hover:bg-black text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
+          >
+             등록
+          </button>
+          <button 
+            onClick={() => {
               if (selectedIds.length !== 1) {
                 alert('수정할 관리자를 1명 선택해주세요.');
                 return;
@@ -159,15 +168,7 @@ export default function AdminManagement() {
           <button className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors flex items-center justify-center shadow-sm">
             엑셀 다운로드
           </button>
-          <button 
-            onClick={() => {
-              setEditAdmin(null);
-              setIsModalOpen(true);
-            }}
-            className="h-[32px] bg-[#191F28] hover:bg-black text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
-          >
-            관리자 등록
-          </button>
+          
         </div>
       </div>
 
