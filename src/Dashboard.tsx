@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { 
   Building2, 
   Users, 
@@ -137,6 +137,14 @@ const menus: MenuConfig[] = [
 ];
 
 export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMenu = '', initialRegisterConfig }: DashboardProps) {
+  const params = useParams<{ menuId?: string; subMenuId?: string }>();
+  
+  useEffect(() => {
+    if (params.menuId) {
+      setActiveMenu(params.menuId);
+      setActiveSubMenu(params.subMenuId || '');
+    }
+  }, [params.menuId, params.subMenuId]);
   const navigate = useNavigate();
   const { menu, subMenu } = useParams();
   
