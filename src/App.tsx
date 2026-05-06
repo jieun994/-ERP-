@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { X, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Dashboard from './Dashboard';
@@ -245,16 +245,22 @@ export default function App() {
     }
 
     return (
-      <>
-        <Dashboard onLogout={() => setView('login')} initialMenu={initialMenu} initialSubMenu={initialSubMenu} initialRegisterConfig={initialRegisterConfig} />
-        <button
-          onClick={() => setView('gate')}
-          className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
-        >
-          목록으로 이동
-        </button>
-      </>
-    );
+  <BrowserRouter>
+    <Routes>
+      <Route path="*" element={
+        <>
+          <Dashboard onLogout={() => setView('login')} initialMenu={initialMenu} initialSubMenu={initialSubMenu} initialRegisterConfig={initialRegisterConfig} />
+          <button
+            onClick={() => setView('gate')}
+            className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
+          >
+            목록으로 이동
+          </button>
+        </>
+      } />
+    </Routes>
+  </BrowserRouter>
+);
   }
 
   return (
