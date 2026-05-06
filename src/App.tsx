@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { X, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import Dashboard from './Dashboard';
 
-type ViewState = 'gate' | 'login' | 'reset_email' | 'reset_password' | 'reset_complete';
+type ViewState = 'gate' | 'login' | 'reset_email' | 'reset_password' | 'reset_complete' | 'dashboard' | 'otp_verify' | 'otp_register' | 'dashboard_tenant' | 'dashboard_ent_list' | 'dashboard_ent_register' | 'dashboard_ent_register_excel' | 'dashboard_ent_register_excel_uploaded' | 'dashboard_ent_register_delete' | 'dashboard_ent_register_step2' | 'dashboard_ent_register_step3' | 'dashboard_ent_users' | 'dashboard_fund_status' | 'dashboard_exception_management' | 'dashboard_admin_list' | 'dashboard_menu_management' | 'dashboard_notice_list' | 'dashboard_banner_management' | 'dashboard_faq_management' | 'dashboard_email_template' | 'dashboard_push_mgmt' | 'dashboard_code' | 'dashboard_message' | 'dashboard_statistics' | 'dashboard_service_status' | 'dashboard_log_history' | 'dashboard_firmbanking_fail';
 
 export default function App() {
   const [view, setView] = useState<ViewState>('gate');
@@ -23,6 +24,10 @@ export default function App() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
+  // OTP states
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  
   // Validation states for Reset
   const [resetEmailError, setResetEmailError] = useState('');
   const [newPasswordError, setNewPasswordError] = useState('');
@@ -42,7 +47,7 @@ export default function App() {
     let hasError = false;
     
     if (!id) {
-      setLoginIdError('ID를 입력해 주세요.');
+      setLoginIdError('이메일을 입력해 주세요.');
       hasError = true;
     } else {
       setLoginIdError('');
@@ -52,14 +57,40 @@ export default function App() {
       setLoginPasswordError('비밀번호를 입력해 주세요.');
       hasError = true;
     } else {
-      // Mock error for invalid credentials
-      setLoginPasswordError('ID 또는 비밀번호가 일치하지 않습니다.');
-      hasError = true;
+      setLoginPasswordError('');
     }
 
     if (hasError) return;
     
-    console.log('Login attempt', { id, password });
+    // ID가 'admin'(등록됨)이 아니면, 신규 가입자(미등록)로 간주하여 OTP 등록으로 이동
+    if (id === 'admin') {
+      setView('otp_verify');
+    } else {
+      setView('otp_register');
+    }
+    setOtpCode('');
+    setOtpError('');
+  };
+
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode || otpCode.length !== 6) {
+      setOtpError('6자리 인증 코드를 입력해 주세요.');
+      return;
+    }
+    setOtpError('');
+    setView('dashboard');
+  };
+
+  const handleRegisterOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode || otpCode.length !== 6) {
+      setOtpError('6자리 인증 코드를 입력해 주세요.');
+      return;
+    }
+    setOtpError('');
+    showToast('OTP 등록이 완료되었습니다.');
+    setView('dashboard');
   };
 
   const validateEmail = (email: string) => {
@@ -135,74 +166,279 @@ export default function App() {
     }
   };
 
+  if (view.startsWith('dashboard')) {
+    let initialMenu = 'main';
+    let initialSubMenu = 'dashboard';
+    let initialRegisterConfig: any = undefined;
+    
+    if (view === 'dashboard_tenant') {
+      initialMenu = 'enterprise';
+      initialSubMenu = 'tenant_list';
+    } else if (view === 'dashboard_ent_list') {
+      initialMenu = 'enterprise';
+      initialSubMenu = 'ent_list';
+    } else if (view.startsWith('dashboard_ent_register')) {
+      initialMenu = 'enterprise';
+      initialSubMenu = 'ent_register';
+      if (view === 'dashboard_ent_register') {
+        initialRegisterConfig = { step: 1, mode: 'manual' };
+      } else if (view === 'dashboard_ent_register_excel') {
+        initialRegisterConfig = { step: 1, mode: 'excel' };
+      } else if (view === 'dashboard_ent_register_excel_uploaded') {
+        initialRegisterConfig = { step: 1, mode: 'excel', action: 'uploaded' };
+      } else if (view === 'dashboard_ent_register_delete') {
+        initialRegisterConfig = { step: 1, mode: 'manual', action: 'delete' };
+      } else if (view === 'dashboard_ent_register_step2') {
+        initialRegisterConfig = { step: 2 };
+      } else if (view === 'dashboard_ent_register_step3') {
+        initialRegisterConfig = { step: 3 };
+      }
+    } else if (view === 'dashboard_ent_users') {
+      initialMenu = 'enterprise';
+      initialSubMenu = 'ent_users';
+    } else if (view === 'dashboard_fund_status') {
+      initialMenu = 'enterprise';
+      initialSubMenu = 'fund_status';
+    } else if (view === 'dashboard_exception_management') {
+      initialMenu = 'enterprise';
+      initialSubMenu = 'exception_management';
+    } else if (view === 'dashboard_admin_list') {
+      initialMenu = 'admin';
+      initialSubMenu = '';
+    } else if (view === 'dashboard_menu_management') {
+      initialMenu = 'menu_manage';
+      initialSubMenu = '';
+    } else if (view === 'dashboard_notice_list') {
+      initialMenu = 'content';
+      initialSubMenu = 'notice';
+    } else if (view === 'dashboard_banner_management') {
+      initialMenu = 'content';
+      initialSubMenu = 'banner';
+    } else if (view === 'dashboard_faq_management') {
+      initialMenu = 'content';
+      initialSubMenu = 'faq';
+    } else if (view === 'dashboard_email_template') {
+      initialMenu = 'content';
+      initialSubMenu = 'email_template';
+    } else if (view === 'dashboard_push_mgmt') {
+      initialMenu = 'content';
+      initialSubMenu = 'push_mgmt';
+    } else if (view === 'dashboard_code') {
+      initialMenu = 'code';
+      initialSubMenu = 'code_manage';
+    } else if (view === 'dashboard_message') {
+      initialMenu = 'code';
+      initialSubMenu = 'message_manage';
+    } else if (view === 'dashboard_statistics') {
+      initialMenu = 'statistics';
+      initialSubMenu = '';
+    } else if (view === 'dashboard_log_history') {
+      initialMenu = 'logs';
+      initialSubMenu = 'work_history';
+    } else if (view === 'dashboard_firmbanking_fail') {
+      initialMenu = 'logs';
+      initialSubMenu = 'firmbanking_fail';
+    } else if (view === 'dashboard_service_status') {
+      initialMenu = 'monitoring';
+      initialSubMenu = 'service_status';
+    }
+
+    return (
+      <>
+        <Dashboard onLogout={() => setView('login')} initialMenu={initialMenu} initialSubMenu={initialSubMenu} initialRegisterConfig={initialRegisterConfig} />
+        <button
+          onClick={() => setView('gate')}
+          className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
+        >
+          목록으로 이동
+        </button>
+      </>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans pb-20">
+    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center p-4 font-sans pb-20">
       <motion.div
-        className="max-w-[460px] w-full"
+        className={`${view === 'gate' ? 'max-w-[1200px]' : 'max-w-[460px]'} w-full transition-all duration-500`}
       >
-        <div className="bg-white rounded-2xl border border-gray-200 p-8 sm:p-12 shadow-sm relative overflow-hidden">
+        <div className="bg-white rounded-xl border border-[#E5E8EB] p-8 lg:p-12 shadow-none relative overflow-hidden">
         
           <AnimatePresence mode="wait">
             {view === 'gate' && (
-              <motion.div key="gate" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }} className="text-center py-6">
-                <h2 className="text-[20px] font-bold text-gray-900 mb-8">화면 퍼블리싱 목록</h2>
-                <div className="flex flex-col space-y-3">
-                  <button onClick={() => setView('login')} className="w-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200">
-                    로그인
-                  </button>
-                  <button onClick={() => setView('reset_email')} className="w-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200">
-                    비밀번호 재설정 - 이메일 인증
-                  </button>
-                  <button onClick={() => setView('reset_password')} className="w-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200">
-                    비밀번호 재설정 - 새 비밀번호 설정
-                  </button>
-                  <button onClick={() => setView('reset_complete')} className="w-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200">
-                    비밀번호 재설정 - 완료
-                  </button>
+              <motion.div key="gate" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }} className="py-2">
+                <div className="text-center mb-10">
+                  <h2 className="text-[24px] font-bold text-gray-900 mb-2">화면 퍼블리싱 목록</h2>
+                  <p className="text-gray-500 text-sm">현재 구현된 화면 및 피처 목록입니다.</p>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[650px] overflow-y-auto pr-4 custom-scrollbar">
+                  {/* Category: Utility */}
+                  <div className="space-y-4">
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1">유틸리티</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('login')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        로그인 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('reset_email')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        비밀번호 변경 (이메일 인증) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('reset_password')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        비밀번호 변경 (새 비밀번호 설정) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('otp_register')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        OTP 등록 (Google OTP) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">메인</h3>
+                    <div className="space-y-2">
+                      <button onClick={() => setView('dashboard')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        대시보드 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">기업 관리</h3>
+                    <div className="space-y-2">
+                      <button onClick={() => setView('dashboard_tenant')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        테넌트 조회 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_list')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        기업 조회 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_list')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 기업 정보 수정 (팝업) <span className="text-xs text-[#008d75] font-bold">Popup</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_register')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 기업 대량 등록 (엑셀) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_register_step2')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ VAN/펌뱅킹 ID 등록 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_register_step3')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 기업 인터페이스 설정 <span className="text-xs text-[#008d75] font-bold">New</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_users')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        기업별 사용자 목록 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_fund_status')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        자금 현황 조회 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_exception_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        타행계좌 예외 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_admin_list')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 관리자 등록 (팝업) <span className="text-xs text-[#008d75] font-bold">Popup</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">메뉴 관리</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_menu_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        메뉴 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_menu_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 메뉴 등록 / 수정 (팝업) <span className="text-xs text-[#008d75] font-bold">Popup</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">콘텐츠 관리</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_notice_list')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        공지사항 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_banner_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        배너 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_faq_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        FAQ 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_email_template')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        이메일 템플릿 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_push_mgmt')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        PUSH 알림 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Category: System & Others */}
+                  <div className="space-y-4">
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1">코드 관리</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_code')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        코드 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                       <button onClick={() => setView('dashboard_message')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        메시지 관리 <span className="text-xs text-[#008d75] font-bold">New</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">로그 관리</h3>
+                    <div className="space-y-2">
+                      <button onClick={() => setView('dashboard_log_history')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        작업 이력 (로그) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_firmbanking_fail')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        펌뱅킹 실패 현황 <span className="text-xs text-[#008d75] font-bold">New</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">시스템 모니터링</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_service_status')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        서비스 상태 <span className="text-xs text-[#008d75] font-bold">New</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">통계</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_statistics')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        통계 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
 
             {view === 'login' && (
               <motion.div key="login" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
-                {/* Header area clearly indicating Admin/Backoffice */}
                 <div className="text-center mb-10">
-                  <h1 className="text-[28px] font-bold text-gray-900 tracking-tight mb-3">
-                    하나은행 전사 ERP 시스템 관리자
+                  <h1 className="text-[28px] font-bold text-[#191F28] tracking-tight mb-3 leading-tight">
+                    하나은행 ERP 뱅킹<br />통합 관리 시스템
                   </h1>
-                  <h2 className="text-lg font-medium text-gray-800 mb-4">
-                    마스터 백오피스 로그인
+                  <h2 className="text-lg font-medium text-[#4E5968] mb-4">
+                    통합 관리시스템 로그인
                   </h2>
-                  <p className="text-[13px] text-gray-500 leading-relaxed max-w-[280px] mx-auto">
-                    모든 기업의 ERP 시스템 통합 관리 및<br/>
-                    운영을 위한 마스터 관리자 전용 페이지입니다.
+                  <p className="text-[14px] text-[#8B95A1] leading-relaxed max-w-[280px] mx-auto">
+                    기업 자금 관리, 더 빠르고 간편하게<br/>
+                    이체, 집금, 조회 업무를 ERP 뱅킹에서 한 번에 처리해보세요.
                   </p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6" noValidate>
                   <div className="space-y-1.5 relative">
-                    <label htmlFor="adminId" className="block text-sm font-semibold text-gray-800">
-                      마스터 관리자 사번 (ID)
+                    <label htmlFor="adminId" className="block text-[14px] font-semibold text-[#191F28]">
+                      이메일 (ID)
                     </label>
                     <input
                       id="adminId"
-                      type="text"
-                      placeholder="사번을 입력하세요"
+                      type="email"
+                      placeholder="이메일 입력"
                       value={id}
                       onChange={(e) => {
                         setId(e.target.value);
                         if (loginIdError) setLoginIdError('');
                       }}
                       onBlur={() => {
-                        if (!id) setLoginIdError('ID를 입력해 주세요.');
+                        if (!id) setLoginIdError('이메일을 입력해 주세요.');
                       }}
-                      className={`w-full px-4 py-3.5 rounded-lg border ${loginIdError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-[#008d75] focus:border-[#008d75]'} transition-colors outline-none text-sm placeholder-gray-400`}
+                      className={`w-full px-4 h-[44px] rounded-lg border ${loginIdError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
                     />
                     {loginIdError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{loginIdError}</p>}
                   </div>
 
                   <div className={`space-y-1.5 relative ${loginIdError ? 'mt-8' : 'mt-6'}`}>
-                    <label htmlFor="password" className="block text-sm font-semibold text-gray-800">
+                    <label htmlFor="password" className="block text-[14px] font-semibold text-[#191F28]">
                       비밀번호
                     </label>
                     <div className="relative">
@@ -218,65 +454,155 @@ export default function App() {
                         onBlur={() => {
                           if (!password) setLoginPasswordError('비밀번호를 입력해 주세요.');
                         }}
-                        className={`w-full px-4 py-3.5 pr-10 rounded-lg border ${loginPasswordError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-[#008d75] focus:border-[#008d75]'} transition-colors outline-none text-sm placeholder-gray-400`}
+                        className={`w-full px-4 h-[44px] pr-10 rounded-lg border ${loginPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowLoginPassword(!showLoginPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
                       >
-                        {showLoginPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showLoginPassword ? '숨기기' : '보기'}
                       </button>
                     </div>
                     {loginPasswordError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{loginPasswordError}</p>}
                   </div>
 
-                  <div className={`flex items-center ${loginPasswordError ? 'mt-8' : 'mt-4'}`}>
+                  <div className={`flex items-center justify-between ${loginPasswordError ? 'mt-8' : 'mt-4'}`}>
                     <div className="flex items-center h-5">
                       <input
                         id="rememberMe"
                         type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-[#008d75] focus:ring-[#008d75] cursor-pointer accent-[#008d75]"
+                        className="h-4 w-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
                       />
-                    </div>
-                    <div className="ml-2 text-sm">
-                      <label htmlFor="rememberMe" className="text-gray-700 cursor-pointer">
-                        사번 저장
+                      <label htmlFor="rememberMe" className="ml-2 text-sm text-[#4E5968] cursor-pointer">
+                        아이디 저장
                       </label>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setView('reset_email')}
+                      className="text-sm text-[#4E5968] hover:text-[#008d75] transition-colors"
+                    >
+                      비밀번호 설정
+                    </button>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full mt-2 bg-[#008485] hover:bg-[#007071] text-white font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008485]"
+                    className="w-full mt-2 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] py-4 h-[52px] rounded-lg transition-all duration-200 flex items-center justify-center shadow-sm"
                   >
-                    마스터 계정으로 로그인
+                    로그인
                   </button>
                 </form>
+              </motion.div>
+            )}
 
-                <div className="mt-8 pt-8 border-t border-gray-100 flex justify-center items-center space-x-6 text-[13px] font-medium text-gray-600">
-                  <a href="#" className="hover:text-gray-900 transition-colors underline underline-offset-4 decoration-gray-300">마스터 권한 요청</a>
-                  <span className="text-gray-300 border-l border-gray-300 h-3" aria-hidden="true"></span>
-                  <button type="button" onClick={() => {
-                    setView('reset_email');
-                    setIsCodeSent(false);
-                    setResetLoginId('');
-                    setResetEmail('');
-                    setVerificationCode('');
-                    setResetEmailError('');
-                    setVerificationCodeError('');
-                    setLoginIdError('');
-                    setLoginPasswordError('');
-                  }} className="hover:text-gray-900 transition-colors underline underline-offset-4 decoration-gray-300">시스템 비밀번호 재설정</button>
+            {view === 'otp_register' && (
+              <motion.div key="otp_register" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
+                <form onSubmit={handleRegisterOtp} className="space-y-6" noValidate>
+                  <div className="space-y-1.5 relative">
+                    <label htmlFor="registerOtp" className="block text-[14px] font-semibold text-[#191F28]">
+                      인증 코드
+                    </label>
+                    <input
+                      id="registerOtp"
+                      type="text"
+                      placeholder="인증 앱에 표시된 6자리 숫자 입력"
+                      value={otpCode}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        if (val.length <= 6) setOtpCode(val);
+                        if (otpError) setOtpError('');
+                      }}
+                      className={`w-full px-4 h-[44px] rounded-lg border ${otpError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1] tracking-widest text-center`}
+                      maxLength={6}
+                    />
+                    {otpError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{otpError}</p>}
+                  </div>
+
+                  <div className={`flex space-x-3 ${otpError ? 'pt-6' : 'pt-2'}`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setView('login');
+                        setOtpError('');
+                        setOtpCode('');
+                      }}
+                      className="flex-1 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      설정 완료 및 로그인
+                    </button>
+                  </div>
+
+                </form>
+              </motion.div>
+            )}
+
+            {view === 'otp_verify' && (
+              <motion.div key="otp_verify" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
+                <div className="text-center mb-10">
+                  <h2 className="text-[22px] font-bold text-[#191F28] mb-3">2단계 인증</h2>
+                  <p className="text-[14px] text-[#4E5968] leading-relaxed">
+                    Google 인증 앱을 열고<br/>
+                    6자리 코드를 입력해 주세요.
+                  </p>
                 </div>
+
+                <form onSubmit={handleVerifyOtp} className="space-y-6" noValidate>
+                  <div className="space-y-1.5 relative">
+                    <label htmlFor="verifyOtp" className="block text-[14px] font-semibold text-[#191F28] text-center">
+                      6자리 인증 코드
+                    </label>
+                    <input
+                      id="verifyOtp"
+                      type="text"
+                      placeholder="000000"
+                      value={otpCode}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        if (val.length <= 6) setOtpCode(val);
+                        if (otpError) setOtpError('');
+                      }}
+                      className={`w-full px-4 h-[64px] rounded-lg border ${otpError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-2xl placeholder-[#E5E8EB] font-serif tracking-[0.5em] text-center`}
+                      maxLength={6}
+                    />
+                    {otpError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 w-full text-center">{otpError}</p>}
+                  </div>
+
+                  <div className={`flex space-x-3 ${otpError ? 'pt-6' : 'pt-2'}`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setView('login');
+                        setOtpError('');
+                        setOtpCode('');
+                      }}
+                      className="w-1/3 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-2/3 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      인증하기
+                    </button>
+                  </div>
+                </form>
               </motion.div>
             )}
 
             {view === 'reset_email' && (
               <motion.div key="reset_email" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
                 <div className="text-center mb-10">
-                  <h2 className="text-xl font-bold text-gray-900 mb-3">비밀번호 재설정</h2>
-                  <p className="text-[13px] text-gray-600 leading-relaxed">
+                  <h2 className="text-xl font-bold text-[#191F28] mb-3">비밀번호 재설정</h2>
+                  <p className="text-[13px] text-[#4E5968] leading-relaxed">
                     비밀번호를 재설정하려면 본인인증이 필요합니다.<br/>
                     본인인증은 기업에서 공통으로 설정한 인증방법으로 진행됩니다.
                   </p>
@@ -284,23 +610,23 @@ export default function App() {
 
                 <form onSubmit={isCodeSent ? handleVerifyCode : handleSendEmail} className="space-y-6" noValidate>
                   <div className="space-y-1.5">
-                    <label htmlFor="resetLoginId" className="block text-sm font-semibold text-gray-800">
-                      아이디 (ID)
+                    <label htmlFor="resetLoginId" className="block text-sm font-semibold text-[#191F28]">
+                      이메일 (ID)
                     </label>
                     <input
                       id="resetLoginId"
-                      type="text"
-                      placeholder="사번을 입력하세요"
+                      type="email"
+                      placeholder="이메일을 입력하세요"
                       value={resetLoginId}
                       onChange={(e) => setResetLoginId(e.target.value)}
                       disabled={isCodeSent}
-                      className="w-full px-4 py-3.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#008d75] focus:border-[#008d75] transition-colors outline-none text-sm placeholder-gray-400 disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed"
+                      className="w-full px-4 h-[44px] rounded-lg border border-[#D1D6DB] focus:border-[#008d75] transition-all outline-none text-sm placeholder-[#8B95A1] disabled:bg-[#F2F4F6] disabled:border-[#E5E8EB] disabled:text-[#8B95A1] disabled:shadow-none disabled:cursor-not-allowed"
                       required
                     />
                   </div>
 
                   <div className="space-y-1.5 relative">
-                    <label htmlFor="resetEmail" className="block text-sm font-semibold text-gray-800">
+                    <label htmlFor="resetEmail" className="block text-sm font-semibold text-[#191F28]">
                       이메일
                     </label>
                     <input
@@ -316,7 +642,7 @@ export default function App() {
                         if (!isCodeSent) setResetEmailError(validateEmail(resetEmail));
                       }}
                       disabled={isCodeSent}
-                      className={`w-full px-4 py-3.5 rounded-lg border ${resetEmailError && !isCodeSent ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-[#008d75] focus:border-[#008d75]'} transition-colors outline-none text-sm placeholder-gray-400 disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed`}
+                      className={`w-full px-4 h-[44px] rounded-lg border ${resetEmailError && !isCodeSent ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1] disabled:bg-[#F2F4F6] disabled:border-[#E5E8EB] disabled:text-[#8B95A1] disabled:shadow-none disabled:cursor-not-allowed`}
                     />
                     {!isCodeSent && resetEmailError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{resetEmailError}</p>}
                   </div>
@@ -325,10 +651,10 @@ export default function App() {
                     <motion.div initial={{opacity: 0, height: 0}} animate={{opacity: 1, height: 'auto'}} transition={{duration: 0.3}} className={`space-y-6 ${resetEmailError ? 'pt-6' : 'pt-2'}`}>
                        <div className="space-y-1.5">
                          <div className="flex justify-between items-end mb-2">
-                           <label htmlFor="verifyCode" className="block text-sm font-semibold text-gray-800">
+                           <label htmlFor="verifyCode" className="block text-sm font-semibold text-[#191F28]">
                              인증번호 입력
                            </label>
-                           <button type="button" onClick={handleResendCode} className="text-xs font-medium text-[#008d75] hover:text-[#007071] transition-colors">
+                           <button type="button" onClick={handleResendCode} className="text-xs font-medium text-[#008d75] hover:text-[#007a65] transition-colors">
                              재발송
                            </button>
                          </div>
@@ -344,14 +670,14 @@ export default function App() {
                            onBlur={() => {
                              setVerificationCodeError(validateCode(verificationCode));
                            }}
-                           className={`w-full px-4 py-3.5 rounded-lg border ${verificationCodeError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-[#008d75] focus:border-[#008d75]'} transition-colors outline-none text-sm placeholder-gray-400 uppercase`}
+                           className={`w-full px-4 h-[44px] rounded-lg border ${verificationCodeError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1] uppercase tracking-[0.2em] font-medium`}
                            maxLength={5}
                            required
                          />
                          {verificationCodeError ? (
                            <p className="text-red-500 text-xs mt-2">{verificationCodeError}</p>
                          ) : (
-                           <p className="text-xs text-gray-500 mt-2">
+                           <p className="text-xs text-[#8B95A1] mt-2">
                              메일로 받은 인증번호를 입력해 주세요. (스팸함 확인)
                            </p>
                          )}
@@ -369,13 +695,13 @@ export default function App() {
                           setLoginIdError('');
                           setLoginPasswordError('');
                         }}
-                        className="flex-1 bg-white hover:bg-gray-50 text-gray-600 border border-gray-300 font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200"
+                        className="flex-1 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-colors duration-200"
                       >
                         취소
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 bg-[#009b82] hover:bg-[#008485] text-white font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008485]"
+                        className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                       >
                         이메일 발송
                       </button>
@@ -390,13 +716,13 @@ export default function App() {
                           setResetEmailError('');
                           setVerificationCodeError('');
                         }}
-                        className="w-[100px] shrink-0 bg-white hover:bg-gray-50 text-gray-600 border border-gray-300 font-medium text-[14px] py-4 px-2 rounded-lg transition-colors duration-200"
+                        className="w-[100px] shrink-0 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[14px] h-[52px] rounded-lg transition-colors duration-200"
                       >
                         이전
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 bg-[#009b82] hover:bg-[#008485] text-white font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008485]"
+                        className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                       >
                         인증 확인
                       </button>
@@ -409,8 +735,8 @@ export default function App() {
             {view === 'reset_password' && (
               <motion.div key="reset_password" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
                 <div className="text-center mb-10">
-                  <h2 className="text-xl font-bold text-gray-900 mb-3">새 비밀번호 설정</h2>
-                  <p className="text-[13px] text-gray-600 leading-relaxed">
+                  <h2 className="text-xl font-bold text-[#191F28] mb-3">새 비밀번호 설정</h2>
+                  <p className="text-[13px] text-[#4E5968] leading-relaxed">
                     인증이 완료되었습니다.<br/>
                     로그인에 사용할 새 비밀번호를 입력해 주세요.
                   </p>
@@ -418,7 +744,7 @@ export default function App() {
 
                 <form onSubmit={handleSetNewPassword} className="space-y-6" noValidate>
                   <div className="space-y-1.5 relative">
-                    <label htmlFor="newPassword" className="block text-[14px] font-semibold text-gray-800">
+                    <label htmlFor="newPassword" className="block text-[14px] font-semibold text-[#191F28]">
                       비밀번호
                     </label>
                     <div className="relative">
@@ -433,27 +759,27 @@ export default function App() {
                           if (confirmPassword) setConfirmPasswordError(validateConfirmPassword(confirmPassword, e.target.value));
                         }}
                         onBlur={(e) => setNewPasswordError(validateNewPassword(e.target.value))}
-                        className={`w-full px-4 py-3.5 pr-10 rounded-lg border ${newPasswordError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-[#008d75] focus:border-[#008d75]'} transition-colors outline-none text-sm placeholder-gray-400`}
+                        className={`w-full px-4 h-[44px] pr-10 rounded-lg border ${newPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
                       >
-                        {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showNewPassword ? '숨기기' : '보기'}
                       </button>
                     </div>
                     {newPasswordError ? (
                       <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{newPasswordError}</p>
                     ) : (
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-[#8B95A1] mt-2">
                         * 영문 소문자, 영문 대문자, 숫자, 특수문자 중 3가지 이상을 포함해 주세요.
                       </p>
                     )}
                   </div>
 
                   <div className={`space-y-1.5 relative ${newPasswordError ? 'mt-8' : 'mt-6'}`}>
-                    <label htmlFor="confirmPassword" className="block text-[14px] font-semibold text-gray-800">
+                    <label htmlFor="confirmPassword" className="block text-[14px] font-semibold text-[#191F28]">
                       비밀번호 확인
                     </label>
                     <div className="relative">
@@ -467,14 +793,14 @@ export default function App() {
                           if (confirmPasswordError) setConfirmPasswordError('');
                         }}
                         onBlur={(e) => setConfirmPasswordError(validateConfirmPassword(e.target.value, newPassword))}
-                        className={`w-full px-4 py-3.5 pr-10 rounded-lg border ${confirmPasswordError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-[#008d75] focus:border-[#008d75]'} transition-colors outline-none text-sm placeholder-gray-400`}
+                        className={`w-full px-4 h-[44px] pr-10 rounded-lg border ${confirmPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
                       >
-                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showConfirmPassword ? '숨기기' : '보기'}
                       </button>
                     </div>
                     {confirmPasswordError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{confirmPasswordError}</p>}
@@ -490,13 +816,13 @@ export default function App() {
                         setLoginIdError('');
                         setLoginPasswordError('');
                       }}
-                      className="flex-1 bg-white hover:bg-gray-50 text-gray-600 border border-gray-300 font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200"
+                      className="flex-1 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-colors duration-200"
                     >
                       취소
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 bg-[#009b82] hover:bg-[#008485] text-white font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008485]"
+                      className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                     >
                       비밀번호 변경
                     </button>
@@ -507,8 +833,8 @@ export default function App() {
 
             {view === 'reset_complete' && (
               <motion.div key="reset_complete" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }} className="text-center py-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">비밀번호 설정 완료</h2>
-                <p className="text-[13px] text-gray-600 leading-relaxed mb-10">
+                <h2 className="text-xl font-bold text-[#191F28] mb-3">비밀번호 설정 완료</h2>
+                <p className="text-[13px] text-[#4E5968] leading-relaxed mb-10">
                   비밀번호가 정상적으로 설정되었습니다.<br/>
                   변경한 비밀번호로 로그인해 서비스를 이용해 주세요.
                 </p>
@@ -527,7 +853,7 @@ export default function App() {
                     setLoginIdError('');
                     setLoginPasswordError('');
                   }}
-                  className="w-full bg-[#009b82] hover:bg-[#008485] text-white font-medium text-[15px] py-4 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008485]"
+                  className="w-full bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                 >
                   로그인
                 </button>
@@ -550,7 +876,7 @@ export default function App() {
           >
             <span>{toastMessage}</span>
             <button onClick={() => setToastMessage(null)} className="text-gray-400 hover:text-white transition-colors ml-4 focus:outline-none">
-              <X className="w-4 h-4" />
+              
             </button>
           </motion.div>
         )}
@@ -559,7 +885,7 @@ export default function App() {
       {view !== 'gate' && (
         <button
           onClick={() => setView('gate')}
-          className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
+          className="fixed bottom-6 right-6 bg-[#191F28] hover:bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-none transition-all z-50 backdrop-blur-sm"
         >
           목록으로 이동
         </button>

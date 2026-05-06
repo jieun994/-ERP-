@@ -2,14 +2,45 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --color-primary: #008d75;
+  --color-primary-hover: #007a65;
+  --color-bg-gray: #F9FAFB;
+  --color-border-gray: #E5E8EB;
+  --color-text-main: #191F28;
+  --color-text-sub: #8B95A1;
+  --color-input-border: #D1D6DB;
+  --color-table-head: #F2F4F6;
+  --color-status-on: #008d75;
+  --color-status-off: #8B95A1;
+
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Inter", system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
-/* 크롬 등 브라우저 자동완성(Autofill) 배경색 및 글자색 무효화 (비활성화 상태) */
-input:disabled:-webkit-autofill,
-input:disabled:-webkit-autofill:hover, 
-input:disabled:-webkit-autofill:focus, 
-input:disabled:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0px 1000px #f3f4f6 inset !important;
-    -webkit-text-fill-color: #9ca3af !important;
+@layer base {
+  body {
+    @apply bg-bg-gray text-text-main text-[14px] font-sans antialiased;
+  }
+  
+  input, select, textarea {
+    @apply outline-none transition-all;
+  }
+
+  /* Remove default focus ring for cleaner flat look */
+  *:focus {
+    @apply outline-none;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E5E8EB;
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #D1D6DB;
 }
