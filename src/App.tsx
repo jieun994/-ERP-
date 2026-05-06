@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { X, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Dashboard from './Dashboard';
@@ -245,7 +245,6 @@ export default function App() {
     }
 
     return (
-  <BrowserRouter>
     <Routes>
       <Route path="*" element={
         <>
@@ -259,7 +258,6 @@ export default function App() {
         </>
       } />
     </Routes>
-  </BrowserRouter>
 );
   }
 
