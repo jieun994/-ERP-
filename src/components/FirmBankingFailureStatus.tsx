@@ -192,7 +192,7 @@ export default function FirmBankingFailureStatus() {
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">서비스 구분</span>
             <select 
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors appearance-none"
+              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
               value={searchParams.serviceType}
               onChange={e => setSearchParams({...searchParams, serviceType: e.target.value})}
             >
@@ -238,7 +238,7 @@ export default function FirmBankingFailureStatus() {
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">실패 단계</span>
             <select 
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors appearance-none"
+              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
               value={searchParams.failureStep}
               onChange={e => setSearchParams({...searchParams, failureStep: e.target.value})}
             >

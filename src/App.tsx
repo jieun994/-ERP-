@@ -7,7 +7,7 @@ import Dashboard from './Dashboard';
 // ... (keep ViewState and other states, but we'll adapt them)
 
 export default function App() {
-  const [view, setView] = useState<ViewState>('gate');
+  const [view, setView] = useState<string>('gate');
   
   // Login states
   const [id, setId] = useState('');
@@ -504,25 +504,44 @@ export default function App() {
 
             {view === 'otp_register' && (
               <motion.div key="otp_register" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
+                <div className="text-center mb-8">
+                  <h2 className="text-[22px] font-bold text-[#191F28] mb-3">2단계 인증 (OTP) 등록</h2>
+                  <p className="text-[14px] text-[#4E5968] leading-relaxed">
+                    스마트폰에 설치된 <strong>Google OTP 앱</strong>을 실행하여<br/>아래 바코드를 스캔해 주세요.
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center justify-center mb-8">
+                  <div className="w-[160px] h-[160px] bg-white p-3 border border-[#E5E8EB] rounded-lg shadow-sm flex items-center justify-center mb-4 relative group">
+                     {/* Placeholder for QR Code */}
+                     <div className="w-full h-full bg-[#191F28] rounded-sm opacity-5 flex items-center justify-center" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), repeating-linear-gradient(45deg, #000 25%, #fff 25%, #fff 75%, #000 75%, #000)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }}></div>
+                     <span className="absolute text-[13px] font-bold text-[#191F28]">QR Code</span>
+                  </div>
+                  <div className="w-full text-center bg-[#F9FAFB] py-3 rounded-lg border border-[#E5E8EB] relative">
+                    <p className="text-[12px] text-[#8B95A1] mb-1">바코드 스캔 불가 시 설정 키 입력</p>
+                    <p className="text-[15px] font-mono font-medium text-[#191F28] tracking-widest">ABCD EFGH IJKL MNOP</p>
+                  </div>
+                </div>
+
                 <form onSubmit={handleRegisterOtp} className="space-y-6" noValidate>
                   <div className="space-y-1.5 relative">
-                    <label htmlFor="registerOtp" className="block text-[14px] font-semibold text-[#191F28]">
-                      인증 코드
+                    <label htmlFor="registerOtp" className="block text-[14px] font-semibold text-[#191F28] text-center">
+                      앱에 표시된 6자리 인증 코드 입력
                     </label>
                     <input
                       id="registerOtp"
                       type="text"
-                      placeholder="인증 앱에 표시된 6자리 숫자 입력"
+                      placeholder="000 000"
                       value={otpCode}
                       onChange={(e) => {
                         const val = e.target.value.replace(/[^0-9]/g, '');
                         if (val.length <= 6) setOtpCode(val);
                         if (otpError) setOtpError('');
                       }}
-                      className={`w-full px-4 h-[44px] rounded-lg border ${otpError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1] tracking-widest text-center`}
+                      className={`w-full px-4 h-[56px] rounded-lg border ${otpError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-xl placeholder-[#D1D6DB] tracking-[0.5em] text-center font-mono`}
                       maxLength={6}
                     />
-                    {otpError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{otpError}</p>}
+                    {otpError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 w-full text-center">{otpError}</p>}
                   </div>
 
                   <div className={`flex space-x-3 ${otpError ? 'pt-6' : 'pt-2'}`}>
@@ -533,15 +552,15 @@ export default function App() {
                         setOtpError('');
                         setOtpCode('');
                       }}
-                      className="flex-1 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                      className="w-1/3 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                     >
                       취소
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                      className="w-2/3 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                     >
-                      설정 완료 및 로그인
+                      등록 완료
                     </button>
                   </div>
 

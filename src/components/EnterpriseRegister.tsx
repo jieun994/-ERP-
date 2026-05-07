@@ -39,6 +39,7 @@ const VanFirmBankingRegistration = ({ enterprises }) => {
         <div className="flex-1 p-6 overflow-y-auto">
             {selectedEnt ? (
                 <div className="space-y-6">
+                    <h3 className="text-[16px] font-bold text-gray-900 pb-4 border-b border-gray-200">{selectedEnt.name}</h3>
                     {/* 기본 연동 정보 */}
                     <div>
                         <label className="block text-[13px] font-semibold text-gray-700 mb-2">기본 연동 정보</label>

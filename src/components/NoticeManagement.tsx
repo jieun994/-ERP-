@@ -231,7 +231,7 @@ export default function NoticeManagement() {
             <select 
               value={searchTopic}
               onChange={(e) => setSearchTopic(e.target.value)}
-              className="w-40 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all appearance-none"
+              className="w-40 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               <option value="title">제목</option>
               <option value="content">내용</option>

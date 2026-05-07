@@ -139,7 +139,7 @@ export default function LogManagement() {
             <select 
               value={classificationFilter}
               onChange={(e) => setClassificationFilter(e.target.value)}
-              className="w-36 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-colors appearance-none"
+              className="w-36 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-colors"
             >
               <option value="ALL">전체</option>
               <option value="AUDIT">AUDIT</option>
@@ -165,7 +165,7 @@ export default function LogManagement() {
             <select 
               value={searchStatus}
               onChange={(e) => setSearchStatus(e.target.value)}
-              className="w-36 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-colors appearance-none"
+              className="w-36 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-colors"
             >
               <option value="ALL">전체</option>
               <option value="SUCCESS">성공</option>

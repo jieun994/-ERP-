@@ -130,7 +130,7 @@ export default function PushNotificationManagement() {
   };
 
   const saveForm = () => {
-    if (!formData.name || !formData.content || !formData.targetValue) {
+    if (!formData.name || !formData.content) {
       alert('필수 항목을 모두 입력해 주세요.');
       return;
     }
@@ -254,7 +254,6 @@ export default function PushNotificationManagement() {
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-48">템플릿명</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">메시지 내용</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-28">대상 유형</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-32">발송 대상</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-24">사용 여부</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center">최종수정일시</th>
               </tr>
@@ -262,7 +261,7 @@ export default function PushNotificationManagement() {
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-20 text-center text-[#8B95A1] text-[14px]">
+                  <td colSpan={7} className="py-20 text-center text-[#8B95A1] text-[14px]">
                     조건에 맞는 데이터가 없습니다.
                   </td>
                 </tr>
@@ -286,9 +285,6 @@ export default function PushNotificationManagement() {
                     </td>
                     <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB]">
                       {item.targetType === 'USER' ? '사용자' : '기업'}
-                    </td>
-                    <td className="px-4 text-center border-r border-[#E5E8EB]">
-                      <span className="font-mono text-[13px] text-[#8B95A1]">{item.targetValue}</span>
                     </td>
                     <td className="px-4 text-center border-r border-[#E5E8EB]">
                       <span className={`text-[13px] font-bold ${
@@ -385,77 +381,27 @@ export default function PushNotificationManagement() {
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* 발송 대상 설정 */}
-                <div className="space-y-4 pt-4 border-t border-[#E5E8EB]">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[14px] font-semibold text-[#191F28]">발송 대상 설정</h4>
-                  </div>
-                  
-                  <div className="pl-3 flex bg-[#F9FAFB] p-6 rounded-lg border border-[#E5E8EB] gap-6">
-                    <div className="flex-1 space-y-1.5">
-                      <label className="block text-[13px] font-semibold text-[#4E5968]">대상 유형</label>
-                      <div className="flex bg-white p-1 rounded-md border border-[#D1D6DB]">
-                        <button 
-                          onClick={() => setFormData({ ...formData, targetType: 'USER' })}
-                          className={`flex-1 h-[28px] rounded-sm text-[12px] font-semibold transition-all ${
-                            formData.targetType === 'USER' ? 'bg-[#008d75] text-white' : 'text-[#8B95A1] hover:text-[#191F28]'
-                          }`}
-                        >
-                          사용자
-                        </button>
-                        <button 
-                          onClick={() => setFormData({ ...formData, targetType: 'ENTERPRISE' })}
-                          className={`flex-1 h-[28px] rounded-sm text-[12px] font-semibold transition-all ${
-                            formData.targetType === 'ENTERPRISE' ? 'bg-[#008d75] text-white' : 'text-[#8B95A1] hover:text-[#191F28]'
-                          }`}
-                        >
-                          기업
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex-[2] space-y-1.5">
-                      <label className="block text-[13px] font-semibold text-[#4E5968]">
-                        {formData.targetType === 'USER' ? '사용자 ID/계정' : '기업 코드/사업자번호'} <span className="text-[#F04452]">*</span>
-                      </label>
-                      <div className="relative">
-                        <input 
-                          type="text"
-                          value={formData.targetValue}
-                          onChange={(e) => setFormData({ ...formData, targetValue: e.target.value })}
-                          className="w-full h-[36px] pl-3 pr-9 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]"
-                          placeholder={formData.targetType === 'USER' ? '대상 사용자 검색' : '대상 기업 검색'}
-                        />
-                        <Search className="w-3.5 h-3.5 text-[#8B95A1] absolute right-3 top-1/2 -translate-y-1/2" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="pl-3 text-[12px] text-[#8B95A1] leading-relaxed">
-                    * 전체 발송 또는 다수 대상 일괄 발송은 지원하지 않습니다. 단건 자동 발송 템플릿만 등록 가능합니다.
-                  </p>
+                {/* Action Buttons */}
+                <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
+                  <button 
+                    onClick={closeForm}
+                    className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button 
+                    onClick={saveForm}
+                    className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
+                  >
+                    {editItem ? '저장하기' : '등록하기'}
+                  </button>
                 </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
-                <button 
-                  onClick={closeForm}
-                  className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
-                >
-                  취소
-                </button>
-                <button 
-                  onClick={saveForm}
-                  className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
-                >
-                  {editItem ? '저장하기' : '등록하기'}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       {/* Simple Delete Warning Modal */}
       <AnimatePresence>

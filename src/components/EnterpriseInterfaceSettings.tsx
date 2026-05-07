@@ -63,7 +63,7 @@ export default function EnterpriseInterfaceSettings({ enterprises }: { enterpris
         <div className="flex-1 p-6 overflow-y-auto">
             {selectedEnt ? (
                 <div className="space-y-6">
-                    <h3 className="text-[15px] font-bold text-gray-900 pb-2 border-b border-[#E5E8EB]">{selectedEnt.name} 상세 파라미터</h3>
+                    <h3 className="text-[15px] font-bold text-gray-900 pb-4 border-b border-[#E5E8EB]">{selectedEnt.name} 상세 파라미터</h3>
                     <div className="grid grid-cols-2 gap-4">
                         {[1, 2, 3, 4].map(i => (
                             <div key={i}>

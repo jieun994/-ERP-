@@ -242,7 +242,7 @@ export default function EmailTemplateManagement() {
             <select 
               value={searchType}
               onChange={(e) => setSearchType(e.target.value)}
-              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all appearance-none"
+              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               <option value="">전체</option>
               {DISPATCH_TYPES.map(type => (
@@ -255,7 +255,7 @@ export default function EmailTemplateManagement() {
             <select 
               value={searchStatus}
               onChange={(e) => setSearchStatus(e.target.value)}
-              className="w-32 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all appearance-none"
+              className="w-32 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               <option value="ALL">전체</option>
               <option value="USE">사용</option>

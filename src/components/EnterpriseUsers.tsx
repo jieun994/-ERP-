@@ -58,7 +58,7 @@ export default function EnterpriseUsers() {
         <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-6">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
-            <select className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] appearance-none transition-all">
+            <select className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
               <option value="all">전체</option>
               <option value="TOSS">(주)토스페이먼츠</option>
               <option value="YANOLJA">야놀자</option>
@@ -82,7 +82,7 @@ export default function EnterpriseUsers() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">상태</span>
-            <select className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] appearance-none transition-all">
+            <select className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
               <option value="all">전체</option>
               <option value="normal">정상</option>
               <option value="stopped">중지</option>

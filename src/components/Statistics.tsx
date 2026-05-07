@@ -84,7 +84,7 @@ export default function Statistics() {
             <select 
               value={selectedTenant}
               onChange={(e) => setSelectedTenant(e.target.value)}
-              className="w-80 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all appearance-none"
+              className="w-80 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               {tenants.map(t => (
                 <option key={t.id} value={t.id}>{t.name} ({t.id})</option>

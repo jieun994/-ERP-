@@ -286,7 +286,6 @@ export default function FAQManagement() {
                   />
                 </th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-16 border-r border-[#E5E8EB]">No.</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-32 border-r border-[#E5E8EB]">카테고리</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] border-r border-[#E5E8EB]">질문</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-20 border-r border-[#E5E8EB]">순서</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-24 border-r border-[#E5E8EB]">노출 여부</th>
@@ -296,7 +295,7 @@ export default function FAQManagement() {
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredData.length === 0 ? (
                 <tr>
-                   <td colSpan={7} className="py-20 text-center text-[#8B95A1] text-[14px]">
+                   <td colSpan={6} className="py-20 text-center text-[#8B95A1] text-[14px]">
                     조건에 맞는 결과가 없습니다.
                    </td>
                 </tr>
@@ -314,7 +313,6 @@ export default function FAQManagement() {
                     />
                   </td>
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono border-r border-[#E5E8EB]">{item.no}</td>
-                  <td className="px-4 text-center text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{item.category}</td>
                   <td className="px-4 text-[14px] border-r border-[#E5E8EB]">
                     <div className="font-medium text-[#191F28] truncate max-w-sm xl:max-w-md">
                        {item.question}
@@ -373,29 +371,6 @@ export default function FAQManagement() {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* 카테고리 */}
-                    <div className="space-y-1.5 md:col-span-2">
-                       <label className="block text-[14px] font-semibold text-[#191F28]">카테고리</label>
-                       <select 
-                         value={category}
-                         onChange={(e) => {
-                             setCategory(e.target.value);
-                             if (e.target.value) {
-                                 const next = {...errors};
-                                 delete next.category;
-                                 setErrors(next);
-                             }
-                         }}
-                         className={`w-full max-w-xs h-[40px] px-3 bg-white border ${errors.category ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all`}
-                       >
-                         <option value="">카테고리 선택</option>
-                         {FAQ_CATEGORIES.map(cat => (
-                             <option key={cat} value={cat}>{cat}</option>
-                         ))}
-                       </select>
-                       {errors.category && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.category}</p>}
-                    </div>
-
                     {/* 노출 여부 */}
                     <div className="space-y-1.5">
                         <label className="block text-[14px] font-semibold text-[#191F28] text-sm">노출 여부 <span className="text-[#F04452]">*</span></label>
