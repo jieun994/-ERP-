@@ -74,7 +74,7 @@ export default function NoticeManagement() {
   const [content, setContent] = useState('');
   const [targetType, setTargetType] = useState<'ALL' | 'COMPANY' | 'ERP'>('ALL');
   const [targetDetails, setTargetDetails] = useState<string[]>([]);
-  const [positions, setPositions] = useState<string[]>([]);
+  const [positions, setPositions] = useState<string[]>(['메인화면(대시보드)', '모바일 결재관리']);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isPinned, setIsPinned] = useState(false);
@@ -86,6 +86,7 @@ export default function NoticeManagement() {
   // Filter state
   const [searchTopic, setSearchTopic] = useState('title');
   const [keyword, setKeyword] = useState('');
+  const [visibilityFilter, setVisibilityFilter] = useState('ALL');
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) setSelectedIds(data.map(d => d.id));
@@ -215,10 +216,9 @@ export default function NoticeManagement() {
   };
 
   const filteredData = data.filter(item => {
-    if (keyword) {
-      return item.title.toLowerCase().includes(keyword.toLowerCase());
-    }
-    return true;
+    const matchesKeyword = keyword ? item.title.toLowerCase().includes(keyword.toLowerCase()) : true;
+    const matchesVisibility = visibilityFilter === 'ALL' ? true : (visibilityFilter === 'VISIBLE' ? item.isVisible : !item.isVisible);
+    return matchesKeyword && matchesVisibility;
   });
 
   return (
@@ -246,6 +246,18 @@ export default function NoticeManagement() {
               onChange={(e) => setKeyword(e.target.value)}
               className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">노출여부</span>
+            <select 
+              value={visibilityFilter}
+              onChange={(e) => setVisibilityFilter(e.target.value)}
+              className="w-40 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+            >
+              <option value="ALL">전체</option>
+              <option value="VISIBLE">노출</option>
+              <option value="HIDDEN">미노출</option>
+            </select>
           </div>
         </div>
         <div className="flex flex-col gap-2 shrink-0">
@@ -354,14 +366,11 @@ export default function NoticeManagement() {
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono border-r border-[#E5E8EB]">{item.no}</td>
                   <td className="px-4 text-[14px] border-r border-[#E5E8EB]">
                     <div className="flex items-center gap-2">
-                        {item.isPinned && (
-                            <span className="shrink-0 px-1.5 py-0.5 bg-[#F0445210] text-[#F04452] text-[11px] font-bold rounded">TOP</span>
-                        )}
                         <span className="font-medium text-[#191F28] truncate max-w-[400px]">{item.title}</span>
                     </div>
                   </td>
                   <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">
-                    {item.targetType === 'ALL' ? '전체기업' : item.targetType === 'COMPANY' ? '기업별' : 'ERP별'}
+                    {item.targetType === 'ALL' ? '전체' : item.targetType === 'COMPANY' ? '가비아' : '더존'}
                   </td>
                   <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">
                     <div className="truncate max-w-[150px] mx-auto">
@@ -473,27 +482,19 @@ export default function NoticeManagement() {
                     {/* 게시 대상 */}
                    <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
                     <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
-                    <div className="flex items-center gap-4 mb-3">
-                        {['ALL', 'COMPANY', 'ERP'].map((type) => (
-                            <label key={type} className="flex items-center gap-2 cursor-pointer group">
-                                <input 
-                                    type="radio" 
-                                    name="targetType" 
-                                    value={type}
-                                    checked={targetType === type}
-                                    onChange={() => {
-                                        setTargetType(type as 'ALL' | 'COMPANY' | 'ERP');
-                                        setTargetDetails([]);
-                                        setErrors(prev => ({...prev, targetDetails: ''}));
-                                    }}
-                                    className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
-                                />
-                                <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors font-medium">
-                                    {type === 'ALL' ? '전체기업' : type === 'COMPANY' ? '기업별' : 'ERP별'}
-                                </span>
-                            </label>
-                        ))}
-                    </div>
+                    <select
+                        className="w-full h-[40px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75]"
+                        value={targetType}
+                        onChange={(e) => {
+                            setTargetType(e.target.value as 'ALL' | 'COMPANY' | 'ERP');
+                            setTargetDetails([]);
+                            setErrors(prev => ({...prev, targetDetails: ''}));
+                        }}
+                     >
+                        <option value="ALL">전체</option>
+                        <option value="ERP">더존</option>
+                        <option value="COMPANY">가비아</option>
+                     </select>
 
                     {(targetType === 'COMPANY' || targetType === 'ERP') && (
                         <div className="mt-2 bg-white p-3 border border-[#D1D6DB] rounded-md max-h-40 overflow-y-auto space-y-2 shadow-inner">
@@ -553,20 +554,6 @@ export default function NoticeManagement() {
                                         <label className="flex items-center gap-1.5 cursor-pointer">
                                             <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
                                             <span className="text-[13px] text-[#191F28]">미노출</span>
-                                        </label>
-                                    </div>
-                                </label>
-
-                                 <label className="flex items-center justify-between px-3 py-2 bg-white border border-[#D1D6DB] rounded-md w-full">
-                                    <span className="text-[13px] font-medium text-[#4E5968]">중요공지 (상단고정)</span>
-                                    <div className="flex items-center gap-4">
-                                        <label className="flex items-center gap-1.5 cursor-pointer">
-                                            <input type="radio" name="isPinned" checked={isPinned} onChange={() => setIsPinned(true)} className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                            <span className="text-[13px] text-[#191F28]">ON</span>
-                                        </label>
-                                        <label className="flex items-center gap-1.5 cursor-pointer">
-                                            <input type="radio" name="isPinned" checked={!isPinned} onChange={() => setIsPinned(false)} className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                            <span className="text-[13px] text-[#191F28]">OFF</span>
                                         </label>
                                     </div>
                                 </label>

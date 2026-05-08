@@ -219,7 +219,7 @@ export default function AdminRegisterModal({ isOpen, onClose, onSave, adminToEdi
                       type="submit"
                       className="flex-1 py-2.5 bg-[#008d75] text-white rounded-lg text-[14px] font-bold hover:bg-[#007a65] transition-colors shadow-sm"
                     >
-                      {adminToEdit ? '수정 완료' : '등록 및 이메일 발송'}
+                      {adminToEdit ? '수정 완료' : '등록'}
                     </button>
                   </div>
                 </form>

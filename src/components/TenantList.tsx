@@ -144,9 +144,6 @@ export default function TenantList() {
                   <td className="px-4 text-[14px] font-medium text-[#191F28] border-r border-[#E5E8EB]">
                     <div className="flex items-center gap-2">
                       {item.tenantName}
-                      {item.id === 4 && (
-                        <span className="bg-[#008d75] text-white text-[10px] font-bold px-1.5 py-0.5 rounded leading-none">NEW</span>
-                      )}
                     </div>
                   </td>
                   <td className="px-4 text-center">

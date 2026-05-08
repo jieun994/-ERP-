@@ -75,6 +75,19 @@ export default function AdminManagement() {
     }
   };
 
+  const handleBatchToggleUse = () => {
+    if (selectedIds.length === 0) {
+      alert('사용여부를 변경할 관리자를 선택해주세요.');
+      return;
+    }
+    if (window.confirm(`선택한 관리자 ${selectedIds.length}명의 사용여부를 변경하시겠습니까?`)) {
+      setAdmins(admins.map(a => 
+        selectedIds.includes(a.id) ? { ...a, isUsed: !a.isUsed } : a
+      ));
+      setSelectedIds([]);
+    }
+  };
+
   const handleBatchDelete = () => {
     if (selectedIds.length === 0) {
       alert('삭제할 관리자를 선택해주세요.');
@@ -161,7 +174,10 @@ export default function AdminManagement() {
           
           
           
-          
+          <button 
+            onClick={handleBatchToggleUse}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >사용여부 변경</button>
           <button 
             onClick={() => {
               setEditAdmin(null);
@@ -187,6 +203,7 @@ export default function AdminManagement() {
           >
             수정
           </button>
+          
           <button 
             onClick={handleBatchDelete}
             className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
