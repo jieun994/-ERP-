@@ -7,7 +7,7 @@ interface AdminUser {
   id: string;
   loginId: string;
   name: string;
-  role: 'BUSINESS' | 'ENGINEER' | 'VIEWER';
+  role: 'SUPER' | 'ENTERPRISE' | 'SYSTEM' | 'OPERATION' | 'VIEWER';
   roleLabel: string;
   isUsed: boolean;
   createdAt: string;
@@ -18,8 +18,8 @@ const mockAdmins: AdminUser[] = [
     id: '1', 
     loginId: 'admin_toss@example.com', 
     name: '김토스', 
-    role: 'BUSINESS', 
-    roleLabel: '기업등록자(현업)', 
+    role: 'SUPER', 
+    roleLabel: '슈퍼관리자', 
     isUsed: true, 
     createdAt: '2024-03-01'
   },
@@ -27,8 +27,8 @@ const mockAdmins: AdminUser[] = [
     id: '2', 
     loginId: 'eng_kim@example.com', 
     name: '박엔지', 
-    role: 'ENGINEER', 
-    roleLabel: '기업인터페이스 설정자(엔지니어)', 
+    role: 'SYSTEM', 
+    roleLabel: '시스템관리자', 
     isUsed: true, 
     createdAt: '2024-03-15'
   },
@@ -49,12 +49,14 @@ export default function AdminManagement() {
   const [editAdmin, setEditAdmin] = useState<AdminUser | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [roleFilter, setRoleFilter] = useState('ALL');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const filteredAdmins = admins.filter(admin => {
     const matchQuery = admin.name.includes(searchQuery) || admin.loginId.includes(searchQuery);
     const matchStatus = statusFilter === 'ALL' ? true : statusFilter === 'USED' ? admin.isUsed === true : admin.isUsed === false;
-    return matchQuery && matchStatus;
+    const matchRole = roleFilter === 'ALL' ? true : admin.role === roleFilter;
+    return matchQuery && matchStatus && matchRole;
   });
 
   const toggleSelectAll = () => {
@@ -104,6 +106,21 @@ export default function AdminManagement() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">권한 등급</span>
+            <select 
+              className="w-48 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
+              <option value="ALL">전체</option>
+              <option value="SUPER">슈퍼관리자</option>
+              <option value="ENTERPRISE">기업관리자</option>
+              <option value="SYSTEM">시스템관리자</option>
+              <option value="OPERATION">운영관리자</option>
+              <option value="VIEWER">조회자</option>
+            </select>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">사용여부</span>
@@ -215,8 +232,7 @@ export default function AdminManagement() {
                   <td className="px-4 text-[14px] text-[#191F28] font-medium border-r border-[#E5E8EB]">{admin.name}</td>
                   <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{admin.loginId}</td>
                   <td className="px-4 border-r border-[#E5E8EB]">
-                    <span className={`text-[13px] font-medium flex items-center gap-1.5 ${admin.role === 'BUSINESS' ? 'text-[#008d75]' : admin.role === 'ENGINEER' ? 'text-emerald-700' : 'text-[#8B95A1]'}`}>
-                      <Shield className="w-3.5 h-3.5" />
+                    <span className={`text-[13px] font-medium ${admin.role === 'SUPER' ? 'text-red-500' : admin.role === 'SYSTEM' ? 'text-blue-600' : admin.role === 'ENTERPRISE' ? 'text-[#008d75]' : admin.role === 'OPERATION' ? 'text-emerald-700' : 'text-[#8B95A1]'}`}>
                       {admin.roleLabel}
                     </span>
                   </td>

@@ -6,7 +6,7 @@ interface AdminUser {
   id: string;
   loginId: string;
   name: string;
-  role: 'BUSINESS' | 'ENGINEER' | 'VIEWER';
+  role: 'SUPER' | 'ENTERPRISE' | 'SYSTEM' | 'OPERATION' | 'VIEWER';
   roleLabel: string;
   isUsed: boolean;
   otpStatus: 'REGISTERED' | 'UNREGISTERED';
@@ -48,8 +48,10 @@ export default function AdminRegisterModal({ isOpen, onClose, onSave, adminToEdi
     e.preventDefault();
     
     const roleLabels = {
-      BUSINESS: '기업등록자(현업)',
-      ENGINEER: '기업인터페이스 설정자(엔지니어)',
+      SUPER: '슈퍼관리자',
+      ENTERPRISE: '기업관리자',
+      SYSTEM: '시스템관리자',
+      OPERATION: '운영관리자',
       VIEWER: '조회자'
     };
 
@@ -58,7 +60,7 @@ export default function AdminRegisterModal({ isOpen, onClose, onSave, adminToEdi
       loginId: formData.loginId || '',
       name: formData.name || '',
       role: (formData.role as any) || 'VIEWER',
-      roleLabel: roleLabels[(formData.role as 'BUSINESS' | 'ENGINEER' | 'VIEWER') || 'VIEWER'],
+      roleLabel: roleLabels[(formData.role as 'SUPER' | 'ENTERPRISE' | 'SYSTEM' | 'OPERATION' | 'VIEWER') || 'VIEWER'],
       isUsed: formData.isUsed !== undefined ? formData.isUsed : true,
       otpStatus: formData.otpStatus || 'UNREGISTERED',
       createdAt: formData.createdAt || new Date().toISOString().split('T')[0]
@@ -153,8 +155,10 @@ export default function AdminRegisterModal({ isOpen, onClose, onSave, adminToEdi
                     <label className="block text-[13px] font-bold text-gray-700">권한 등급 선택</label>
                     <div className="grid grid-cols-1 gap-2">
                        {[
-                         { id: 'BUSINESS', label: '기업등록자(현업)' },
-                         { id: 'ENGINEER', label: '기업인터페이스 설정자(엔지니어)' },
+                         { id: 'SUPER', label: '슈퍼관리자' },
+                         { id: 'ENTERPRISE', label: '기업관리자' },
+                         { id: 'SYSTEM', label: '시스템관리자' },
+                         { id: 'OPERATION', label: '운영관리자' },
                          { id: 'VIEWER', label: '조회자' }
                        ].map(role => (
                          <label key={role.id} className={`flex items-center gap-3 p-3.5 border rounded-lg cursor-pointer transition-all ${formData.role === role.id ? 'border-[#008d75] bg-[#008d7508]' : 'border-gray-200 hover:bg-gray-50'}`}>
@@ -174,26 +178,34 @@ export default function AdminRegisterModal({ isOpen, onClose, onSave, adminToEdi
                   </div>
 
                   {adminToEdit && (
-                    <div className="flex items-center gap-2 pt-2">
-                       <input 
-                         type="checkbox" 
-                         id="isUsed"
-                         className="w-4 h-4 rounded border-gray-300 text-[#008d75] focus:ring-[#008d75]" 
-                         checked={formData.isUsed}
-                         onChange={e => setFormData({...formData, isUsed: e.target.checked})}
-                       />
-                       <label htmlFor="isUsed" className="text-[13px] text-gray-700 font-medium cursor-pointer">계정 사용 활성화</label>
+                    <div className="pt-2">
+                       <label className="block text-[13px] font-bold text-gray-700 mb-2">계정 사용 활성화</label>
+                       <div className="flex items-center gap-6">
+                         <label className="flex items-center gap-2 cursor-pointer">
+                           <input 
+                             type="radio" 
+                             name="isUsed"
+                             className="w-4 h-4 text-[#008d75] focus:ring-[#008d75]" 
+                             checked={formData.isUsed === true}
+                             onChange={() => setFormData({...formData, isUsed: true})}
+                           />
+                           <span className="text-[13px] text-gray-700 font-medium">사용</span>
+                         </label>
+                         <label className="flex items-center gap-2 cursor-pointer">
+                           <input 
+                             type="radio" 
+                             name="isUsed"
+                             className="w-4 h-4 text-[#008d75] focus:ring-[#008d75]" 
+                             checked={formData.isUsed === false}
+                             onChange={() => setFormData({...formData, isUsed: false})}
+                           />
+                           <span className="text-[13px] text-gray-700 font-medium">미사용</span>
+                         </label>
+                       </div>
                     </div>
                   )}
 
-                  {!adminToEdit && (
-                    <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-2">
-                      <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                      <p className="text-[11px] text-amber-700 leading-relaxed">
-                        최초 등록 시 <strong>OTP는 미등록 상태</strong>로 생성됩니다. 사용자가 최초 로그인 시 OTP 등록 프로세스를 거쳐야 합니다. 임시 비밀번호는 이메일로 자동 발송됩니다.
-                      </p>
-                    </div>
-                  )}
+
 
                   <div className="flex gap-3 pt-4">
                     <button 
