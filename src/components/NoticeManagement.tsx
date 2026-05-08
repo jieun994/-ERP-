@@ -465,11 +465,9 @@ export default function NoticeManagement() {
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                     <h4 className="text-[15px] font-semibold text-[#191F28]">게시 설정</h4>
                   </div>
-
-                  <div className="grid grid-cols-1 gap-6">
-                    {/* 게시 대상 */}
-                   <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-                    <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
+                     <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
                     <div className="flex items-center gap-4">
                       {['ALL', 'ERP', 'COMPANY'].map((type) => (
                           <label key={type} className="flex items-center gap-2 cursor-pointer">
@@ -523,9 +521,9 @@ export default function NoticeManagement() {
                         </div>
                     )}
                     {errors.targetDetails && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.targetDetails}</p>}
-                   </div>
+                    </div>
 
-                    {/* 노출 설정 */}
+                    {/* 노출 여부 */}
                     <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
                         <span className="text-[14px] font-semibold text-[#191F28] block">노출 여부 <span className="text-[#F04452]">*</span></span>
                         <div className="flex items-center gap-6">

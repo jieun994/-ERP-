@@ -95,6 +95,7 @@ export default function BannerManagement() {
   // Filter state
   const [searchTopic, setSearchTopic] = useState('title');
   const [keyword, setKeyword] = useState('');
+  const [visibilityFilter, setVisibilityFilter] = useState<'ALL' | 'VISIBLE' | 'HIDDEN'>('ALL');
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) setSelectedIds(data.map(d => d.id));
@@ -180,15 +181,7 @@ export default function BannerManagement() {
 
     if (!imageUrl) newErrors.imageUrl = '배너 이미지를 첨부해주세요.';
 
-    const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    if (linkUrl && !urlPattern.test(linkUrl)) {
-      newErrors.linkUrl = '유효한 URL 형식이 아닙니다 (예: https://example.com).';
-    }
+
 
     if (!startDate) newErrors.startDate = '시작일을 선택해주세요.';
     if (!endDate) newErrors.endDate = '종료일을 선택해주세요.';
@@ -262,10 +255,16 @@ export default function BannerManagement() {
   };
 
   const filteredData = data.filter(item => {
+    let matchesKeyword = true;
     if (keyword) {
-      return item.title.toLowerCase().includes(keyword.toLowerCase());
+      matchesKeyword = item.title.toLowerCase().includes(keyword.toLowerCase());
     }
-    return true;
+    
+    let matchesVisibility = true;
+    if (visibilityFilter === 'VISIBLE') matchesVisibility = item.isVisible;
+    else if (visibilityFilter === 'HIDDEN') matchesVisibility = !item.isVisible;
+    
+    return matchesKeyword && matchesVisibility;
   });
 
   return (
@@ -292,6 +291,18 @@ export default function BannerManagement() {
               onChange={(e) => setKeyword(e.target.value)}
               className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">노출여부</span>
+            <select 
+              value={visibilityFilter}
+              onChange={(e) => setVisibilityFilter(e.target.value as 'ALL' | 'VISIBLE' | 'HIDDEN')}
+              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+            >
+              <option value="ALL">전체</option>
+              <option value="VISIBLE">노출</option>
+              <option value="HIDDEN">미노출</option>
+            </select>
           </div>
         </div>
         <div className="flex flex-col gap-2 shrink-0">
@@ -485,7 +496,7 @@ export default function BannerManagement() {
                             if (!title.trim()) setErrors(prev => ({...prev, title: '배너명을 입력해주세요.'}));
                             else setErrors(prev => ({...prev, title: ''}));
                         }}
-                        placeholder="배너명을 입력하세요 (내부 관리용)."
+                        placeholder="배너명을 입력하세요 (내부 관리용)"
                         className={`w-full h-[40px] px-4 bg-white border ${errors.title ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all`}
                       />
                       {errors.title && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.title}</p>}
@@ -493,48 +504,17 @@ export default function BannerManagement() {
                   </div>
                 </div>
 
-                {/* 2. 노출 설정 */}
+                {/* 2. 게시 설정 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">노출 설정</h4>
+                    <h4 className="text-[15px] font-semibold text-[#191F28]">게시 설정</h4>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    {/* 노출 위치 */}
-                    <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] md:col-span-2">
-                        <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">노출 위치 <span className="text-[#F04452]">*</span></label>
-                        <div className="flex flex-wrap items-center gap-6">
-                            {['메인화면(대시보드)', '모바일 결재관리'].map(pos => (
-                            <label key={pos} className="flex items-center gap-2 cursor-pointer group">
-                                <input 
-                                    type="checkbox" 
-                                    className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
-                                    checked={positions.includes(pos)}
-                                    onChange={(e) => {
-                                        let newPositions = [];
-                                        if (e.target.checked) newPositions = [...positions, pos];
-                                        else newPositions = positions.filter(p => p !== pos);
-                                        
-                                        setPositions(newPositions);
-                                        if(newPositions.length > 0) {
-                                            const next = {...errors};
-                                            delete next.positions;
-                                            setErrors(next);
-                                        }
-                                    }}
-                                />
-                                <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">{pos}</span>
-                            </label>
-                            ))}
-                        </div>
-                        {errors.positions && <p className="text-[12px] text-[#F04452] mt-2 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.positions}</p>}
-                    </div>
-
-                    {/* 노출 대상 (기업/ERP) */}
-                   <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-                    <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">노출 대상 <span className="text-[#F04452]">*</span></label>
+                  <div className="grid grid-cols-1 gap-6">
+                    {/* 게시 대상 */}
+                   <div className="space-y-2">
+                    <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
                     <div className="flex items-center gap-4 mb-3">
                         {['ALL', 'COMPANY', 'ERP'].map((type) => (
                             <label key={type} className="flex items-center gap-2 cursor-pointer group">
@@ -608,35 +588,47 @@ export default function BannerManagement() {
                              ))}
                         </div>
                     )}
-                    
                     {errors.targetDetails && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.targetDetails}</p>}
                    </div>
 
-                   {/* 기업 그룹 선택 */}
-                   <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-                        <label className="block text-[14px] font-semibold text-[#191F28] mb-1 text-sm">기업 그룹 제외/포함 (선택)</label>
-                        <p className="text-[12px] text-[#8B95A1] mb-3">특정 그룹에만 배너를 노출하려면 선택하세요.</p>
-                        
-                        <div className="bg-white p-3 border border-[#D1D6DB] rounded-md max-h-40 overflow-y-auto space-y-2 shadow-inner">
-                            {mockGroups.map(group => (
-                                <label key={group} className="flex items-center gap-2 cursor-pointer group">
+                    {/* 노출 여부 */}
+                    <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
+                        <span className="text-[14px] font-semibold text-[#191F28] block">노출 여부 <span className="text-[#F04452]">*</span></span>
+                        <div className="flex items-center gap-6">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="isVisible" checked={isVisible} onChange={() => setIsVisible(true)} className="w-[18px] h-[18px] border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
+                                <span className="text-[14px] text-[#191F28]">노출</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-[18px] h-[18px] border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
+                                <span className="text-[14px] text-[#191F28]">미노출</span>
+                            </label>
+                        </div>
+                        <div className="space-y-1.5 pt-2 border-t border-[#E5E8EB] mt-4">
+                            <label className="block text-[14px] font-semibold text-[#191F28] text-sm">노출 순서 <span className="text-[#F04452]">*</span></label>
+                            <div className="flex items-center gap-3">
                                 <input 
-                                    type="checkbox" 
-                                    className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
-                                    checked={groupDetails.includes(group)}
+                                    type="number" 
+                                    min="1"
+                                    value={order}
                                     onChange={(e) => {
-                                        const newDetails = e.target.checked 
-                                            ? [...groupDetails, group]
-                                            : groupDetails.filter(d => d !== group);
-                                        setGroupDetails(newDetails);
+                                        setOrder(e.target.value === '' ? '' : Number(e.target.value));
+                                        if (e.target.value === '' || Number(e.target.value) < 1) {
+                                            setErrors(prev => ({...prev, order: '유효한 순서를 입력해주세요 (1 이상).'}));
+                                        } else {
+                                            const next = {...errors};
+                                            delete next.order;
+                                            setErrors(next);
+                                        }
                                     }}
+                                    placeholder="1"
+                                    className={`w-24 h-[36px] px-3 bg-white border ${errors.order ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-center text-[#191F28] transition-all`}
                                 />
-                                <span className="text-[13px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">{group}</span>
-                                </label>
-                            ))}
+                                <span className="text-[13px] text-[#8B95A1]">낮은 숫자일수록 상단에 노출됩니다.</span>
+                            </div>
+                            {errors.order && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.order}</p>}
                         </div>
                     </div>
-
                   </div>
                 </div>
 
@@ -649,7 +641,7 @@ export default function BannerManagement() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 이미지 파일 */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 md:col-span-2">
                         <label className="block text-[14px] font-semibold text-[#191F28]">배너 이미지 <span className="text-[#F04452]">*</span></label>
                         <div className={`mt-1 flex justify-center px-6 pt-6 pb-6 border-[1.5px] border-dashed rounded-lg ${errors.imageUrl ? 'border-[#F04452] bg-[#F04452]/5' : 'border-[#D1D6DB] bg-[#F9FAFB]'} hover:bg-[#F2F4F6] transition-colors`}>
                             <div className="space-y-1 text-center">
@@ -681,29 +673,6 @@ export default function BannerManagement() {
                         </div>
                         {errors.imageUrl && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.imageUrl}</p>}
                     </div>
-
-                    {/* 링크 URL */}
-                    <div className="space-y-1.5">
-                      <label className="block text-[14px] font-semibold text-[#191F28]">링크 URL (선택)</label>
-                      <input 
-                        type="text" 
-                        value={linkUrl}
-                        onChange={(e) => setLinkUrl(e.target.value)}
-                        onBlur={() => {
-                            const urlPattern = new RegExp('^(https?:\\/\\/)?'+ '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ '((\\d{1,3}\\.){3}\\d{1,3}))'+ '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ '(\\?[;&a-z\\d%_.~+=-]*)?'+ '(\\#[-a-z\\d_]*)?$','i');
-                            if (linkUrl && !urlPattern.test(linkUrl)) {
-                                setErrors(prev => ({...prev, linkUrl: '유효한 URL 형식이 아닙니다.'}));
-                            } else {
-                                const next = {...errors};
-                                delete next.linkUrl;
-                                setErrors(next);
-                            }
-                        }}
-                        placeholder="https:// 없이도 입력 가능합니다."
-                        className={`w-full h-[40px] px-4 bg-white border ${errors.linkUrl ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all`}
-                      />
-                      {errors.linkUrl && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.linkUrl}</p>}
-                    </div>
                   </div>
                 </div>
 
@@ -711,14 +680,14 @@ export default function BannerManagement() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">운영 설정</h4>
+                    <h4 className="text-[15px] font-semibold text-[#191F28]">게시 기간 설정</h4>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 노출 기간 */}
-                    <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
+                    <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] md:col-span-2">
                         <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">노출 기간 <span className="text-[#F04452]">*</span></label>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-row items-center gap-2">
                             <input 
                               type="date" 
                               value={startDate}
@@ -733,9 +702,9 @@ export default function BannerManagement() {
                                       setErrors(next);
                                   }
                               }}
-                              className={`w-full h-[36px] px-3 bg-white border ${errors.startDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`} 
+                              className={`flex-1 h-[36px] px-3 bg-white border ${errors.startDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`} 
                             />
-                            <div className="text-center text-[#8B95A1] text-xs">~</div>
+                            <div className="text-[#8B95A1] text-sm">~</div>
                             <input 
                                 type="date" 
                                 value={endDate}
@@ -750,54 +719,14 @@ export default function BannerManagement() {
                                         setErrors(next);
                                     }
                                 }}
-                                className={`w-full h-[36px] px-3 bg-white border ${errors.endDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`} 
+                                className={`flex-1 h-[36px] px-3 bg-white border ${errors.endDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`} 
                             />
                         </div>
                         {errors.startDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.startDate}</p>}
                         {!errors.startDate && errors.endDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.endDate}</p>}
                     </div>
 
-                    {/* 노출 여부 & 노출 순서 */}
-                    <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] lg:col-span-2">
-                         <div className="space-y-1.5">
-                            <label className="block text-[14px] font-semibold text-[#191F28] text-sm">노출 여부 <span className="text-[#F04452]">*</span></label>
-                            <div className="flex items-center gap-6 mt-2">
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="isVisible" checked={isVisible} onChange={() => setIsVisible(true)} className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                    <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">노출 (ON)</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                    <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">숨김 (OFF)</span>
-                                </label>
-                            </div>
-                         </div>
-
-                         <div className="space-y-1.5 pt-2">
-                            <label className="block text-[14px] font-semibold text-[#191F28] text-sm">노출 순서 <span className="text-[#F04452]">*</span></label>
-                            <div className="flex items-center gap-3">
-                                <input 
-                                    type="number" 
-                                    min="1"
-                                    value={order}
-                                    onChange={(e) => {
-                                        setOrder(e.target.value === '' ? '' : Number(e.target.value));
-                                        if (e.target.value === '' || Number(e.target.value) < 1) {
-                                            setErrors(prev => ({...prev, order: '유효한 순서를 입력해주세요 (1 이상).'}));
-                                        } else {
-                                            const next = {...errors};
-                                            delete next.order;
-                                            setErrors(next);
-                                        }
-                                    }}
-                                    placeholder="1"
-                                    className={`w-24 h-[36px] px-3 bg-white border ${errors.order ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-center text-[#191F28] transition-all`}
-                                />
-                                <span className="text-[13px] text-[#8B95A1]">낮은 숫자일수록 상단에 노출됩니다.</span>
-                            </div>
-                            {errors.order && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.order}</p>}
-                         </div>
-                    </div>
+                    {/* 다음 섹션 */}
 
                   </div>
                 </div>
