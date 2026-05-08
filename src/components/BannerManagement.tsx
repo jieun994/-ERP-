@@ -271,8 +271,8 @@ export default function BannerManagement() {
   return (
     <div className="w-full space-y-0 pb-20">
       {/* Search Area */}
-      <div className="bg-white border border-[#E5E8EB] rounded-lg p-6 mb-8 shadow-sm">
-        <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-4">
+      <div className="flex items-stretch gap-3 mb-8">
+        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색조건</span>
             <select 
@@ -293,16 +293,17 @@ export default function BannerManagement() {
               className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
           </div>
-          <div className="flex items-center gap-2 ml-auto">
-            <button className="h-[40px] px-8 bg-white border border-[#D1D6DB] text-gray-700 hover:bg-gray-50 rounded-md text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
-              초기화
-            </button>
-            <button className="h-[40px] px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
-              조회하기
-            </button>
-          </div>
+        </div>
+        <div className="flex flex-col gap-2 shrink-0">
+          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            조회
+          </button>
+          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            초기화
+          </button>
         </div>
       </div>
+
 
       {/* Grid Controls (Total count and Buttons) */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
@@ -312,15 +313,19 @@ export default function BannerManagement() {
           <span className="text-[#191F28]"> 건</span>
         </div>
         <div className="flex items-center gap-2">
+          
+          
+          
+          
           <button 
             onClick={handleToggleVisibility}
-            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >
             사용여부 변경
           </button>
           <button 
             onClick={() => openForm()}
-            className="h-[32px] bg-[#008d75] hover:bg-black text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
+            className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
           >
              등록
           </button>
@@ -333,7 +338,7 @@ export default function BannerManagement() {
               const item = data.find(d => d.id === selectedIds[0]);
               if (item) openForm(item);
             }}
-            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >
             수정
           </button>
@@ -345,9 +350,8 @@ export default function BannerManagement() {
               }
               setShowDeleteWarning('bulk');
             }}
-            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >삭제</button>
-          
         </div>
       </div>
 

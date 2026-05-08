@@ -254,9 +254,8 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
             </div>
             {registerMode === 'manual' ? (
               <>
-                <div className="space-y-6">
-                  {/* Form fields only */}
-                  <div className="border-t border-gray-200 pt-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-6 p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div>
                       <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">기업명 <span className="text-red-500">*</span></label>
                       <input className={`w-full px-3 py-2 border rounded-md text-[14px] ${formErrors.name ? 'border-red-500' : 'border-gray-300'}`} placeholder="기업명 입력" value={formState.name} onChange={e => {setFormState({...formState, name: e.target.value}); setFormErrors({...formErrors, name: ''})}} />
@@ -280,14 +279,14 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                       <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">법인등록번호</label>
                       <input className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px]" placeholder="13자리 숫자(선택)" value={formState.corpNumber} onChange={e => setFormState({...formState, corpNumber: e.target.value})} />
                     </div>
-                    <div className="flex items-end gap-2">
-                      <button onClick={editingId ? handleCancelEdit : () => setFormState({ id: '', name: '', bizNumber: '', corpNumber: '' })} className="px-6 py-2 bg-white border border-[#008d75] rounded-md text-[14px] font-semibold text-[#008d75]">취소</button>
-                      <button onClick={handleAddOrUpdate} className="px-6 py-2 bg-[#008d75] rounded-md text-[14px] font-semibold text-white">{editingId ? '수정' : '등록'}</button>
-                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 border-t border-gray-100 pt-4 mt-2">
+                    <button onClick={editingId ? handleCancelEdit : () => setFormState({ id: '', name: '', bizNumber: '', corpNumber: '' })} className="px-6 py-2 bg-white border border-[#008d75] rounded-md text-[14px] font-semibold text-[#008d75]">취소</button>
+                    <button onClick={handleAddOrUpdate} className="px-6 py-2 bg-[#008d75] rounded-md text-[14px] font-semibold text-white">{editingId ? '수정' : '등록'}</button>
                   </div>
                 </div>
                 {/* Registered Enterprise List (Manual) */}
-                <div className="pt-6 border-t border-gray-200">
+                <div className="bg-white">
                   <div className="flex justify-between items-end mb-4">
                     <div>
                       <h3 className="text-[16px] font-bold text-gray-900 mb-1">기업 목록</h3>

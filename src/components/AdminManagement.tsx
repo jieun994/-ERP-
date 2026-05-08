@@ -93,8 +93,8 @@ export default function AdminManagement() {
   return (
     <div className="w-full space-y-0 pb-20">
       {/* Search Area */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 mb-8">
-        <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-6">
+      <div className="flex items-stretch gap-3 mb-8">
+        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
             <input 
@@ -117,14 +117,19 @@ export default function AdminManagement() {
               <option value="UNUSED">미사용</option>
             </select>
           </div>
-          <div className="flex-1 flex justify-end gap-3">
-            <button className="h-[40px] px-6 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
-              초기화
-            </button>
-            <button className="h-[40px] px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-lg text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
-              조회하기
-            </button>
-          </div>
+        </div>
+        <div className="flex flex-col gap-2 shrink-0">
+          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            조회
+          </button>
+          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm"
+            onClick={() => {
+              setSearchQuery('');
+              setStatusFilter('ALL');
+            }}
+          >
+            초기화
+          </button>
         </div>
       </div>
 
@@ -136,12 +141,16 @@ export default function AdminManagement() {
           <span className="text-[#191F28]"> 건</span>
         </div>
         <div className="flex items-center gap-2">
+          
+          
+          
+          
           <button 
             onClick={() => {
               setEditAdmin(null);
               setIsModalOpen(true);
             }}
-            className="h-[32px] bg-[#008d75] hover:bg-black text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
+            className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
           >
              등록
           </button>
@@ -157,18 +166,17 @@ export default function AdminManagement() {
                 setIsModalOpen(true);
               }
             }}
-            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors flex items-center justify-center shadow-sm"
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >
             수정
           </button>
           <button 
             onClick={handleBatchDelete}
-            className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors flex items-center justify-center shadow-sm"
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >삭제</button>
-          <button className="h-[32px] border border-[#D1D6DB] px-4 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors flex items-center justify-center shadow-sm">
+          <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
             엑셀 다운로드
           </button>
-          
         </div>
       </div>
 

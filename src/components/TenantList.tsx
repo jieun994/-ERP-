@@ -50,8 +50,8 @@ export default function TenantList() {
   return (
     <div className="w-full space-y-0 pb-20">
       {/* Search Area */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 mb-8">
-        <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-6">
+      <div className="flex items-stretch gap-3 mb-8">
+        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
             <input 
@@ -68,16 +68,17 @@ export default function TenantList() {
               <option value="unused">미사용</option>
             </select>
           </div>
-          <div className="flex-1 flex justify-end gap-3">
-            <button className="h-[40px] px-6 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
-              초기화
-            </button>
-            <button className="h-[40px] px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-lg text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
-              조회하기
-            </button>
-          </div>
+        </div>
+        <div className="flex flex-col gap-2 shrink-0">
+          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            조회
+          </button>
+          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            초기화
+          </button>
         </div>
       </div>
+
 
       {/* Grid Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
@@ -88,16 +89,19 @@ export default function TenantList() {
         </div>
         
         <div className="flex items-center gap-2">
+          
+          
+          
+          
           <button 
             onClick={handleToggleUse}
-            className="h-[32px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[13px] font-medium text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm"
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >
             사용여부 변경
           </button>
           <button 
             onClick={handleExcelDownload}
-            className="h-[32px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[13px] font-medium text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm"
-          >
+            className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
             엑셀 다운로드
           </button>
         </div>

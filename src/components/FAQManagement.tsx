@@ -187,8 +187,8 @@ export default function FAQManagement() {
   return (
     <div className="w-full space-y-0 pb-20">
       {/* Search Area */}
-      <div className="bg-white border border-[#E5E8EB] rounded-lg p-6 mb-8 shadow-sm">
-        <div className="flex flex-wrap items-center justify-start gap-x-12 gap-y-4">
+      <div className="flex items-stretch gap-3 mb-8">
+        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색조건</span>
             <select 
@@ -210,16 +210,17 @@ export default function FAQManagement() {
               className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
           </div>
-          <div className="flex items-center gap-2 ml-auto">
-            <button className="h-[40px] px-8 bg-white border border-[#D1D6DB] text-gray-700 hover:bg-gray-50 rounded-md text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
-              초기화
-            </button>
-            <button className="h-[40px] px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-bold transition-colors shadow-sm whitespace-nowrap">
-              조회하기
-            </button>
-          </div>
+        </div>
+        <div className="flex flex-col gap-2 shrink-0">
+          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            조회
+          </button>
+          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            초기화
+          </button>
         </div>
       </div>
+
 
       {/* Grid Controls */}
       <div className="flex items-center justify-between mb-4">

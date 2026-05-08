@@ -148,137 +148,130 @@ export default function FirmBankingFailureStatus() {
   return (
     <div className="w-full h-full flex flex-col pb-20">
       {/* Search Area */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-6">
-          {/* Row 1 */}
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">조회 기간</span>
-            <div className="flex items-center gap-2 flex-1">
-              <input 
-                type="date" 
-                className="flex-1 h-[40px] px-3 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.startDate}
-                onChange={e => setSearchParams({...searchParams, startDate: e.target.value})}
-              />
-              <span className="text-[#8B95A1]">~</span>
-              <input 
-                type="date" 
-                className="flex-1 h-[40px] px-3 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.endDate}
-                onChange={e => setSearchParams({...searchParams, endDate: e.target.value})}
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">기업명</span>
-            <input 
-              type="text" 
-              placeholder="기업명 입력"
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-              value={searchParams.enterpriseName}
-              onChange={e => setSearchParams({...searchParams, enterpriseName: e.target.value})}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">기업코드</span>
-            <input 
-              type="text" 
-              placeholder="기업코드 입력"
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-              value={searchParams.enterpriseCode}
-              onChange={e => setSearchParams({...searchParams, enterpriseCode: e.target.value})}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">서비스 구분</span>
-            <select 
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-              value={searchParams.serviceType}
-              onChange={e => setSearchParams({...searchParams, serviceType: e.target.value})}
-            >
-              <option value="전체">전체</option>
-              <option value="실시간 계좌이체">실시간 계좌이체</option>
-              <option value="대량 급여 이체">대량 급여 이체</option>
-              <option value="가상계좌 발급">가상계좌 발급</option>
-              <option value="펌뱅킹 이체">펌뱅킹 이체</option>
-            </select>
-          </div>
+      <div className="flex items-stretch gap-3 mb-8">
+        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-6 py-5 rounded-md shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4">
+            {/* Row 1 */}
+            <div className="flex items-center gap-4">
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">조회 기간</span>
+              <div className="flex items-center gap-2 flex-1">
+                <input 
+                  type="date" 
+                  className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                  value={searchParams.startDate}
+                  onChange={e => setSearchParams({...searchParams, startDate: e.target.value})}
+                />
+                <span className="text-[#8B95A1]">~</span>
+                <input 
+                  type="date" 
+                  className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                  value={searchParams.endDate}
+                  onChange={e => setSearchParams({...searchParams, endDate: e.target.value})}
+                />
+        </div>
+        <div className="flex flex-col gap-2 shrink-0">
+          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            조회
+          </button>
+          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            초기화
+          </button>
+        </div>
+      </div>
 
-          {/* Row 2 */}
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">거래번호</span>
-            <input 
-              type="text" 
-              placeholder="거래번호 입력"
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-              value={searchParams.transactionNo}
-              onChange={e => setSearchParams({...searchParams, transactionNo: e.target.value})}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">요청번호</span>
-            <input 
-              type="text" 
-              placeholder="요청번호 입력"
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-              value={searchParams.requestNo}
-              onChange={e => setSearchParams({...searchParams, requestNo: e.target.value})}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">오류코드</span>
-            <input 
-              type="text" 
-              placeholder="오류코드 입력"
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-              value={searchParams.errorCode}
-              onChange={e => setSearchParams({...searchParams, errorCode: e.target.value})}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">실패 단계</span>
-            <select 
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-              value={searchParams.failureStep}
-              onChange={e => setSearchParams({...searchParams, failureStep: e.target.value})}
-            >
-              <option value="전체">전체</option>
-              <option value="전문 생성 단계">전문 생성 단계</option>
-              <option value="은행 전송 단계">은행 전송 단계</option>
-              <option value="은행 응답 대기">은행 응답 대기</option>
-              <option value="응답 처리 단계">응답 처리 단계</option>
-            </select>
-          </div>
 
-          <div className="lg:col-span-4 flex items-center justify-between gap-8 pt-2">
-            <div className="flex items-center gap-4 flex-1">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">오류메시지</span>
+            <div className="flex items-center gap-4">
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">기업명</span>
               <input 
                 type="text" 
-                placeholder="오류메시지 입력 (포함어)"
-                className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.errorMessage}
-                onChange={e => setSearchParams({...searchParams, errorMessage: e.target.value})}
+                placeholder="기업명 입력"
+                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                value={searchParams.enterpriseName}
+                onChange={e => setSearchParams({...searchParams, enterpriseName: e.target.value})}
               />
             </div>
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={handleReset}
-                className="h-[40px] px-6 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-[14px] font-bold transition-colors shadow-sm"
+            <div className="flex items-center gap-4">
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">기업코드</span>
+              <input 
+                type="text" 
+                placeholder="기업코드 입력"
+                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                value={searchParams.enterpriseCode}
+                onChange={e => setSearchParams({...searchParams, enterpriseCode: e.target.value})}
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">서비스 구분</span>
+              <select 
+                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                value={searchParams.serviceType}
+                onChange={e => setSearchParams({...searchParams, serviceType: e.target.value})}
               >
-                초기화
-              </button>
-              <button 
-                onClick={handleSearch}
-                className="h-[40px] px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-lg text-[14px] font-bold transition-colors shadow-sm flex items-center gap-2"
+                <option value="전체">전체</option>
+                <option value="실시간 계좌이체">실시간 계좌이체</option>
+                <option value="대량 급여 이체">대량 급여 이체</option>
+                <option value="가상계좌 발급">가상계좌 발급</option>
+                <option value="펌뱅킹 이체">펌뱅킹 이체</option>
+              </select>
+            </div>
+
+            {/* Row 2 */}
+            <div className="flex items-center gap-4">
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">거래번호</span>
+              <input 
+                type="text" 
+                placeholder="거래번호 입력"
+                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                value={searchParams.transactionNo}
+                onChange={e => setSearchParams({...searchParams, transactionNo: e.target.value})}
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">요청번호</span>
+              <input 
+                type="text" 
+                placeholder="요청번호 입력"
+                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                value={searchParams.requestNo}
+                onChange={e => setSearchParams({...searchParams, requestNo: e.target.value})}
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">오류코드</span>
+              <input 
+                type="text" 
+                placeholder="오류코드 입력"
+                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                value={searchParams.errorCode}
+                onChange={e => setSearchParams({...searchParams, errorCode: e.target.value})}
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">실패 단계</span>
+              <select 
+                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                value={searchParams.failureStep}
+                onChange={e => setSearchParams({...searchParams, failureStep: e.target.value})}
               >
-                {isSearching ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  <Search className="w-4 h-4" />
-                )}
-                조회하기
-              </button>
+                <option value="전체">전체</option>
+                <option value="전문 생성 단계">전문 생성 단계</option>
+                <option value="은행 전송 단계">은행 전송 단계</option>
+                <option value="은행 응답 대기">은행 응답 대기</option>
+                <option value="응답 처리 단계">응답 처리 단계</option>
+              </select>
+            </div>
+
+            <div className="lg:col-span-4 flex items-center justify-between gap-8 mt-1 border-t border-gray-200 pt-5">
+              <div className="flex items-center gap-4 w-full">
+                <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">오류메시지</span>
+                <input 
+                  type="text" 
+                  placeholder="오류메시지 입력 (포함어)"
+                  className="w-[400px] h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                  value={searchParams.errorMessage}
+                  onChange={e => setSearchParams({...searchParams, errorMessage: e.target.value})}
+                />
+              </div>
             </div>
           </div>
         </div>

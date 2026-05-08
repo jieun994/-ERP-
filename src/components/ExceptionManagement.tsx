@@ -80,7 +80,7 @@ export default function ExceptionManagement() {
     <div className="w-full space-y-0 pb-20">
       {/* Search Area */}
       <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#eef1f5] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
+        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
             <select className="w-40 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
@@ -98,15 +98,16 @@ export default function ExceptionManagement() {
             />
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="h-full px-8 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md text-[15px] font-bold transition-colors shadow-sm whitespace-nowrap">
-            초기화
+        <div className="flex flex-col gap-2 shrink-0">
+          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            조회
           </button>
-          <button className="h-full px-10 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm whitespace-nowrap">
-            조회하기
+          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
+            초기화
           </button>
         </div>
       </div>
+
 
       {/* Grid Controls */}
       <div className="flex items-center justify-between mb-4">
@@ -129,7 +130,7 @@ export default function ExceptionManagement() {
           <button onClick={handleDelete} className="h-[32px] px-4 bg-white border border-[#F0445220] text-[#F04452] rounded-md text-[13px] font-medium hover:bg-[#F0445210] transition-colors">
             삭제
           </button>
-          <button className="h-[32px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors ml-1">
+          <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
             엑셀 다운로드
           </button>
         </div>
