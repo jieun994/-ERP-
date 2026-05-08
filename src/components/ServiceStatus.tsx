@@ -90,7 +90,7 @@ export default function ServiceStatus() {
 
       {/* Grid */}
       <div className="bg-white rounded-lg border border-[#E5E8EB] overflow-hidden shadow-sm">
-        <div className="overflow-x-auto min-h-[400px]">
+        <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[800px] whitespace-nowrap">
             <thead>
               <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">

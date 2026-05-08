@@ -92,10 +92,8 @@ export default function FirmBankingFailureStatus() {
     startDate: '',
     endDate: '',
     enterpriseName: '',
-    enterpriseCode: '',
     serviceType: '전체',
     transactionNo: '',
-    requestNo: '',
     errorCode: '',
     errorMessage: '',
     failureStep: '전체'
@@ -116,10 +114,8 @@ export default function FirmBankingFailureStatus() {
       startDate: '',
       endDate: '',
       enterpriseName: '',
-      enterpriseCode: '',
       serviceType: '전체',
       transactionNo: '',
-      requestNo: '',
       errorCode: '',
       errorMessage: '',
       failureStep: '전체'
@@ -149,61 +145,42 @@ export default function FirmBankingFailureStatus() {
     <div className="w-full h-full flex flex-col pb-20">
       {/* Search Area */}
       <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-6 py-5 rounded-md shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4">
+        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-6 rounded-md shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-5">
             {/* Row 1 */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 lg:col-span-2">
               <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">조회 기간</span>
               <div className="flex items-center gap-2 flex-1">
                 <input 
                   type="date" 
-                  className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                  className="flex-1 h-[36px] px-3 bg-white border border-[#D1D6DB] rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
                   value={searchParams.startDate}
                   onChange={e => setSearchParams({...searchParams, startDate: e.target.value})}
                 />
                 <span className="text-[#8B95A1]">~</span>
                 <input 
                   type="date" 
-                  className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                  className="flex-1 h-[36px] px-3 bg-white border border-[#D1D6DB] rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
                   value={searchParams.endDate}
                   onChange={e => setSearchParams({...searchParams, endDate: e.target.value})}
                 />
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
-          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            조회
-          </button>
-          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            초기화
-          </button>
-        </div>
-      </div>
-
+              </div>
+            </div>
 
             <div className="flex items-center gap-4">
               <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">기업명</span>
               <input 
                 type="text" 
                 placeholder="기업명 입력"
-                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                className="flex-1 h-[36px] px-3 bg-white border border-[#D1D6DB] rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
                 value={searchParams.enterpriseName}
                 onChange={e => setSearchParams({...searchParams, enterpriseName: e.target.value})}
               />
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">기업코드</span>
-              <input 
-                type="text" 
-                placeholder="기업코드 입력"
-                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.enterpriseCode}
-                onChange={e => setSearchParams({...searchParams, enterpriseCode: e.target.value})}
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">서비스 구분</span>
+              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">서비스명</span>
               <select 
-                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                className="flex-1 h-[36px] px-3 bg-white border border-[#D1D6DB] rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
                 value={searchParams.serviceType}
                 onChange={e => setSearchParams({...searchParams, serviceType: e.target.value})}
               >
@@ -221,19 +198,9 @@ export default function FirmBankingFailureStatus() {
               <input 
                 type="text" 
                 placeholder="거래번호 입력"
-                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                className="flex-1 h-[36px] px-3 bg-white border border-[#D1D6DB] rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
                 value={searchParams.transactionNo}
                 onChange={e => setSearchParams({...searchParams, transactionNo: e.target.value})}
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">요청번호</span>
-              <input 
-                type="text" 
-                placeholder="요청번호 입력"
-                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.requestNo}
-                onChange={e => setSearchParams({...searchParams, requestNo: e.target.value})}
               />
             </div>
             <div className="flex items-center gap-4">
@@ -241,7 +208,7 @@ export default function FirmBankingFailureStatus() {
               <input 
                 type="text" 
                 placeholder="오류코드 입력"
-                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                className="flex-1 h-[36px] px-3 bg-white border border-[#D1D6DB] rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
                 value={searchParams.errorCode}
                 onChange={e => setSearchParams({...searchParams, errorCode: e.target.value})}
               />
@@ -249,7 +216,7 @@ export default function FirmBankingFailureStatus() {
             <div className="flex items-center gap-4">
               <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">실패 단계</span>
               <select 
-                className="flex-1 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                className="flex-1 h-[36px] px-3 bg-white border border-[#D1D6DB] rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
                 value={searchParams.failureStep}
                 onChange={e => setSearchParams({...searchParams, failureStep: e.target.value})}
               >
@@ -267,13 +234,29 @@ export default function FirmBankingFailureStatus() {
                 <input 
                   type="text" 
                   placeholder="오류메시지 입력 (포함어)"
-                  className="w-[400px] h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
+                  className="w-[400px] h-[36px] px-3 bg-white border border-[#D1D6DB] rounded text-[14px] outline-none focus:border-[#008d75] transition-colors"
                   value={searchParams.errorMessage}
                   onChange={e => setSearchParams({...searchParams, errorMessage: e.target.value})}
                 />
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2 shrink-0">
+          <button 
+            onClick={handleSearch}
+            className="w-[100px] flex-1 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-bold transition-all shadow-sm flex items-center justify-center"
+          >
+            조회
+          </button>
+          <button 
+            onClick={handleReset}
+            className="w-[100px] flex-1 bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[14px] font-bold transition-all shadow-sm flex items-center justify-center"
+          >
+            초기화
+          </button>
         </div>
       </div>
 
@@ -317,7 +300,6 @@ export default function FirmBankingFailureStatus() {
         </div>
         <div className="flex items-center gap-2">
           <button className="h-[32px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[13px] font-medium text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm flex items-center gap-2">
-            <Download className="w-3.5 h-3.5" />
             엑셀 다운로드
           </button>
         </div>
@@ -339,14 +321,11 @@ export default function FirmBankingFailureStatus() {
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-16">No.</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-44">발생일시</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-48">기업명</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-24">기업코드</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-40">서비스명</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-44">거래번호</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-32">실패 단계</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-24">오류코드</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">오류메시지</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-24">담당자</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-40">최종 처리일시</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
@@ -376,7 +355,6 @@ export default function FirmBankingFailureStatus() {
                   >
                     {item.enterpriseName}
                   </td>
-                  <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB] font-mono">{item.enterpriseCode}</td>
                   <td 
                     onClick={() => openDetail(item)}
                     className="px-4 text-[14px] text-[#191F28] border-r border-[#E5E8EB] cursor-pointer hover:text-[#008d75] hover:underline"
@@ -397,8 +375,6 @@ export default function FirmBankingFailureStatus() {
                     {item.errorCode}
                   </td>
                   <td className="px-4 text-[13px] text-[#4E5968] border-r border-[#E5E8EB] truncate max-w-[200px]">{item.errorMessage}</td>
-                  <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB]">{item.manager}</td>
-                  <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono">{item.finalProcessedAt}</td>
                 </tr>
               ))}
             </tbody>
@@ -406,24 +382,7 @@ export default function FirmBankingFailureStatus() {
         </div>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-center gap-2 mt-8">
-        <button className="w-8 h-8 flex items-center justify-center rounded border border-[#E5E8EB] bg-white text-[#8B95A1] hover:bg-[#F9FAFB]">
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        <button className="w-8 h-8 flex items-center justify-center rounded border border-[#008d75] bg-[#008d75] text-white font-bold text-[13px]">
-          1
-        </button>
-        <button className="w-8 h-8 flex items-center justify-center rounded border border-[#E5E8EB] bg-white text-[#4E5968] hover:bg-[#F9FAFB] text-[13px]">
-          2
-        </button>
-        <button className="w-8 h-8 flex items-center justify-center rounded border border-[#E5E8EB] bg-white text-[#4E5968] hover:bg-[#F9FAFB] text-[13px]">
-          3
-        </button>
-        <button className="w-8 h-8 flex items-center justify-center rounded border border-[#E5E8EB] bg-white text-[#8B95A1] hover:bg-[#F9FAFB]">
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
+    
 
       {/* Detail Modal */}
       <AnimatePresence>
