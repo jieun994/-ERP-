@@ -125,9 +125,6 @@ const menus: MenuConfig[] = [
     id: 'monitoring',
     label: '시스템 모니터링',
     icon: <Monitor className="w-5 h-5" />,
-    subMenus: [
-      { id: 'service_status', label: '서비스 상태' }
-    ]
   },
   {
     id: 'statistics',
@@ -515,7 +512,7 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
             <div className="w-full space-y-6">
               <MessageManagement />
             </div>
-          ) : activeSubMenu === 'service_status' ? (
+          ) : activeMenu === 'monitoring' ? (
             <div className="w-full space-y-6">
               <ServiceStatus />
             </div>

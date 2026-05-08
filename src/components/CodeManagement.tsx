@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, RotateCcw, Download, Plus, CheckCircle2, ChevronRight, Save, X, Edit2 } from 'lucide-react';
+import { Search, RotateCcw, Download, Plus, CheckCircle2, ChevronRight, Save, X, Edit2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface CodeData {

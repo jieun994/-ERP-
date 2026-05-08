@@ -241,7 +241,7 @@ export default function App() {
       initialSubMenu = 'firmbanking_fail';
     } else if (view === 'dashboard_service_status') {
       initialMenu = 'monitoring';
-      initialSubMenu = 'service_status';
+      initialSubMenu = '';
     }
 
     return (
@@ -416,7 +416,7 @@ export default function App() {
                     <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">시스템 모니터링</h3>
                     <div className="space-y-2">
                        <button onClick={() => setView('dashboard_service_status')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
-                        서비스 상태 <span className="text-xs text-[#008d75] font-bold">New</span>
+                        시스템 모니터링 <span className="text-xs text-[#008d75] font-bold">New</span>
                       </button>
                     </div>
 

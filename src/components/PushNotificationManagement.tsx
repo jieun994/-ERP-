@@ -15,7 +15,7 @@ interface PushTemplate {
   id: string;
   name: string;
   content: string;
-  targetType: 'USER' | 'ENTERPRISE';
+  sendingType: '승인' | '반려' | '결재대기';
   targetValue: string;
   isUsed: boolean;
   createdAt: string;
@@ -28,34 +28,34 @@ const mockData: PushTemplate[] = [
     id: 'PUSH_001',
     name: '결재 승인 완료 알림',
     content: '[하나은행] 요청하신 결재 건이 승인 완료되었습니다.',
-    targetType: 'USER',
+    sendingType: '승인',
     targetValue: 'user_01',
     isUsed: true,
     createdAt: '2024-05-01 10:00:00',
     updatedAt: '2024-05-01 10:00:00',
-    updatedBy: '관리자A'
+    updatedBy: 'admin_a@hana.com'
   },
   {
     id: 'PUSH_002',
     name: '자금 이체 실행 반려 알림',
     content: '[하나은행] 이체 실행 건이 반려되었습니다. 사유를 확인해 주세요.',
-    targetType: 'USER',
+    sendingType: '반려',
     targetValue: 'user_02',
     isUsed: true,
     createdAt: '2024-05-02 14:30:00',
     updatedAt: '2024-05-02 14:30:00',
-    updatedBy: '관리자B'
+    updatedBy: 'admin_b@hana.com'
   },
   {
     id: 'PUSH_003',
     name: '기업 인증서 만료 안내',
     content: '[하나은행] 기업 인증서 만료가 7일 남았습니다. 갱신이 필요합니다.',
-    targetType: 'ENTERPRISE',
+    sendingType: '결재대기',
     targetValue: 'ENT_HANA_01',
     isUsed: false,
     createdAt: '2024-05-03 09:15:00',
     updatedAt: '2024-05-04 11:20:00',
-    updatedBy: '관리자A'
+    updatedBy: 'admin_a@hana.com'
   }
 ];
 
@@ -67,22 +67,27 @@ export default function PushNotificationManagement() {
   const [showDeleteWarning, setShowDeleteWarning] = useState<string | 'bulk' | null>(null);
 
   // Search States
+  const [searchTemplateCode, setSearchTemplateCode] = useState('');
   const [searchName, setSearchName] = useState('');
-  const [searchStatus, setSearchStatus] = useState('all');
+  const [searchSendingType, setSearchSendingType] = useState('all');
+  const [searchIsUsed, setSearchIsUsed] = useState('all');
 
   // Form States
   const [formData, setFormData] = useState({
+    id: '',
     name: '',
     content: '',
-    targetType: 'USER' as 'USER' | 'ENTERPRISE',
+    sendingType: '승인' as '승인' | '반려' | '결재대기',
     targetValue: '',
     isUsed: true
   });
 
   const filteredData = data.filter(item => {
+    const matchesCode = searchTemplateCode === '' || item.id.includes(searchTemplateCode);
     const matchesName = searchName === '' || item.name.includes(searchName);
-    const matchesStatus = searchStatus === 'all' || (searchStatus === 'use' ? item.isUsed : !item.isUsed);
-    return matchesName && matchesStatus;
+    const matchesSendingType = searchSendingType === 'all' || item.sendingType === searchSendingType;
+    const matchesIsUsed = searchIsUsed === 'all' || (searchIsUsed === 'use' ? item.isUsed : !item.isUsed);
+    return matchesCode && matchesName && matchesSendingType && matchesIsUsed;
   });
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,18 +110,20 @@ export default function PushNotificationManagement() {
     if (item) {
       setEditItem(item);
       setFormData({
+        id: item.id,
         name: item.name,
         content: item.content,
-        targetType: item.targetType,
+        sendingType: item.sendingType,
         targetValue: item.targetValue,
         isUsed: item.isUsed
       });
     } else {
       setEditItem(null);
       setFormData({
+        id: '',
         name: '',
         content: '',
-        targetType: 'USER',
+        sendingType: '승인',
         targetValue: '',
         isUsed: true
       });
@@ -138,7 +145,7 @@ export default function PushNotificationManagement() {
     if (editItem) {
       setData(data.map(d => d.id === editItem.id ? { ...d, ...formData, updatedAt: new Date().toISOString().replace('T', ' ').split('.')[0] } : d));
     } else {
-      const newId = `PUSH_${String(data.length + 1).padStart(3, '0')}`;
+      const newId = formData.id || `PUSH_${String(data.length + 1).padStart(3, '0')}`;
       setData([{
         id: newId,
         ...formData,
@@ -161,13 +168,30 @@ export default function PushNotificationManagement() {
     setShowDeleteWarning(null);
   };
 
+  const resetSearch = () => {
+    setSearchTemplateCode('');
+    setSearchName('');
+    setSearchSendingType('all');
+    setSearchIsUsed('all');
+  };
+
   return (
     <div className="space-y-6 pb-20">
       {/* Search Area */}
       <div className="flex items-stretch gap-3 mb-8">
         <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">템플릿 코드</span>
+            <input 
+              type="text" 
+              placeholder="코드 입력"
+              value={searchTemplateCode}
+              onChange={(e) => setSearchTemplateCode(e.target.value)}
+              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">템플릿명</span>
             <div className="relative w-64">
               <input 
                 type="text" 
@@ -179,12 +203,39 @@ export default function PushNotificationManagement() {
               <Search className="w-4 h-4 text-[#8B95A1] absolute right-3 top-1/2 -translate-y-1/2" />
             </div>
           </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">발송 유형</span>
+            <select
+              value={searchSendingType}
+              onChange={(e) => setSearchSendingType(e.target.value)}
+              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75]"
+            >
+              <option value="all">전체</option>
+              <option value="승인">승인</option>
+              <option value="반려">반려</option>
+              <option value="결재대기">결재대기</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">사용여부</span>
+            <select
+              value={searchIsUsed}
+              onChange={(e) => setSearchIsUsed(e.target.value)}
+              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75]"
+            >
+              <option value="all">전체</option>
+              <option value="use">사용</option>
+              <option value="unused">미사용</option>
+            </select>
+          </div>
         </div>
         <div className="flex flex-col gap-2 shrink-0">
           <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
             조회
           </button>
-          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
+          <button 
+            onClick={resetSearch}
+            className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
             초기화
           </button>
         </div>
@@ -265,17 +316,19 @@ export default function PushNotificationManagement() {
                   />
                 </th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-16">No.</th>
+                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-28">템플릿 코드</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-48">템플릿명</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">메시지 내용</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-28">대상 유형</th>
+                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-28">발송 유형</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-24">사용 여부</th>
+                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-40">등록자</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center">최종수정일시</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-20 text-center text-[#8B95A1] text-[14px]">
+                  <td colSpan={9} className="py-20 text-center text-[#8B95A1] text-[14px]">
                     조건에 맞는 데이터가 없습니다.
                   </td>
                 </tr>
@@ -291,6 +344,7 @@ export default function PushNotificationManagement() {
                       />
                     </td>
                     <td className="px-4 text-center text-[13px] text-[#8B95A1] border-r border-[#E5E8EB] font-mono">{idx + 1}</td>
+                    <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB] font-mono">{item.id}</td>
                     <td className="px-4 border-r border-[#E5E8EB]">
                       <span className="text-[14px] font-semibold text-[#191F28] leading-snug break-all">{item.name}</span>
                     </td>
@@ -298,7 +352,7 @@ export default function PushNotificationManagement() {
                       <p className="text-[14px] text-[#4E5968] line-clamp-1">{item.content}</p>
                     </td>
                     <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB]">
-                      {item.targetType === 'USER' ? '사용자' : '기업'}
+                      {item.sendingType}
                     </td>
                     <td className="px-4 text-center border-r border-[#E5E8EB]">
                       <span className={`text-[13px] font-bold ${
@@ -306,6 +360,9 @@ export default function PushNotificationManagement() {
                       }`}>
                         {item.isUsed ? '사용' : '미사용'}
                       </span>
+                    </td>
+                    <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB]">
+                      {item.updatedBy}
                     </td>
                     <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono leading-tight whitespace-nowrap">
                       {item.updatedAt}
@@ -342,6 +399,31 @@ export default function PushNotificationManagement() {
                   </div>
                   
                   <div className="pl-3 space-y-4">
+                    <div className="flex gap-4">
+                        <div className="flex-1 space-y-1.5">
+                          <label className="block text-[14px] font-semibold text-[#191F28]">템플릿 코드</label>
+                          <input 
+                            type="text"
+                            value={formData.id}
+                            onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                            disabled={!!editItem}
+                            className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1] disabled:bg-[#F9FAFB]"
+                            placeholder="템플릿 코드"
+                          />
+                        </div>
+                        <div className="flex-1 space-y-1.5">
+                          <label className="block text-[14px] font-semibold text-[#191F28]">발송 유형 <span className="text-[#F04452]">*</span></label>
+                          <select
+                            value={formData.sendingType}
+                            onChange={(e) => setFormData({ ...formData, sendingType: e.target.value as '승인' | '반려' | '결재대기' })}
+                            className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] outline-none focus:border-[#008d75]"
+                          >
+                            <option value="승인">승인</option>
+                            <option value="반려">반려</option>
+                            <option value="결재대기">결재대기</option>
+                          </select>
+                        </div>
+                    </div>
                     <div className="space-y-1.5">
                       <label className="block text-[14px] font-semibold text-[#191F28]">템플릿명 <span className="text-[#F04452]">*</span></label>
                       <input 
