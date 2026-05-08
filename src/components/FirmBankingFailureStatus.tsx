@@ -316,7 +316,7 @@ export default function FirmBankingFailureStatus() {
           <span className="text-[14px] text-[#4E5968]">건</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="h-[32px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[13px] font-medium text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm flex items-center gap-2">
+          <button className="h-[36px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] font-bold text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm flex items-center gap-2">
             <Download className="w-3.5 h-3.5" />
             엑셀 다운로드
           </button>
@@ -566,3 +566,4 @@ function DetailItem({ label, value, isMono = false, highlight = false, textStyle
     </div>
   );
 }
+  

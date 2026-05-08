@@ -118,10 +118,10 @@ export default function ExceptionManagement() {
         </div>
         
         <div className="flex items-center gap-2">
-          <button onClick={handleOpenAddModal} className="h-[36px] px-4 bg-[#008d75] text-white rounded-md text-[14px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm">
+          <button onClick={handleOpenAddModal} className="h-[36px] px-4 bg-[#008d75] text-white rounded-md text-[14px] font-bold hover:bg-[#007a65] transition-colors shadow-sm">
             예외 등록
           </button>
-                    <button onClick={handleOpenEditModal} className="h-[36px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-medium hover:bg-[#F9FAFB] transition-colors">
+                    <button onClick={handleOpenEditModal} className="h-[36px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors">
             수정
           </button>
            <button 
@@ -130,7 +130,7 @@ export default function ExceptionManagement() {
           >
             삭제
           </button>
-          <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
+          <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
             엑셀 다운로드
           </button>
         </div>
@@ -277,3 +277,4 @@ export default function ExceptionManagement() {
     </div>
   );
 }
+        

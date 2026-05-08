@@ -284,11 +284,11 @@ export default function EmailTemplateManagement() {
         <div className="flex items-center gap-2">
           <button 
             onClick={() => openForm()}
-            className="h-[32px] px-4 bg-[#008d75] text-white rounded-md text-[13px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm"
+            className="h-[36px] px-4 bg-[#008d75] text-white rounded-md text-[14px] font-bold hover:bg-[#007a65] transition-colors shadow-sm"
           >등록</button>
           <button 
             onClick={handleToggleVisibility}
-            className="h-[32px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[13px] font-medium text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm"
+            className="h-[36px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] font-bold text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm"
           >
             사용여부 변경
           </button>
@@ -301,7 +301,7 @@ export default function EmailTemplateManagement() {
               const item = data.find(d => d.id === selectedIds[0]);
               if (item) openForm(item);
             }}
-            className="h-[32px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[13px] font-medium text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm"
+            className="h-[36px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] font-bold text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm"
           >
             수정
           </button>
@@ -572,3 +572,4 @@ export default function EmailTemplateManagement() {
     </div>
   );
 }
+        

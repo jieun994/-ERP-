@@ -193,14 +193,14 @@ export default function MenuManagement() {
       <div className="flex items-center justify-end gap-2 mb-4">
         <button 
           onClick={handleToggleUse}
-          className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors"
+          className="h-[36px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors"
         >
           사용여부 변경
         </button>
         
         <button 
           onClick={handleOpenEdit}
-          className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors"
+          className="h-[36px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors"
         >
           수정
         </button>
@@ -381,3 +381,4 @@ export default function MenuManagement() {
     </div>
   );
 }
+    

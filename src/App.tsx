@@ -111,9 +111,6 @@ export default function App() {
       return;
     }
     setResetEmailError('');
-    
-    if (!resetLoginId) return; // ID 필수는 기본 html validation (required) 사용
-    
     setIsCodeSent(true);
     showToast('인증번호가 이메일로 발송되었습니다.');
   };
@@ -493,21 +490,10 @@ export default function App() {
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={() => {
-                            setKeyboardTarget('password');
-                            setIsKeyboardOpen(true);
-                          }}
-                          className="p-1.5 text-[#8B95A1] hover:text-[#008d75] transition-colors"
-                          title="가상키보드 사용"
-                        >
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
-                        </button>
-                        <button
-                          type="button"
                           onClick={() => setShowLoginPassword(!showLoginPassword)}
-                          className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
+                          className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none"
                         >
-                          {showLoginPassword ? '숨기기' : '보기'}
+                          {showLoginPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
                     </div>
@@ -688,22 +674,6 @@ export default function App() {
                 </div>
 
                 <form onSubmit={isCodeSent ? handleVerifyCode : handleSendEmail} className="space-y-6" noValidate>
-                  <div className="space-y-1.5">
-                    <label htmlFor="resetLoginId" className="block text-sm font-semibold text-[#191F28]">
-                      이메일 (ID)
-                    </label>
-                    <input
-                      id="resetLoginId"
-                      type="email"
-                      placeholder="이메일을 입력하세요"
-                      value={resetLoginId}
-                      onChange={(e) => setResetLoginId(e.target.value)}
-                      disabled={isCodeSent}
-                      className="w-full px-4 h-[44px] rounded-lg border border-[#D1D6DB] focus:border-[#008d75] transition-all outline-none text-sm placeholder-[#8B95A1] disabled:bg-[#F2F4F6] disabled:border-[#E5E8EB] disabled:text-[#8B95A1] disabled:shadow-none disabled:cursor-not-allowed"
-                      required
-                    />
-                  </div>
-
                   <div className="space-y-1.5 relative">
                     <label htmlFor="resetEmail" className="block text-sm font-semibold text-[#191F28]">
                       이메일
@@ -1007,3 +977,4 @@ export default function App() {
   );
 }
 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
