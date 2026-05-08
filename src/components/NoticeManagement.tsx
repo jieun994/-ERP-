@@ -70,6 +70,7 @@ export default function NoticeManagement() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [targetTypes, setTargetTypes] = useState<('ALL' | 'COMPANY' | 'ERP')[]>(['ALL', 'ERP', 'COMPANY']);
+  const targetType = targetTypes.includes('ALL') ? 'ALL' : (targetTypes.length === 1 ? targetTypes[0] : 'ALL');
   const [targetDetails, setTargetDetails] = useState<string[]>([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
