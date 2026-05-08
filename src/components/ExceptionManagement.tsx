@@ -118,16 +118,16 @@ export default function ExceptionManagement() {
         </div>
         
         <div className="flex items-center gap-2">
-          <button onClick={handleOpenAddModal} className="h-[32px] px-4 bg-[#008d75] text-white rounded-md text-[13px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm">
+          <button onClick={handleOpenAddModal} className="h-[36px] px-4 bg-[#008d75] text-white rounded-md text-[14px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm">
             예외 등록
           </button>
-          <button onClick={handleToggleUse} className="h-[32px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors">
-            사용여부 변경
-          </button>
-          <button onClick={handleOpenEditModal} className="h-[32px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors">
+                    <button onClick={handleOpenEditModal} className="h-[36px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-medium hover:bg-[#F9FAFB] transition-colors">
             수정
           </button>
-          <button onClick={handleDelete} className="h-[32px] px-4 bg-white border border-[#F0445220] text-[#F04452] rounded-md text-[13px] font-medium hover:bg-[#F0445210] transition-colors">
+           <button 
+            onClick={handleDelete}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >
             삭제
           </button>
           <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
@@ -151,7 +151,6 @@ export default function ExceptionManagement() {
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">은행명</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">대상 계좌번호</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">예외 사유</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-32">사용여부</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center">등록일자</th>
               </tr>
             </thead>
@@ -167,11 +166,7 @@ export default function ExceptionManagement() {
                   <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{item.bankName}</td>
                   <td className="px-4 text-[14px] text-[#4E5968] font-mono tracking-tight border-r border-[#E5E8EB]">{item.accountNo}</td>
                   <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{item.reason}</td>
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <span className={`text-[13px] font-bold ${item.isUsed ? 'text-[#008d75]' : 'text-[#8B95A1]'}`}>
-                      {item.isUsed ? '사용' : '미사용'}
-                    </span>
-                  </td>
+                  
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono">{item.registeredAt}</td>
                 </tr>
               ))}
@@ -208,7 +203,16 @@ export default function ExceptionManagement() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[14px] font-semibold text-[#191F28]">기업명 <span className="text-[#F04452]">*</span></label>
-                      <input type="text" className="w-full h-[36px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all" placeholder="기업명 입력 또는 검색" />
+                      <select className="w-full h-[36px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all bg-white">
+                        <option value="">기업 선택</option>
+                        <option value="toss">(주)토스페이먼츠</option>
+                        <option value="toss_sub">(주)토스페이자회사</option>
+                        <option value="woowa">우아한형제들</option>
+                        <option value="daangn">당근마켓</option>
+                        <option value="innovation">(주)혁신테크</option>
+                        <option value="yanolja">야놀자</option>
+                        <option value="starbucks">스타벅스코리아</option>
+                      </select>
                     </div>
                   </div>
                 </div>

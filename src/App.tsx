@@ -3,11 +3,14 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { X, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Dashboard from './Dashboard';
+import VirtualKeyboard from './components/VirtualKeyboard';
 
 // ... (keep ViewState and other states, but we'll adapt them)
 
 export default function App() {
   const [view, setView] = useState<string>('gate');
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [keyboardTarget, setKeyboardTarget] = useState<'password' | 'otp' | 'newPassword' | 'confirmPassword' | null>(null);
   
   // Login states
   const [id, setId] = useState('');
@@ -261,6 +264,23 @@ export default function App() {
 );
   }
 
+  const handleKeyboardConfirm = (val: string) => {
+    if (keyboardTarget === 'password') {
+      setPassword(val);
+      setLoginPasswordError('');
+    } else if (keyboardTarget === 'otp') {
+      setOtpCode(val);
+      setOtpError('');
+    } else if (keyboardTarget === 'newPassword') {
+      setNewPassword(val);
+      setNewPasswordError('');
+    } else if (keyboardTarget === 'confirmPassword') {
+      setConfirmPassword(val);
+      setConfirmPasswordError('');
+    }
+    setIsKeyboardOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center p-4 font-sans pb-20">
       <motion.div
@@ -291,6 +311,15 @@ export default function App() {
                       </button>
                       <button onClick={() => setView('otp_register')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
                         OTP 등록 (Google OTP) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setKeyboardTarget('otp');
+                          setIsKeyboardOpen(true);
+                        }} 
+                        className="w-full text-left bg-[#008d7508] hover:bg-[#008d7515] text-[#008d75] border border-[#008d7530] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group"
+                      >
+                        가상 키보드 데모 (OTP/비번) <span className="text-xs text-[#008d75] opacity-100 transition-opacity">Demo</span>
                       </button>
                     </div>
 
@@ -459,15 +488,28 @@ export default function App() {
                         onBlur={() => {
                           if (!password) setLoginPasswordError('비밀번호를 입력해 주세요.');
                         }}
-                        className={`w-full px-4 h-[44px] pr-10 rounded-lg border ${loginPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
+                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${loginPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowLoginPassword(!showLoginPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
-                      >
-                        {showLoginPassword ? '숨기기' : '보기'}
-                      </button>
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setKeyboardTarget('password');
+                            setIsKeyboardOpen(true);
+                          }}
+                          className="p-1.5 text-[#8B95A1] hover:text-[#008d75] transition-colors"
+                          title="가상키보드 사용"
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowLoginPassword(!showLoginPassword)}
+                          className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
+                        >
+                          {showLoginPassword ? '숨기기' : '보기'}
+                        </button>
+                      </div>
                     </div>
                     {loginPasswordError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{loginPasswordError}</p>}
                   </div>
@@ -583,19 +625,32 @@ export default function App() {
                     <label htmlFor="verifyOtp" className="block text-[14px] font-semibold text-[#191F28] text-center">
                       6자리 인증 코드
                     </label>
-                    <input
-                      id="verifyOtp"
-                      type="text"
-                      placeholder="000000"
-                      value={otpCode}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9]/g, '');
-                        if (val.length <= 6) setOtpCode(val);
-                        if (otpError) setOtpError('');
-                      }}
-                      className={`w-full px-4 h-[64px] rounded-lg border ${otpError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-2xl placeholder-[#E5E8EB] font-serif tracking-[0.5em] text-center`}
-                      maxLength={6}
-                    />
+                      <div className="flex flex-col items-center justify-center">
+                        <input
+                          id="verifyOtp"
+                          type="text"
+                          placeholder="000000"
+                          value={otpCode}
+                          readOnly
+                          onClick={() => {
+                            setKeyboardTarget('otp');
+                            setIsKeyboardOpen(true);
+                          }}
+                          className={`w-full px-4 h-[64px] rounded-lg border cursor-pointer ${otpError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-2xl placeholder-[#E5E8EB] font-serif tracking-[0.5em] text-center bg-white hover:border-[#008d75]`}
+                          maxLength={6}
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setKeyboardTarget('otp');
+                            setIsKeyboardOpen(true);
+                          }}
+                          className="mt-3 text-[#008d75] text-[13px] font-bold flex items-center gap-1.5 hover:underline"
+                        >
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
+                          보안 키패드 사용하기
+                        </button>
+                      </div>
                     {otpError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 w-full text-center">{otpError}</p>}
                   </div>
 
@@ -783,15 +838,28 @@ export default function App() {
                           if (confirmPassword) setConfirmPasswordError(validateConfirmPassword(confirmPassword, e.target.value));
                         }}
                         onBlur={(e) => setNewPasswordError(validateNewPassword(e.target.value))}
-                        className={`w-full px-4 h-[44px] pr-10 rounded-lg border ${newPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
+                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${newPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
-                      >
-                        {showNewPassword ? '숨기기' : '보기'}
-                      </button>
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setKeyboardTarget('newPassword');
+                            setIsKeyboardOpen(true);
+                          }}
+                          className="p-1.5 text-[#8B95A1] hover:text-[#008d75] transition-colors"
+                          title="가상키보드 사용"
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
+                        >
+                          {showNewPassword ? '숨기기' : '보기'}
+                        </button>
+                      </div>
                     </div>
                     {newPasswordError ? (
                       <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{newPasswordError}</p>
@@ -817,15 +885,28 @@ export default function App() {
                           if (confirmPasswordError) setConfirmPasswordError('');
                         }}
                         onBlur={(e) => setConfirmPasswordError(validateConfirmPassword(e.target.value, newPassword))}
-                        className={`w-full px-4 h-[44px] pr-10 rounded-lg border ${confirmPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
+                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${confirmPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
-                      >
-                        {showConfirmPassword ? '숨기기' : '보기'}
-                      </button>
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setKeyboardTarget('confirmPassword');
+                            setIsKeyboardOpen(true);
+                          }}
+                          className="p-1.5 text-[#8B95A1] hover:text-[#008d75] transition-colors"
+                          title="가상키보드 사용"
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
+                        >
+                          {showConfirmPassword ? '숨기기' : '보기'}
+                        </button>
+                      </div>
                     </div>
                     {confirmPasswordError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{confirmPasswordError}</p>}
                   </div>
@@ -905,6 +986,14 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <VirtualKeyboard
+        isOpen={isKeyboardOpen}
+        onClose={() => setIsKeyboardOpen(false)}
+        onConfirm={handleKeyboardConfirm}
+        title={keyboardTarget === 'otp' ? 'OTP 인증번호 입력' : '보안 키패드 입력'}
+        length={keyboardTarget === 'otp' ? 6 : 8}
+      />
 
       {view !== 'gate' && (
         <button

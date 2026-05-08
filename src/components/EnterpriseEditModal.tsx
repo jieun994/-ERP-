@@ -63,32 +63,29 @@ export default function EnterpriseEditModal({ isOpen, onClose, enterpriseId }: E
               </div>
 
               <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-700">VAN / 펌뱅킹 ID 설정</label>
-                <div className="grid grid-cols-2 gap-4">
-                   <div className="flex items-center gap-2">
-                     <span className="text-xs text-gray-500 w-16">원화</span>
-                     <input type="text" className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-[#008d75]" placeholder="ID 입력" />
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <span className="text-xs text-gray-500 w-16">외화</span>
-                     <input type="text" className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-[#008d75]" placeholder="ID 입력" />
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <span className="text-xs text-gray-500 w-16">외담대</span>
-                     <input type="text" className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-[#008d75]" placeholder="ID 입력" />
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <span className="text-xs text-gray-500 w-16">지로</span>
-                     <input type="text" className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-[#008d75]" placeholder="ID 입력" />
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <span className="text-xs text-gray-500 w-16">가상계좌</span>
-                     <input type="text" className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-[#008d75]" placeholder="ID 입력" />
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <span className="text-xs text-gray-500 w-16">배치ID</span>
-                     <input type="text" className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-[#008d75]" placeholder="ID 입력" />
-                   </div>
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium text-gray-700">VAN / 펌뱅킹 ID 설정</label>
+                  <button className="text-xs text-[#008d75] font-semibold px-2 py-1 bg-[#008d75]/10 rounded">+ 추가</button>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { type: 'VAN ID', id: 'TEST_VAN_01', acc: '' },
+                    { type: '원화 펌뱅킹 ID', id: 'KRW_FB_01', acc: '123-456-7890' }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <select defaultValue={item.type} className="w-[140px] px-2 py-1.5 border border-gray-300 rounded text-xs outline-none focus:border-[#008d75]">
+                        <option>VAN ID</option>
+                        <option>원화 펌뱅킹 ID</option>
+                        <option>외화 펌뱅킹 ID</option>
+                        <option>외화대금 펌뱅킹 ID</option>
+                        <option>지급 펌뱅킹 ID</option>
+                        <option>가상계좌 펌뱅킹 ID</option>
+                      </select>
+                      <input type="text" defaultValue={item.id} className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-xs outline-none focus:border-[#008d75]" placeholder="ID 입력" />
+                      <input type="text" defaultValue={item.acc} className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-xs outline-none focus:border-[#008d75]" placeholder="계좌번호 입력" />
+                      <button className="text-red-500 hover:text-red-700 p-1"><X className="w-4 h-4" /></button>
+                    </div>
+                  ))}
                 </div>
               </div>
 

@@ -127,30 +127,13 @@ export default function EnterpriseList() {
           <span className="text-[#008d75] font-bold">{data.length}</span>
           <span className="text-[#191F28]"> 건</span>
         </div>
-        
         <div className="flex items-center gap-2">
-          <select className="h-[36px] text-[13px] border border-[#D1D6DB] rounded-md px-3 bg-white text-[#4E5968] font-medium outline-none focus:border-[#008d75] shadow-sm">
-            <option>기업명 오름차순</option>
-            <option>기업명 내림차순</option>
-            <option>최근 등록일순</option>
-          </select>
-          
-          <span className="w-px h-3 bg-[#E5E8EB] mx-1"></span>
-
-          
-          
-          
-          
           <button 
             onClick={handleToggleUse}
             className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >
             사용여부 변경
           </button>
-          <button 
-            onClick={() => setIsRegisterModalOpen(true)}
-            className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
-          >등록</button>
           <button 
             onClick={handleEdit}
             className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
@@ -165,12 +148,13 @@ export default function EnterpriseList() {
           </button>
           <button 
             onClick={handleExcelDownload}
-            className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
+            className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >
             엑셀 다운로드
           </button>
         </div>
       </div>
-
+      
       {/* Table */}
       <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -188,8 +172,8 @@ export default function EnterpriseList() {
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-16">No.</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">테넌트</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">기업명</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">사업자번호</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">법인번호</th>
+                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">사업자등록번호</th>
+                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">법인등록번호</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center">사용여부</th>
               </tr>
             </thead>
@@ -237,13 +221,7 @@ export default function EnterpriseList() {
           </table>
         </div>
         
-        {/* Pagination */}
-        <div className="flex items-center justify-center mt-6 py-4 gap-1">
-          <button className="w-[32px] h-[32px] flex items-center justify-center rounded border border-[#D1D6DB] bg-white text-[#8B95A1] hover:bg-[#F9FAFB] disabled:opacity-50" disabled>&lt;</button>
-          <button className="w-[32px] h-[32px] flex items-center justify-center rounded border border-[#008d75] bg-[#008d75] text-white text-[14px] font-bold">1</button>
-          <button className="w-[32px] h-[32px] flex items-center justify-center rounded border border-[#D1D6DB] bg-white text-[#4E5968] hover:bg-[#F9FAFB] text-[14px] font-medium">2</button>
-          <button className="w-[32px] h-[32px] flex items-center justify-center rounded border border-[#D1D6DB] bg-white text-[#8B95A1] hover:bg-[#F9FAFB]">&gt;</button>
-        </div>
+        
       </div>
       
       {/* 팝업 */}

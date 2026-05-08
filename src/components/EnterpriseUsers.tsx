@@ -13,14 +13,15 @@ interface EnterpriseUser {
 
 const mockData: EnterpriseUser[] = [
   { id: 1, tenant: '(주)토스페이먼츠', enterprise: '(주)토스페이먼츠', userName: '김하나', userId: 'hana_kim@toss.im', role: '마스터', status: '정상', lastLogin: '2024-05-01 10:23:45' },
-  { id: 2, tenant: '(주)토스페이먼츠', enterprise: '(주)토스페이먼츠', userName: '이보람', userId: 'boram_lee@toss.im', role: '상신자', status: '정상', lastLogin: '2024-05-02 11:10:00' },
-  { id: 3, tenant: '(주)토스페이먼츠', enterprise: '(주)토스페이자회사', userName: '박지성', userId: 'jisung_park@toss.im', role: '결재자', status: '중지', lastLogin: '2024-04-20 09:00:22' },
+  { id: 2, tenant: '(주)토스페이먼츠', enterprise: '(주)토스페이먼츠', userName: '이보람', userId: 'boram_lee@toss.im', role: '자금 담당', status: '정상', lastLogin: '2024-05-02 11:10:00' },
+  { id: 3, tenant: '(주)토스페이먼츠', enterprise: '(주)토스페이자회사', userName: '박지성', userId: 'jisung_park@toss.im', role: '인사 담당', status: '중지', lastLogin: '2024-04-20 09:00:22' },
   { id: 4, tenant: '야놀자', enterprise: '야놀자', userName: '최수종', userId: 'sujong_choi@yanolja.com', role: '마스터', status: '정상', lastLogin: '2024-05-04 08:30:11' },
 ];
 
 export default function EnterpriseUsers() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [data, setData] = useState<EnterpriseUser[]>(mockData);
+  const [roleFilter, setRoleFilter] = useState('all');
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -86,6 +87,19 @@ export default function EnterpriseUsers() {
               <option value="all">전체</option>
               <option value="normal">정상</option>
               <option value="stopped">중지</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">권한</span>
+            <select 
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+            >
+              <option value="all">전체</option>
+              <option value="master">마스터</option>
+              <option value="fund">자금 담당</option>
+              <option value="hr">인사 담당</option>
             </select>
           </div>
         </div>

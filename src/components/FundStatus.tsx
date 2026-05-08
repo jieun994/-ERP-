@@ -32,13 +32,7 @@ export default function FundStatus() {
               className="w-56 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]" 
             />
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">조회일자</span>
-            <input 
-              type="date" 
-              className="h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all" 
-            />
-          </div>
+        
         </div>
         <div className="flex flex-col gap-2 shrink-0">
           <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">

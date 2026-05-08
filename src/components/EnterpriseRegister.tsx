@@ -10,71 +10,166 @@ const STEPS = ['기업 기본정보 등록', 'VAN/펌뱅킹 ID 등록', '기업 
 // ... (imports)
 
 import EnterpriseInterfaceSettings from './EnterpriseInterfaceSettings';
-const VanFirmBankingRegistration = ({ enterprises }) => {
-  const [selectedEnt, setSelectedEnt] = useState(enterprises[0] || null);
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  
+const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) => {
+  const [formState, setFormState] = useState({
+    id: '', 
+    entId: enterprises[0]?.id || '',
+    idType: 'VAN ID',
+    idValue: '',
+    accountNumber: ''
+  });
+  const [formErrors, setFormErrors] = useState<any>({});
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const ID_TYPES = [
+    'VAN ID', 
+    '원화 펌뱅킹 ID', 
+    '외화 펌뱅킹 ID', 
+    '외화대금 펌뱅킹 ID', 
+    '지급 펌뱅킹 ID', 
+    '가상계좌 펌뱅킹 ID'
+  ];
+
+  const handleAddOrUpdate = () => {
+    const errors: any = {};
+    if (!formState.entId) errors.entId = '기업을 선택해주세요.';
+    if (!formState.idValue.trim()) errors.idValue = 'ID를 입력해주세요.';
+    
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    if (editingId) {
+      setVanRecords(vanRecords.map(r => r.id === editingId ? { ...formState, id: editingId } : r));
+      setEditingId(null);
+    } else {
+      setVanRecords([...vanRecords, { ...formState, id: Date.now().toString() }]);
+    }
+    setFormState({ id: '', entId: enterprises[0]?.id || '', idType: 'VAN ID', idValue: '', accountNumber: '' });
+    setFormErrors({});
+  };
+
+  const handleCancelEdit = () => {
+    setFormState({ id: '', entId: enterprises[0]?.id || '', idType: 'VAN ID', idValue: '', accountNumber: '' });
+    setEditingId(null);
+    setFormErrors({});
+  };
+
+  const handleDeleteSelected = () => {
+    setVanRecords(vanRecords.filter(r => !selectedIds.includes(r.id)));
+    setSelectedIds([]);
+  };
+
+  const handleEditClick = (record) => {
+    setFormState(record);
+    setEditingId(record.id);
+  };
+
   return (
-    <div className="flex gap-6 h-[500px] border border-gray-200 rounded-md overflow-hidden">
-        {/* 좌측 패널: 기업 목록 */}
-        <div className="w-[30%] border-r border-gray-200 bg-gray-50 flex flex-col">
-            <div className="p-3 border-b border-gray-200">
-                <input className="w-full px-3 py-1.5 border border-gray-300 rounded text-[13px]" placeholder="기업명 검색..." />
-            </div>
-            <div className="flex-1 overflow-y-auto">
-                {enterprises.map(ent => (
-                    <div 
-                        key={ent.id} 
-                        className={`p-3 border-b border-gray-200 cursor-pointer ${selectedEnt?.id === ent.id ? 'bg-white border-l-4 border-l-[#008d75]' : 'hover:bg-gray-100'}`}
-                        onClick={() => setSelectedEnt(ent)}
-                    >
-                        <div className="text-[14px] font-bold text-gray-900">{ent.name}</div>
-                        <div className="text-[12px] text-gray-500 mt-1">미입력</div>
-                    </div>
-                ))}
-            </div>
+    <div>
+      <div className="mb-6">
+        <h2 className="text-[20px] font-bold text-gray-900 mb-1.5">기업별 VAN/펌뱅킹 ID 등록</h2>
+        <p className="text-[14px] text-gray-500">기업별로 해당되는 VAN 및 펌뱅킹 연동 ID를 추가합니다. <span className="text-[#008d75] font-medium">선택사항이므로 등록할 내용이 없다면 '다음 단계'를 눌러 건너뛸 수 있습니다.</span></p>
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-6 p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div>
+            <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">기업 선택</label>
+            <select 
+              className={`w-full px-3 py-2 border rounded-md text-[14px] ${formErrors.entId ? 'border-red-500' : 'border-gray-300'}`}
+              value={formState.entId}
+              onChange={(e) => { setFormState({...formState, entId: e.target.value}); setFormErrors({...formErrors, entId: ''}); }}
+            >
+              {enterprises.length === 0 && <option value="">기업을 추가해주세요</option>}
+              {enterprises.map(ent => (
+                <option key={ent.id} value={ent.id}>{ent.name}</option>
+              ))}
+            </select>
+            {formErrors.entId && <p className="text-[12px] text-red-500 mt-1">{formErrors.entId}</p>}
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">ID 구분</label>
+            <select 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px]"
+              value={formState.idType}
+              onChange={(e) => setFormState({...formState, idType: e.target.value})}
+            >
+              {ID_TYPES.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">ID값</label>
+            <input 
+              className={`w-full px-3 py-2 border rounded-md text-[14px] ${formErrors.idValue ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="ID 입력"
+              value={formState.idValue}
+              onChange={(e) => { setFormState({...formState, idValue: e.target.value}); setFormErrors({...formErrors, idValue: ''}); }}
+            />
+            {formErrors.idValue && <p className="text-[12px] text-red-500 mt-1">{formErrors.idValue}</p>}
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">계좌번호</label>
+            <input 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px]"
+              placeholder="계좌번호 입력 (선택)"
+              value={formState.accountNumber}
+              onChange={(e) => setFormState({...formState, accountNumber: e.target.value})}
+            />
+          </div>
         </div>
+        
+        <div className="flex justify-end gap-2 border-t border-gray-100 pt-4 mt-2">
+          <button onClick={editingId ? handleCancelEdit : () => setFormState({ id: '', entId: enterprises[0]?.id || '', idType: 'VAN ID', idValue: '', accountNumber: '' })} className="px-6 py-2 bg-white border border-[#008d75] rounded-md text-[14px] font-semibold text-[#008d75]">취소</button>
+          <button onClick={handleAddOrUpdate} className="px-6 py-2 bg-[#008d75] rounded-md text-[14px] font-semibold text-white">{editingId ? '수정' : '추가'}</button>
+        </div>
+      </div>
 
-        {/* 우측 패널: 상세 입력 */}
-        <div className="flex-1 p-6 overflow-y-auto">
-            {selectedEnt ? (
-                <div className="space-y-6">
-                    <h3 className="text-[16px] font-bold text-gray-900 pb-4 border-b border-gray-200">{selectedEnt.name}</h3>
-                    {/* 기본 연동 정보 */}
-                    <div>
-                        <label className="block text-[13px] font-semibold text-gray-700 mb-2">기본 연동 정보</label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-[12px] text-gray-500 mb-1">VAN ID</label>
-                                <input className="w-full px-3 py-2 border border-gray-300 rounded text-[13px]" placeholder="VAN ID 입력" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 고급 설정 (펌뱅킹 ID) */}
-                    <div className="border-t border-gray-200 pt-4">
-                        <div 
-                            className="flex items-center gap-2 cursor-pointer mb-2"
-                            onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-                        >
-                            <span className="text-[13px] font-semibold text-gray-700">펌뱅킹 ID 설정 {isAdvancedOpen ? '▲' : '▼'}</span>
-                        </div>
-                        {isAdvancedOpen && (
-                            <div className="grid grid-cols-2 gap-4 pt-2">
-                                {['원화 펌뱅킹 ID', '외화 펌뱅킹 ID', '외화대금 펌뱅킹 ID', '지급 펌뱅킹 ID', '가상계좌 펌뱅킹 ID'].map(label => (
-                                    <div key={label}>
-                                        <label className="block text-[12px] text-gray-500 mb-1">{label}</label>
-                                        <input className="w-full px-3 py-2 border border-gray-300 rounded text-[13px]" placeholder={`${label} 입력`} />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
+      <div className="bg-white">
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <h3 className="text-[16px] font-bold text-gray-900 mb-1">ID 등록 목록</h3>
+            <p className="text-[13px] text-gray-500">추가한 항목은 아래 목록에서 확인하고 삭제할 수 있습니다.</p>
+          </div>
+          <button onClick={handleDeleteSelected} disabled={selectedIds.length === 0} className="px-4 py-2 border border-[#d32f2f] rounded-md text-[12px] font-semibold text-[#d32f2f] disabled:bg-gray-100 disabled:border-gray-300">삭제</button>
+        </div>
+        <table className="w-full text-left text-[13px]">
+          <thead className="bg-gray-50 text-gray-600">
+            <tr>
+              <th className="p-3 w-10 text-center"><input type="checkbox" onChange={(e) => setSelectedIds(e.target.checked ? vanRecords.map(r => r.id) : [])} checked={selectedIds.length === vanRecords.length && vanRecords.length > 0}/></th>
+              <th className="p-3">기업명</th>
+              <th className="p-3">ID 구분</th>
+              <th className="p-3">ID값</th>
+              <th className="p-3">계좌번호</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {vanRecords.length === 0 ? (
+              <tr><td colSpan={5} className="py-12 text-center text-gray-500">추가된 ID가 없습니다. 상단 폼에서 정보를 입력한 뒤 추가해 주세요.</td></tr>
             ) : (
-                <div className="flex items-center justify-center h-full text-gray-400">기업을 선택해주세요.</div>
+              vanRecords.map(record => {
+                const entName = enterprises.find(e => e.id === record.entId)?.name || '알 수 없음';
+                return (
+                  <tr key={record.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleEditClick(record)}>
+                    <td className="p-3 text-center"><input type="checkbox" checked={selectedIds.includes(record.id)} onChange={(e) => { e.stopPropagation(); setSelectedIds(selectedIds.includes(record.id) ? selectedIds.filter(id => id !== record.id) : [...selectedIds, record.id]); }} /></td>
+                    <td className="p-3 font-semibold">{entName}</td>
+                    <td className="p-3">{record.idType}</td>
+                    <td className="p-3">{record.idValue}</td>
+                    <td className="p-3">{record.accountNumber || '-'}</td>
+                  </tr>
+                );
+              })
             )}
-        </div>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
@@ -84,7 +179,8 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
   const [registerMode, setRegisterMode] = useState('manual');
   
   // State for accumulated enterprises (List)
-  const [enterprises, setEnterprises] = useState([]);
+  const [enterprises, setEnterprises] = useState<any[]>([]);
+  const [vanRecords, setVanRecords] = useState<any[]>([]);
   
   // State for form
   const [tenantCode, setTenantCode] = useState('');
@@ -351,7 +447,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
           </>
         )}
         {currentStep === 2 && (
-          <VanFirmBankingRegistration enterprises={enterprises} />
+          <VanFirmBankingRegistration enterprises={enterprises} vanRecords={vanRecords} setVanRecords={setVanRecords} />
         )}
         {currentStep === 3 && (
           <EnterpriseInterfaceSettings enterprises={enterprises} />
