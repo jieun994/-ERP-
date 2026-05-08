@@ -513,83 +513,32 @@ export default function BannerManagement() {
                   
                   <div className="grid grid-cols-1 gap-6">
                     {/* 게시 대상 */}
-                   <div className="space-y-2">
-                    <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
-                    <div className="flex items-center gap-4 mb-3">
-                        {['ALL', 'COMPANY', 'ERP'].map((type) => (
-                            <label key={type} className="flex items-center gap-2 cursor-pointer group">
-                                <input 
-                                    type="radio" 
-                                    name="targetType" 
-                                    value={type}
-                                    checked={targetType === type}
-                                    onChange={() => {
-                                        setTargetType(type as 'ALL' | 'COMPANY' | 'ERP');
-                                        setTargetDetails([]);
-                                        setErrors(prev => ({...prev, targetDetails: ''}));
-                                    }}
-                                    className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
-                                />
-                                <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors font-medium">
-                                    {type === 'ALL' ? '전체기업' : type === 'COMPANY' ? '기업별' : 'ERP별'}
-                                </span>
-                            </label>
-                        ))}
+                    <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
+                        <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
+                        <div className="flex items-center gap-4 mb-3">
+                            {['전체', '더존', '가비아'].map((label) => (
+                                <label key={label} className="flex items-center gap-2 cursor-pointer group">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={targetDetails.includes(label)}
+                                        onChange={(e) => {
+                                            const newDetails = e.target.checked 
+                                                ? [...targetDetails, label]
+                                                : targetDetails.filter(d => d !== label);
+                                            // Handle special logic for '전체'
+                                            if (label === '전체' && e.target.checked) setTargetDetails(['전체']);
+                                            else setTargetDetails(newDetails.filter(d => d !== '전체'));
+                                        }}
+                                        className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75] rounded"
+                                    />
+                                    <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors font-medium">
+                                        {label}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                        {errors.targetDetails && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.targetDetails}</p>}
                     </div>
-
-                    {targetType === 'COMPANY' && (
-                        <div className="mt-3 bg-white p-3 border border-[#D1D6DB] rounded-md max-h-40 overflow-y-auto space-y-2 shadow-inner">
-                             {mockCompanies.map(comp => (
-                                 <label key={comp} className="flex items-center gap-2 cursor-pointer group">
-                                    <input 
-                                        type="checkbox" 
-                                        className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
-                                        checked={targetDetails.includes(comp)}
-                                        onChange={(e) => {
-                                            const newDetails = e.target.checked 
-                                                ? [...targetDetails, comp]
-                                                : targetDetails.filter(d => d !== comp);
-                                            setTargetDetails(newDetails);
-                                            if (newDetails.length > 0) {
-                                                const next = {...errors};
-                                                delete next.targetDetails;
-                                                setErrors(next);
-                                            }
-                                        }}
-                                    />
-                                    <span className="text-[13px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">{comp}</span>
-                                 </label>
-                             ))}
-                        </div>
-                    )}
-
-                    {targetType === 'ERP' && (
-                        <div className="mt-3 bg-white p-3 border border-[#D1D6DB] rounded-md max-h-40 overflow-y-auto space-y-2 shadow-inner">
-                             {mockERPs.map(erp => (
-                                 <label key={erp} className="flex items-center gap-2 cursor-pointer group">
-                                    <input 
-                                        type="checkbox" 
-                                        className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
-                                        checked={targetDetails.includes(erp)}
-                                        onChange={(e) => {
-                                            const newDetails = e.target.checked 
-                                                ? [...targetDetails, erp]
-                                                : targetDetails.filter(d => d !== erp);
-                                            setTargetDetails(newDetails);
-                                            if (newDetails.length > 0) {
-                                                const next = {...errors};
-                                                delete next.targetDetails;
-                                                setErrors(next);
-                                            }
-                                        }}
-                                    />
-                                    <span className="text-[13px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">{erp}</span>
-                                 </label>
-                             ))}
-                        </div>
-                    )}
-                    {errors.targetDetails && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.targetDetails}</p>}
-                   </div>
 
                     {/* 노출 여부 */}
                     <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">

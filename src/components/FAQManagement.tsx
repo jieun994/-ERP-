@@ -69,6 +69,7 @@ export default function FAQManagement() {
   // Filter state
   const [searchTopic, setSearchTopic] = useState('question');
   const [keyword, setKeyword] = useState('');
+  const [visibilityFilter, setVisibilityFilter] = useState<'ALL' | 'VISIBLE' | 'HIDDEN'>('ALL');
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) setSelectedIds(data.map(d => d.id));
@@ -175,13 +176,19 @@ export default function FAQManagement() {
   };
 
   const filteredData = data.filter(item => {
+    let matchesKeyword = true;
     if (keyword) {
       const lowerKeyword = keyword.toLowerCase();
-      if (searchTopic === 'question') return item.question.toLowerCase().includes(lowerKeyword);
-      if (searchTopic === 'answer') return item.answer.toLowerCase().includes(lowerKeyword);
-      return item.question.toLowerCase().includes(lowerKeyword) || item.answer.toLowerCase().includes(lowerKeyword);
+      if (searchTopic === 'question') matchesKeyword = item.question.toLowerCase().includes(lowerKeyword);
+      else if (searchTopic === 'answer') matchesKeyword = item.answer.toLowerCase().includes(lowerKeyword);
+      else matchesKeyword = item.question.toLowerCase().includes(lowerKeyword) || item.answer.toLowerCase().includes(lowerKeyword);
     }
-    return true;
+    
+    let matchesVisibility = true;
+    if (visibilityFilter === 'VISIBLE') matchesVisibility = item.isVisible;
+    else if (visibilityFilter === 'HIDDEN') matchesVisibility = !item.isVisible;
+    
+    return matchesKeyword && matchesVisibility;
   });
 
   return (
@@ -210,12 +217,31 @@ export default function FAQManagement() {
               className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
           </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[14px] font-bold text-gray-800 shrink-0">노출여부</span>
+            <select 
+              value={visibilityFilter}
+              onChange={(e) => setVisibilityFilter(e.target.value as 'ALL' | 'VISIBLE' | 'HIDDEN')}
+              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+            >
+              <option value="ALL">전체</option>
+              <option value="VISIBLE">노출</option>
+              <option value="HIDDEN">미노출</option>
+            </select>
+          </div>
         </div>
         <div className="flex flex-col gap-2 shrink-0">
           <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
             조회
           </button>
-          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
+          <button 
+            onClick={() => {
+              setKeyword('');
+              setSearchTopic('question');
+              setVisibilityFilter('ALL');
+            }}
+            className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm"
+          >
             초기화
           </button>
         </div>
@@ -290,13 +316,14 @@ export default function FAQManagement() {
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] border-r border-[#E5E8EB]">질문</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-20 border-r border-[#E5E8EB]">순서</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-24 border-r border-[#E5E8EB]">노출 여부</th>
+                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-24 border-r border-[#E5E8EB]">등록자</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-32">최종수정일시</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredData.length === 0 ? (
                 <tr>
-                   <td colSpan={6} className="py-20 text-center text-[#8B95A1] text-[14px]">
+                   <td colSpan={7} className="py-20 text-center text-[#8B95A1] text-[14px]">
                     조건에 맞는 결과가 없습니다.
                    </td>
                 </tr>
@@ -325,6 +352,7 @@ export default function FAQManagement() {
                       {item.isVisible ? '노출' : '미노출'}
                     </span>
                   </td>
+                  <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB]">{item.author}</td>
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono tracking-tight">
                     {item.updatedAt}
                   </td>
@@ -364,11 +392,56 @@ export default function FAQManagement() {
 
               <div className="p-6 overflow-y-auto w-full space-y-8 flex-1 bg-white">
                 
-                {/* 1. 기본 정보 */}
+                
+                {/* 기본정보 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                     <h4 className="text-[15px] font-semibold text-[#191F28]">기본 정보</h4>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {/* 질문 */}
+                    <div className="space-y-1.5">
+                        <label className="block text-[14px] font-semibold text-[#191F28]">질문 <span className="text-[#F04452]">*</span></label>
+                        <input 
+                        type="text" 
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                        onBlur={() => {
+                            if (!question.trim()) setErrors(prev => ({...prev, question: '질문을 입력해주세요.'}));
+                            else setErrors(prev => ({...prev, question: ''}));
+                        }}
+                        placeholder="자주 묻는 질문을 입력하세요."
+                        className={`w-full h-[40px] px-4 bg-white border ${errors.question ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all`}
+                        />
+                        {errors.question && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.question}</p>}
+                    </div>
+
+                    {/* 답변 */}
+                    <div className="space-y-1.5">
+                        <label className="block text-[14px] font-semibold text-[#191F28]">답변 <span className="text-[#F04452]">*</span></label>
+                        <textarea 
+                        value={answer}
+                        onChange={(e) => setAnswer(e.target.value)}
+                        onBlur={() => {
+                            if (!answer.trim()) setErrors(prev => ({...prev, answer: '답변을 입력해주세요.'}));
+                            else setErrors(prev => ({...prev, answer: ''}));
+                        }}
+                        placeholder="상세 답변 내용을 입력하세요."
+                        rows={8}
+                        className={`w-full px-4 py-3 bg-white border ${errors.answer ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all resize-none`}
+                        />
+                        {errors.answer && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.answer}</p>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 게시 설정 */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
+                    <h4 className="text-[15px] font-semibold text-[#191F28]">게시 설정</h4>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -411,50 +484,6 @@ export default function FAQManagement() {
                             <span className="text-[13px] text-[#8B95A1]">낮은 숫자일수록 상단에 노출됩니다.</span>
                         </div>
                         {errors.order && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.order}</p>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* FAQ 내용 */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">FAQ 상세 입력</h4>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {/* 질문 */}
-                    <div className="space-y-1.5">
-                        <label className="block text-[14px] font-semibold text-[#191F28]">질문 <span className="text-[#F04452]">*</span></label>
-                        <input 
-                        type="text" 
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        onBlur={() => {
-                            if (!question.trim()) setErrors(prev => ({...prev, question: '질문을 입력해주세요.'}));
-                            else setErrors(prev => ({...prev, question: ''}));
-                        }}
-                        placeholder="자주 묻는 질문을 입력하세요."
-                        className={`w-full h-[40px] px-4 bg-white border ${errors.question ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all`}
-                        />
-                        {errors.question && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.question}</p>}
-                    </div>
-
-                    {/* 답변 */}
-                    <div className="space-y-1.5">
-                        <label className="block text-[14px] font-semibold text-[#191F28]">답변 <span className="text-[#F04452]">*</span></label>
-                        <textarea 
-                        value={answer}
-                        onChange={(e) => setAnswer(e.target.value)}
-                        onBlur={() => {
-                            if (!answer.trim()) setErrors(prev => ({...prev, answer: '답변을 입력해주세요.'}));
-                            else setErrors(prev => ({...prev, answer: ''}));
-                        }}
-                        placeholder="상세 답변 내용을 입력하세요."
-                        rows={8}
-                        className={`w-full px-4 py-3 bg-white border ${errors.answer ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all resize-none`}
-                        />
-                        {errors.answer && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.answer}</p>}
                     </div>
                   </div>
                 </div>
