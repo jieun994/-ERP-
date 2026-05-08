@@ -300,9 +300,9 @@ export default function MenuManagement() {
 
       {/* Edit Modal */}
       {isEditModalOpen && editItem && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white w-[500px] rounded-lg shadow-xl overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
               <h2 className="text-[16px] font-semibold text-[#191F28]">메뉴 수정</h2>
               <button onClick={() => setIsEditModalOpen(false)} className="text-[#8B95A1] hover:text-[#191F28] transition-colors">
                 <X className="w-5 h-5" />

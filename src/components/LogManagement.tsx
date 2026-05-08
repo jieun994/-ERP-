@@ -280,21 +280,16 @@ export default function LogManagement() {
       {/* Detail Modal (Strict Popup Pattern) */}
       <AnimatePresence>
         {selectedLog && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
             <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={closeDetail}
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-              animate={{ opacity: 1, scale: 1, y: 0 }} 
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              exit={{ opacity: 0, scale: 0.95 }}
               className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Popup Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E8EB] bg-white shrink-0">
-                <h3 className="text-[18px] font-bold text-[#191F28]">로그 상세 확인</h3>
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] bg-white shrink-0">
+                <h3 className="text-[16px] font-semibold text-[#191F28]">로그 상세 확인</h3>
                 <button 
                   onClick={closeDetail}
                   className="p-1 text-[#8B95A1] hover:text-[#191F28] transition-colors"

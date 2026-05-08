@@ -13,15 +13,15 @@ export default function EnterpriseEditModal({ isOpen, onClose, enterpriseId }: E
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <h2 className="text-[18px] font-bold text-gray-900">기업 정보 수정</h2>
+          <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
+            <h2 className="text-[16px] font-semibold text-[#191F28]">기업 정보 수정</h2>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-800 transition-colors">X</button>
           </div>
           

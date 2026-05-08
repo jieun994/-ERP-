@@ -177,9 +177,9 @@ export default function ExceptionManagement() {
 
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
-              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] bg-white">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-lg bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
                 <h2 className="text-[16px] font-semibold text-[#191F28]">타행계좌 예외 {modalMode === 'create' ? '등록' : '수정'}</h2>
                 <button onClick={() => setIsModalOpen(false)} className="text-[#8B95A1] hover:text-[#191F28] transition-colors p-2">
                   <X className="w-5 h-5" />

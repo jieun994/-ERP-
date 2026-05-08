@@ -204,6 +204,19 @@ export default function PushNotificationManagement() {
           
           
           <button 
+            onClick={() => {
+              if (selectedIds.length === 0) {
+                alert('사용 여부를 변경할 항목을 선택해 주세요.');
+                return;
+              }
+              setData(data.map(item => selectedIds.includes(item.id) ? { ...item, isUsed: !item.isUsed } : item));
+              setSelectedIds([]);
+            }}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >
+            사용여부 변경
+          </button>
+          <button 
             onClick={() => openForm()}
             className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
           >등록</button>

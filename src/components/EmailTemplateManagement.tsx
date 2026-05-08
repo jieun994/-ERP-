@@ -327,13 +327,14 @@ export default function EmailTemplateManagement() {
                     <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-auto">템플릿명</th>
                     <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-36">발송 유형</th>
                     <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-28">사용 여부</th>
+                    <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-24">등록자</th>
                     <th className="h-[52px] px-4 text-[14px] font-semibold text-center">최종수정일시</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E8EB]">
                   {filteredData.length === 0 ? (
                     <tr>
-                       <td colSpan={7} className="py-12 text-center text-[#8B95A1] text-[14px]">
+                       <td colSpan={8} className="py-12 text-center text-[#8B95A1] text-[14px]">
                         등록된 이메일 템플릿이 없습니다.
                        </td>
                     </tr>
@@ -363,6 +364,7 @@ export default function EmailTemplateManagement() {
                           {item.isActive ? '사용' : '미사용'}
                         </span>
                       </td>
+                      <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB]">{item.author}</td>
                       <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono tracking-tight">
                         {item.updatedAt}
                       </td>

@@ -389,21 +389,14 @@ export default function NoticeManagement() {
        {/* Notice Form Modal */}
        <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={closeForm}
-            />
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
             >
-              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0">
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
                 <h3 className="text-[16px] font-semibold text-[#191F28]">공지사항 {editItem ? '수정' : '등록'}</h3>
                 <button 
                   onClick={closeForm}
@@ -413,7 +406,7 @@ export default function NoticeManagement() {
                 </button>
               </div>
 
-              <div className="p-6 overflow-y-auto w-full space-y-8 flex-1 bg-white">
+              <div className="flex-1 overflow-y-auto p-8 space-y-8">
                 
                 {/* 1. 기본 정보 */}
                 <div className="space-y-4">
@@ -595,16 +588,16 @@ export default function NoticeManagement() {
 
               </div>
 
-              <div className="h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] flex items-center justify-end gap-3 shrink-0">
+              <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
                 <button 
                   onClick={closeForm}
-                  className="h-[40px] px-6 border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
+                  className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
                 >
                   취소
                 </button>
                 <button 
                   onClick={saveForm}
-                  className="h-[40px] px-8 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors"
+                  className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
                 >
                   저장하기
                 </button>
@@ -618,31 +611,26 @@ export default function NoticeManagement() {
         {/* Delete Confirmation Modal */}
         <AnimatePresence>
             {showDeleteWarning && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-                <motion.div 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                    onClick={() => setShowDeleteWarning(null)}
-                />
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                    className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl p-6 text-center"
+                    className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
                 >
-                    <div className="w-12 h-12 bg-[#F0445210] text-[#F04452] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-12 h-12 bg-[#F0445210] text-[#F04452] rounded-full flex items-center justify-center mx-auto mb-6">
                         <AlertCircle className="w-6 h-6" />
                     </div>
-                    <h3 className="text-[16px] font-bold text-[#191F28] mb-2">공지사항을 삭제하시겠습니까?</h3>
-                    <p className="text-[14px] text-[#4E5968] mb-6 font-medium">삭제 후 복구할 수 없습니다.</p>
+                    <h3 className="text-[18px] font-bold text-[#191F28] mb-3">공지사항을 삭제하시겠습니까?</h3>
+                    <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">삭제 후 복구할 수 없습니다.</p>
                     <div className="flex gap-2 justify-center">
                         <button 
                             onClick={() => setShowDeleteWarning(null)}
-                            className="px-5 h-[40px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-medium hover:bg-[#F9FAFB] transition-colors"
+                            className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
                         >
                             취소
                         </button>
                         <button 
                             onClick={() => executeDelete(showDeleteWarning === 'bulk' ? selectedIds : [showDeleteWarning])}
-                            className="px-5 h-[40px] bg-[#F04452] text-white rounded-md text-[14px] font-semibold hover:bg-[#d93a46] transition-colors shadow-sm"
+                            className="flex-1 h-[44px] bg-[#F04452] text-white rounded-md text-[14px] font-semibold hover:bg-[#d93a46] transition-colors shadow-sm"
                         >
                             삭제하기
                         </button>
@@ -656,25 +644,20 @@ export default function NoticeManagement() {
         {/* Cancel Warning Modal */}
         <AnimatePresence>
             {showCancelWarning && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-                <motion.div 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                    onClick={() => setShowCancelWarning(false)}
-                />
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                    className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl p-6 text-center"
+                    className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
                 >
-                    <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
                         <AlertCircle className="w-6 h-6" />
                     </div>
-                    <h3 className="text-[16px] font-bold text-[#191F28] mb-2">저장되지 않은 변경사항</h3>
-                    <p className="text-[14px] text-[#4E5968] mb-6 font-medium">현재 입력한 내용이 저장되지 않습니다. 닫으시겠습니까?</p>
+                    <h3 className="text-[18px] font-bold text-[#191F28] mb-3">저장되지 않은 변경사항</h3>
+                    <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">현재 입력한 내용이 저장되지 않습니다. 닫으시겠습니까?</p>
                     <div className="flex gap-2 justify-center">
                         <button 
                             onClick={() => setShowCancelWarning(false)}
-                            className="px-5 h-[40px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-medium hover:bg-[#F9FAFB] transition-colors"
+                            className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
                         >
                             계속 작성
                         </button>
@@ -683,7 +666,7 @@ export default function NoticeManagement() {
                                 setShowCancelWarning(false);
                                 setIsModalOpen(false);
                             }}
-                            className="px-5 h-[40px] bg-[#008d75] text-white rounded-md text-[14px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm"
+                            className="flex-1 h-[44px] bg-[#008d75] text-white rounded-md text-[14px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm"
                         >
                             닫기
                         </button>

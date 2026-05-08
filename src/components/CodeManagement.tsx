@@ -504,14 +504,7 @@ export default function CodeManagement() {
       {/* Modal / Popup for Detailed Code */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={handleCloseModal}
-            />
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -613,34 +606,43 @@ export default function CodeManagement() {
                 </button>
               </div>
 
-              {/* Unsaved Warning Overlay */}
-              {showUnsavedWarning && (
-                <div className="absolute inset-0 bg-white/95 z-20 flex flex-col items-center justify-center p-8 text-center">
-                  <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-6">
-                    <RotateCcw className="w-6 h-6 rotate-[15deg]" />
-                  </div>
-                  <h4 className="text-[18px] font-bold text-[#191F28] mb-3">저장되지 않은 변경사항이 있습니다.</h4>
-                  <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">현재 입력한 내용이 저장되지 않을 수 있습니다.<br/>정말 종료하시겠습니까?</p>
-                  <div className="flex gap-2 w-full max-w-[300px]">
-                    <button 
-                      onClick={() => setShowUnsavedWarning(false)}
-                      className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
-                    >
-                      계속 작성
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setShowUnsavedWarning(false);
-                        setIsModalOpen(false);
-                      }}
-                      className="flex-1 h-[44px] bg-[#F04452] text-white rounded-md text-[14px] font-semibold hover:bg-[#d93a46] transition-colors shadow-sm"
-                    >
-                      종료하기
-                    </button>
-                  </div>
-                </div>
-              )}
+
             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Cancel Warning Modal */}
+      <AnimatePresence>
+        {showUnsavedWarning && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+              <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                  className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
+              >
+                  <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <AlertCircle className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-[18px] font-bold text-[#191F28] mb-3">저장되지 않은 변경사항</h3>
+                  <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">현재 입력한 내용이 유실될 수 있습니다.<br/>그래도 닫으시겠습니까?</p>
+                  <div className="flex gap-2 justify-center">
+                      <button 
+                          onClick={() => setShowUnsavedWarning(false)}
+                          className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
+                      >
+                          계속 작성
+                      </button>
+                      <button 
+                          onClick={() => {
+                              setShowUnsavedWarning(false);
+                              setIsModalOpen(false);
+                          }}
+                          className="flex-1 h-[44px] bg-[#008d75] text-white rounded-md text-[14px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm"
+                      >
+                          닫기
+                      </button>
+                  </div>
+              </motion.div>
           </div>
         )}
       </AnimatePresence>
