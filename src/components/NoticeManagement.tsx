@@ -9,7 +9,6 @@ interface Notice {
   content: string;
   targetType: 'ALL' | 'COMPANY' | 'ERP';
   targetDetails:(string)[];
-  positions: string[];
   startDate: string;
   endDate: string;
   isPinned: boolean;
@@ -27,7 +26,6 @@ const mockNotices: Notice[] = [
     content: '시스템 점검이 예정되어 있습니다. 이용에 불편을 드려 죄송합니다.',
     targetType: 'ALL',
     targetDetails: [],
-    positions: ['메인화면(대시보드)'],
     startDate: '2024-05-01',
     endDate: '2024-05-10',
     isPinned: true,
@@ -43,7 +41,6 @@ const mockNotices: Notice[] = [
     content: '등록 신청 시 필요한 증빙 서류를 반드시 첨부해 주세요.',
     targetType: 'COMPANY',
     targetDetails: ['A그룹', 'B그룹'],
-    positions: ['메인화면(대시보드)', '모바일 결재관리'],
     startDate: '2024-05-05',
     endDate: '2024-12-31',
     isPinned: false,
@@ -72,9 +69,8 @@ export default function NoticeManagement() {
   // Form State
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [targetType, setTargetType] = useState<'ALL' | 'COMPANY' | 'ERP'>('ALL');
+  const [targetTypes, setTargetTypes] = useState<('ALL' | 'COMPANY' | 'ERP')[]>(['ALL', 'ERP', 'COMPANY']);
   const [targetDetails, setTargetDetails] = useState<string[]>([]);
-  const [positions, setPositions] = useState<string[]>(['메인화면(대시보드)', '모바일 결재관리']);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isPinned, setIsPinned] = useState(false);
@@ -128,9 +124,8 @@ export default function NoticeManagement() {
       setEditItem(item);
       setTitle(item.title);
       setContent(item.content);
-      setTargetType(item.targetType);
+      setTargetTypes([item.targetType]);
       setTargetDetails(item.targetDetails);
-      setPositions(item.positions);
       setStartDate(item.startDate);
       setEndDate(item.endDate);
       setIsPinned(item.isPinned);
@@ -139,9 +134,8 @@ export default function NoticeManagement() {
       setEditItem(null);
       setTitle('');
       setContent('');
-      setTargetType('ALL');
+      setTargetTypes(['ALL', 'ERP', 'COMPANY']);
       setTargetDetails([]);
-      setPositions([]);
       setStartDate('');
       setEndDate('');
       setIsPinned(false);
@@ -176,8 +170,8 @@ export default function NoticeManagement() {
   const closeForm = () => {
     // Check if dirty
     const isDirty = editItem 
-      ? title !== editItem.title || content !== editItem.content || targetType !== editItem.targetType || JSON.stringify(targetDetails) !== JSON.stringify(editItem.targetDetails) || JSON.stringify(positions) !== JSON.stringify(editItem.positions) || startDate !== editItem.startDate || endDate !== editItem.endDate || isPinned !== editItem.isPinned || isVisible !== editItem.isVisible
-      : title !== '' || content !== '' || targetType !== 'ALL' || targetDetails.length > 0 || positions.length > 0 || startDate !== '' || endDate !== '';
+      ? title !== editItem.title || content !== editItem.content || targetType !== editItem.targetType || JSON.stringify(targetDetails) !== JSON.stringify(editItem.targetDetails) || startDate !== editItem.startDate || endDate !== editItem.endDate || isPinned !== editItem.isPinned || isVisible !== editItem.isVisible
+      : title !== '' || content !== '' || targetType !== 'ALL' || targetDetails.length > 0 || startDate !== '' || endDate !== '';
 
     if (isDirty) {
       setShowCancelWarning(true);
@@ -196,7 +190,6 @@ export default function NoticeManagement() {
       content: content.trim(),
       targetType,
       targetDetails: targetType === 'ALL' ? [] : targetDetails,
-      positions,
       startDate,
       endDate,
       isPinned,
@@ -336,7 +329,6 @@ export default function NoticeManagement() {
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-16 border-r border-[#E5E8EB]">No.</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] border-r border-[#E5E8EB]">제목</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-32 border-r border-[#E5E8EB]">게시 대상</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-40 border-r border-[#E5E8EB]">노출 위치</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-40 border-r border-[#E5E8EB]">노출 기간</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-24 border-r border-[#E5E8EB]">노출 여부</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-24 border-r border-[#E5E8EB]">등록자</th>
@@ -346,7 +338,7 @@ export default function NoticeManagement() {
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredData.length === 0 ? (
                 <tr>
-                   <td colSpan={9} className="py-20 text-center text-[#8B95A1] text-[14px]">
+                   <td colSpan={8} className="py-20 text-center text-[#8B95A1] text-[14px]">
                     조건에 맞는 결과가 없습니다.
                    </td>
                 </tr>
@@ -371,11 +363,6 @@ export default function NoticeManagement() {
                   </td>
                   <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">
                     {item.targetType === 'ALL' ? '전체' : item.targetType === 'COMPANY' ? '가비아' : '더존'}
-                  </td>
-                  <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">
-                    <div className="truncate max-w-[150px] mx-auto">
-                        {item.positions.join(', ') || '-'}
-                    </div>
                   </td>
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
                      <span className="text-[13px] text-[#4E5968]">
@@ -478,27 +465,44 @@ export default function NoticeManagement() {
                     <h4 className="text-[15px] font-semibold text-[#191F28]">게시 설정</h4>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-6">
                     {/* 게시 대상 */}
                    <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
                     <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
-                    <select
-                        className="w-full h-[40px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75]"
-                        value={targetType}
-                        onChange={(e) => {
-                            setTargetType(e.target.value as 'ALL' | 'COMPANY' | 'ERP');
-                            setTargetDetails([]);
-                            setErrors(prev => ({...prev, targetDetails: ''}));
-                        }}
-                     >
-                        <option value="ALL">전체</option>
-                        <option value="ERP">더존</option>
-                        <option value="COMPANY">가비아</option>
-                     </select>
+                    <div className="flex items-center gap-4">
+                      {['ALL', 'ERP', 'COMPANY'].map((type) => (
+                          <label key={type} className="flex items-center gap-2 cursor-pointer">
+                              <input 
+                                  type="checkbox"
+                                  className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
+                                  checked={targetTypes.includes(type as 'ALL' | 'COMPANY' | 'ERP')}
+                                  onChange={(e) => {
+                                      if (type === 'ALL') {
+                                        if (e.target.checked) setTargetTypes(['ALL', 'ERP', 'COMPANY']);
+                                        else setTargetTypes([]);
+                                      } else {
+                                        if (e.target.checked) {
+                                            const nextTypes = [...targetTypes.filter(t => t !== 'ALL'), type as 'ALL' | 'COMPANY' | 'ERP'];
+                                            if (nextTypes.includes('ERP') && nextTypes.includes('COMPANY')) {
+                                                setTargetTypes(['ALL', 'ERP', 'COMPANY']);
+                                            } else {
+                                                setTargetTypes(nextTypes);
+                                            }
+                                        } else {
+                                            setTargetTypes(targetTypes.filter(t => t !== type && t !== 'ALL'));
+                                        }
+                                      }
+                                      setErrors(prev => ({...prev, targetDetails: ''}));
+                                  }}
+                              />
+                              <span className="text-[14px] text-[#4E5968]">{type === 'ALL' ? '전체' : type === 'ERP' ? '더존' : '가비아'}</span>
+                          </label>
+                      ))}
+                    </div>
 
-                    {(targetType === 'COMPANY' || targetType === 'ERP') && (
+                    {false && (
                         <div className="mt-2 bg-white p-3 border border-[#D1D6DB] rounded-md max-h-40 overflow-y-auto space-y-2 shadow-inner">
-                             {(targetType === 'COMPANY' ? mockCompanies : mockERPs).map(item => (
+                             {(targetTypes.includes('COMPANY') ? mockCompanies : []).concat(targetTypes.includes('ERP') ? mockERPs : []).map(item => (
                                  <label key={item} className="flex items-center gap-2 cursor-pointer group">
                                     <input 
                                         type="checkbox" 
@@ -521,45 +525,19 @@ export default function NoticeManagement() {
                    </div>
 
                     {/* 노출 설정 */}
-                   <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-                        <div className="space-y-2">
-                            <label className="block text-[14px] font-semibold text-[#191F28] text-sm">노출 위치</label>
-                            <div className="flex flex-wrap items-center gap-4 mt-2">
-                                {['메인화면(대시보드)', '모바일 결재관리'].map(pos => (
-                                <label key={pos} className="flex items-center gap-2 cursor-pointer group">
-                                    <input 
-                                        type="checkbox" 
-                                        className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
-                                        checked={positions.includes(pos)}
-                                        onChange={(e) => {
-                                            if (e.target.checked) setPositions(prev => [...prev, pos]);
-                                            else setPositions(prev => prev.filter(p => p !== pos));
-                                        }}
-                                    />
-                                    <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">{pos}</span>
-                                </label>
-                                ))}
-                            </div>
+                    <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
+                        <span className="text-[14px] font-semibold text-[#191F28] block">노출 여부 <span className="text-[#F04452]">*</span></span>
+                        <div className="flex items-center gap-6">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="isVisible" checked={isVisible} onChange={() => setIsVisible(true)} className="w-[18px] h-[18px] border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
+                                <span className="text-[14px] text-[#191F28]">노출</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-[18px] h-[18px] border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
+                                <span className="text-[14px] text-[#191F28]">미노출</span>
+                            </label>
                         </div>
-
-                        <div className="space-y-4 pt-2">
-                             <div className="flex flex-col gap-3">
-                                <label className="flex items-center justify-between px-3 py-2 bg-white border border-[#D1D6DB] rounded-md w-full">
-                                    <span className="text-[13px] font-medium text-[#4E5968]">노출 여부</span>
-                                    <div className="flex items-center gap-4">
-                                        <label className="flex items-center gap-1.5 cursor-pointer">
-                                            <input type="radio" name="isVisible" checked={isVisible} onChange={() => setIsVisible(true)} className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                            <span className="text-[13px] text-[#191F28]">노출</span>
-                                        </label>
-                                        <label className="flex items-center gap-1.5 cursor-pointer">
-                                            <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                            <span className="text-[13px] text-[#191F28]">미노출</span>
-                                        </label>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                   </div>
+                    </div>
                   </div>
                 </div>
 
@@ -570,7 +548,7 @@ export default function NoticeManagement() {
                     <h4 className="text-[15px] font-semibold text-[#191F28]">게시 기간 설정</h4>
                   </div>
                   
-                  <div className="p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] max-w-sm">
+                  <div className="p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] w-full">
                     <label className="block text-[14px] font-semibold text-[#191F28] mb-3 text-sm">노출 기간 <span className="text-[#F04452]">*</span></label>
                     <div className="flex items-center gap-2">
                         <div className="flex-1">
