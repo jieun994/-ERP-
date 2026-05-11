@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import EnterpriseEditModal from './EnterpriseEditModal';
 import EnterpriseRegister from './EnterpriseRegister';
 
@@ -22,11 +23,19 @@ const mockData: Enterprise[] = [
 ];
 
 export default function EnterpriseList() {
+  const location = useLocation();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [data, setData] = useState<Enterprise[]>(mockData);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editEnterpriseId, setEditEnterpriseId] = useState<number | null>(null);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+
+  useEffect(() => {
+    if ((location.state as any)?.openModal) {
+      setEditEnterpriseId(mockData[0].id);
+      setIsEditModalOpen(true);
+    }
+  }, []);
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -37,7 +46,7 @@ export default function EnterpriseList() {
   };
 
   const toggleSelect = (id: number) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
@@ -96,10 +105,10 @@ export default function EnterpriseList() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">기업명</span>
-            <input 
-              type="text" 
-              placeholder="기업명 입력" 
-              className="w-56 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all" 
+            <input
+              type="text"
+              placeholder="기업명 입력"
+              className="w-56 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
           </div>
           <div className="flex items-center gap-4">
@@ -128,33 +137,28 @@ export default function EnterpriseList() {
           <span className="text-[#191F28]"> 건</span>
         </div>
         <div className="flex items-center gap-2">
-          <button 
-            onClick={handleToggleUse}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            사용여부 변경
-          </button>
-          <button 
+          <button
             onClick={handleEdit}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            수정
-          </button>
-          <button 
+            disabled={selectedIds.length !== 1}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >수정</button>
+          <button
             onClick={handleDelete}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            삭제
-          </button>
-          <button 
+            disabled={selectedIds.length === 0}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >삭제</button>
+          <button
+            onClick={handleToggleUse}
+            disabled={selectedIds.length === 0}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >사용여부 변경</button>
+          <button
             onClick={handleExcelDownload}
             className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            엑셀 다운로드
-          </button>
+          >엑셀 다운로드</button>
         </div>
       </div>
-      
+
       {/* Table */}
       <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -162,8 +166,8 @@ export default function EnterpriseList() {
             <thead>
               <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
                 <th className="h-[52px] px-4 text-center border-r border-[#E5E8EB] w-12">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
                     checked={data.length > 0 && selectedIds.length === data.length}
                     onChange={toggleSelectAll}
@@ -179,16 +183,19 @@ export default function EnterpriseList() {
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {data.map((item, index) => (
-                <tr 
-                  key={item.id} 
-                  className={`h-[52px] transition-colors hover:bg-[#F9FAFB] ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}
-                >
+                <tr
+                  key={item.id}
+                  className={`cursor-pointer h-[52px] transition-colors hover:bg-[#F9FAFB] ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}
+                  onClick={() => toggleSelect(item.id)}
+                  onDoubleClick={() => { setSelectedIds([item.id]); setIsEditModalOpen(true); }}
+                  >
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
                       checked={selectedIds.includes(item.id)}
                       onChange={() => toggleSelect(item.id)}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   </td>
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] border-r border-[#E5E8EB] font-mono">{index + 1}</td>
@@ -217,15 +224,15 @@ export default function EnterpriseList() {
             </tbody>
           </table>
         </div>
-        
-        
+
+
       </div>
-      
+
       {/* 팝업 */}
-      <EnterpriseEditModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
-        enterpriseId={editEnterpriseId} 
+      <EnterpriseEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        enterpriseId={editEnterpriseId}
       />
     </div>
   );

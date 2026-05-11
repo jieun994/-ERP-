@@ -123,20 +123,14 @@ export default function EnterpriseUsers() {
         </div>
         
         <div className="flex items-center gap-2">
-          
-          
-          
-          
-          <button 
+          <button
+            onClick={handleToggleStatus}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >상태 변경</button>
+          <button
             onClick={handleExcelDownload}
             className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
             엑셀 다운로드
-          </button>
-          <button 
-            onClick={handleToggleStatus}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            상태 변경
           </button>
         </div>
       </div>

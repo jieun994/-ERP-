@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   RotateCcw, 
@@ -10,6 +10,7 @@ import {
   Bell
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLocation } from 'react-router-dom';
 
 interface PushTemplate {
   id: string;
@@ -60,10 +61,18 @@ const mockData: PushTemplate[] = [
 ];
 
 export default function PushNotificationManagement() {
+  const location = useLocation();
   const [data, setData] = useState<PushTemplate[]>(mockData);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<PushTemplate | null>(null);
+
+  useEffect(() => {
+    if ((location.state as any)?.openModal) {
+      setEditItem(null);
+      setIsModalOpen(true);
+    }
+  }, []);
   const [showDeleteWarning, setShowDeleteWarning] = useState<string | 'bulk' | null>(null);
 
   // Search States
@@ -250,28 +259,11 @@ export default function PushNotificationManagement() {
           <span className="text-[#4E5968]"> 건</span>
         </div>
         <div className="flex items-center gap-2">
-          
-          
-          
-          
-          <button 
-            onClick={() => {
-              if (selectedIds.length === 0) {
-                alert('사용 여부를 변경할 항목을 선택해 주세요.');
-                return;
-              }
-              setData(data.map(item => selectedIds.includes(item.id) ? { ...item, isUsed: !item.isUsed } : item));
-              setSelectedIds([]);
-            }}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            사용여부 변경
-          </button>
-          <button 
+          <button
             onClick={() => openForm()}
             className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
           >등록</button>
-          <button 
+          <button
             onClick={() => {
               if (selectedIds.length !== 1) {
                 alert('수정할 항목을 1개만 선택해 주세요.');
@@ -280,11 +272,10 @@ export default function PushNotificationManagement() {
               const item = data.find(d => d.id === selectedIds[0]);
               if (item) openForm(item);
             }}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            수정
-          </button>
-          <button 
+            disabled={selectedIds.length !== 1}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >수정</button>
+          <button
             onClick={() => {
               if (selectedIds.length === 0) {
                 alert('삭제할 항목을 선택해 주세요.');
@@ -292,11 +283,23 @@ export default function PushNotificationManagement() {
               }
               setShowDeleteWarning('bulk');
             }}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+            disabled={selectedIds.length === 0}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >삭제</button>
-          <button 
-            className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
-             엑셀 다운로드
+          <button
+            onClick={() => {
+              if (selectedIds.length === 0) {
+                alert('사용 여부를 변경할 항목을 선택해 주세요.');
+                return;
+              }
+              setData(data.map(item => selectedIds.includes(item.id) ? { ...item, isUsed: !item.isUsed } : item));
+              setSelectedIds([]);
+            }}
+            disabled={selectedIds.length === 0}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >사용여부 변경</button>
+          <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
+            엑셀 다운로드
           </button>
         </div>
       </div>
@@ -334,13 +337,23 @@ export default function PushNotificationManagement() {
                 </tr>
               ) : (
                 filteredData.map((item, idx) => (
-                  <tr key={item.id} className="h-[52px] transition-colors hover:bg-[#F9FAFB] group">
+                  <tr
+                    key={item.id}
+                    className={`h-[52px] transition-colors hover:bg-[#F9FAFB] cursor-pointer ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : ''}`}
+                    onClick={() => toggleSelect(item.id)}
+                    onDoubleClick={() => {
+                      setSelectedIds([item.id]);
+                      const found = data.find(d => d.id === item.id);
+                      if (found) openForm(found);
+                    }}
+                  >
                     <td className="px-4 text-center border-r border-[#E5E8EB]">
                       <input 
                         type="checkbox" 
                         className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                         checked={selectedIds.includes(item.id)}
                         onChange={() => toggleSelect(item.id)}
+                        onClick={(e) => e.stopPropagation()}
                       />
                     </td>
                     <td className="px-4 text-center text-[13px] text-[#8B95A1] border-r border-[#E5E8EB] font-mono">{idx + 1}</td>

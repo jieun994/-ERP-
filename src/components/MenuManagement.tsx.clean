@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, X, Folder, FolderOpen, FileText } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
 
 interface Menu {
   id: string;
@@ -28,7 +27,6 @@ const initialData: Menu[] = [
 ];
 
 export default function MenuManagement() {
-  const location = useLocation();
   const [data, setData] = useState<Menu[]>(initialData);
   const [expandedIds, setExpandedIds] = useState<string[]>(['1', '2', '3', '6', '7', '12']);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -37,21 +35,11 @@ export default function MenuManagement() {
   const [editName, setEditName] = useState('');
   const [editIsUsed, setEditIsUsed] = useState(true);
 
-  useEffect(() => {
-    if ((location.state as any)?.openModal) {
-      const first = initialData.find(m => m.parentId !== null) ?? initialData[0];
-      setEditItem(first);
-      setEditName(first.name);
-      setEditIsUsed(first.isUsed);
-      setIsEditModalOpen(true);
-    }
-  }, []);
-
   // Computed rows
   const getRenderableRows = () => {
     const result: (Menu & { level: number })[] = [];
     const levelMap = new Map<string, number>();
-
+    
     levelMap.set('null', -1);
 
     for (const item of data) {
@@ -81,7 +69,7 @@ export default function MenuManagement() {
 
   const toggleExpand = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setExpandedIds(prev =>
+    setExpandedIds(prev => 
       prev.includes(id) ? prev.filter(ex => ex !== id) : [...prev, id]
     );
   };
@@ -123,19 +111,19 @@ export default function MenuManagement() {
         selectedIds.forEach(id => {
           const item = prev.find(d => d.id === id);
           if (!item) return;
-
+          
           const nextIsUsed = !item.isUsed;
-
+          
           // Update the item itself
           newData = newData.map(d => d.id === id ? { ...d, isUsed: nextIsUsed } : d);
-
+          
           // If turning OFF, turn off all descendants
           if (!nextIsUsed) {
             const descendants = getAllDescendantIds(id);
             newData = newData.map(d => descendants.includes(d.id) ? { ...d, isUsed: false } : d);
           }
         });
-
+        
         return newData;
       });
       setSelectedIds([]);
@@ -163,7 +151,7 @@ export default function MenuManagement() {
 
   const handleSaveEdit = () => {
     if (!editItem) return;
-
+    
     // Validation
     if (!editName.trim()) {
       alert('메뉴명을 입력해주세요.');
@@ -171,8 +159,8 @@ export default function MenuManagement() {
     }
 
     setData(prev => {
-      let newData = prev.map(item =>
-        item.id === editItem.id
+      let newData = prev.map(item => 
+        item.id === editItem.id 
           ? { ...item, name: editName.trim(), isUsed: editIsUsed }
           : item
       );
@@ -203,16 +191,19 @@ export default function MenuManagement() {
     <div className="w-full space-y-0 pb-10">
       {/* Grid Controls */}
       <div className="flex items-center justify-end gap-2 mb-4">
-        <button
-          onClick={handleOpenEdit}
-          disabled={selectedIds.length !== 1}
-          className="h-[36px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >수정</button>
-        <button
+        <button 
           onClick={handleToggleUse}
-          disabled={selectedIds.length === 0}
-          className="h-[36px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >사용여부 변경</button>
+          className="h-[36px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors"
+        >
+          사용여부 변경
+        </button>
+        
+        <button 
+          onClick={handleOpenEdit}
+          className="h-[36px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors"
+        >
+          수정
+        </button>
       </div>
 
       {/* Grid */}
@@ -223,8 +214,8 @@ export default function MenuManagement() {
               <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-20 border-r border-[#E5E8EB]">No.</th>
                 <th className="h-[52px] px-4 text-center w-16 border-r border-[#E5E8EB]">
-                  <input
-                    type="checkbox"
+                  <input 
+                    type="checkbox" 
                     className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                     checked={renderableRows.length > 0 && selectedIds.length === renderableRows.length}
                     onChange={toggleSelectAll}
@@ -236,39 +227,36 @@ export default function MenuManagement() {
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {renderableRows.map((item) => (
-                <tr
-                  key={item.id}
-                  className={`cursor-pointer h-[52px] hover:bg-[#F9FAFB] transition-colors ${
+                <tr 
+                  key={item.id} 
+                  className={`h-[52px] hover:bg-[#F9FAFB] transition-colors ${
                     !item.isUsed ? 'bg-[#F9FAFB]' : 'bg-white'
                   } ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : ''}`}
-                  onClick={() => toggleSelect(item.id)}
-                  onDoubleClick={() => { setSelectedIds([item.id]); handleOpenEdit(); }}
-                  >
+                >
                   <td className="px-4 text-center text-[14px] text-[#8B95A1] border-r border-[#E5E8EB]">{item.no}</td>
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <input
-                      type="checkbox"
+                    <input 
+                      type="checkbox" 
                       className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                       checked={selectedIds.includes(item.id)}
                       onChange={() => toggleSelect(item.id)}
-                      onClick={(e) => e.stopPropagation()}
                     />
                   </td>
                   <td className="px-4 text-[14px] border-r border-[#E5E8EB]">
-                    <div
+                    <div 
                       className="flex items-center cursor-pointer select-none group"
                       style={{ paddingLeft: `${item.level * 24}px` }}
                       onClick={() => {
                         // toggle expand when clicking row name if it has children
                         if (item.hasChildren) {
-                          setExpandedIds(prev =>
+                          setExpandedIds(prev => 
                             prev.includes(item.id) ? prev.filter(ex => ex !== item.id) : [...prev, item.id]
                           );
                         }
                       }}
                     >
                       {item.hasChildren ? (
-                        <div
+                        <div 
                           className="w-5 h-5 flex items-center justify-center mr-1"
                         >
                           {expandedIds.includes(item.id) ? (
@@ -282,7 +270,7 @@ export default function MenuManagement() {
                           <div className="w-1 h-1 rounded-full bg-[#D1D6DB]" />
                         </div>
                       )}
-
+                      
                       <div className={`mr-2.5 flex items-center justify-center ${!item.isUsed ? 'text-[#D1D6DB]' : 'text-[#008d7580]'}`}>
                         {item.hasChildren ? (
                            expandedIds.includes(item.id) ? <FolderOpen className="w-4 h-4" /> : <Folder className="w-4 h-4" />
@@ -320,7 +308,7 @@ export default function MenuManagement() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-
+            
             <div className="p-6 flex flex-col gap-8 bg-white overflow-y-auto max-h-[70vh]">
               {/* Menu Info Section */}
               <div className="space-y-4">
@@ -332,12 +320,12 @@ export default function MenuManagement() {
                   <label className="block text-[14px] font-semibold text-[#191F28]">
                     메뉴명 <span className="text-[#F04452]">*</span>
                   </label>
-                  <input
-                    type="text"
+                  <input 
+                    type="text" 
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     placeholder="메뉴명 입력"
-                    className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+                    className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all" 
                   />
                 </div>
               </div>
@@ -350,9 +338,9 @@ export default function MenuManagement() {
                 </div>
                 <div className="flex items-center gap-8 pl-3">
                   <label className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="radio"
-                      name="useStatus"
+                    <input 
+                      type="radio" 
+                      name="useStatus" 
                       checked={editIsUsed === true}
                       onChange={() => setEditIsUsed(true)}
                       className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
@@ -360,9 +348,9 @@ export default function MenuManagement() {
                     <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">사용 (ON)</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="radio"
-                      name="useStatus"
+                    <input 
+                      type="radio" 
+                      name="useStatus" 
                       checked={editIsUsed === false}
                       onChange={() => setEditIsUsed(false)}
                       className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
@@ -374,13 +362,13 @@ export default function MenuManagement() {
             </div>
 
             <div className="h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] flex items-center justify-center gap-3">
-              <button
+              <button 
                 onClick={() => setIsEditModalOpen(false)}
                 className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
               >
                 닫기
               </button>
-              <button
+              <button 
                 onClick={handleSaveEdit}
                 className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors"
               >

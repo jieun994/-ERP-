@@ -18,7 +18,7 @@ export default function FundStatus() {
         <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
-            <select className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
+            <select className="w-48 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
               <option value="all">전체</option>
               <option value="TOSS">(주)토스페이먼츠</option>
               <option value="WOOWAHAN">우아한형제들</option>
@@ -29,7 +29,7 @@ export default function FundStatus() {
             <input 
               type="text" 
               placeholder="기업명 입력" 
-              className="w-56 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]" 
+              className="w-56 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]" 
             />
           </div>
         

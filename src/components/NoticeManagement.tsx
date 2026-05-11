@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Trash2, Edit, Pin, X, Calendar, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLocation } from 'react-router-dom';
 
 interface Notice {
   id: string;
@@ -55,12 +56,20 @@ const mockCompanies = ['(주)토스페이먼츠', '야놀자', '우아한형제�
 const mockERPs = ['더존 iCUBE', '영림원 K-System', 'SAP ERP', '이카운트 ERP'];
 
 export default function NoticeManagement() {
+  const location = useLocation();
   const [data, setData] = useState<Notice[]>(mockNotices);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<Notice | null>(null);
+
+  useEffect(() => {
+    if ((location.state as any)?.openModal) {
+      setEditItem(null);
+      setIsModalOpen(true);
+    }
+  }, []);
 
   // Warning Modals
   const [showCancelWarning, setShowCancelWarning] = useState(false);
@@ -107,13 +116,13 @@ export default function NoticeManagement() {
       alert('상태를 변경할 공지사항을 선택해주세요.');
       return;
     }
-    
+
     const selectedItems = data.filter(item => selectedIds.includes(item.id));
     const allVisible = selectedItems.every(item => item.isVisible);
     const targetVisibility = !allVisible;
 
     if (window.confirm(`선택한 공지를 ${targetVisibility ? '노출' : '숨김'} 상태로 변경하시겠습니까?`)) {
-      setData(prev => prev.map(item => 
+      setData(prev => prev.map(item =>
         selectedIds.includes(item.id) ? { ...item, isVisible: targetVisibility } : item
       ));
       setSelectedIds([]);
@@ -150,7 +159,7 @@ export default function NoticeManagement() {
     const newErrors: Record<string, string> = {};
     if (!title.trim()) newErrors.title = '제목을 입력해주세요.';
     if (!content.trim()) newErrors.content = '내용을 입력해주세요.';
-    
+
     if (targetType === 'COMPANY' && targetDetails.length === 0) {
       newErrors.targetDetails = '기업을 1개 이상 선택해주세요.';
     }
@@ -170,7 +179,7 @@ export default function NoticeManagement() {
 
   const closeForm = () => {
     // Check if dirty
-    const isDirty = editItem 
+    const isDirty = editItem
       ? title !== editItem.title || content !== editItem.content || targetType !== editItem.targetType || JSON.stringify(targetDetails) !== JSON.stringify(editItem.targetDetails) || startDate !== editItem.startDate || endDate !== editItem.endDate || isPinned !== editItem.isPinned || isVisible !== editItem.isVisible
       : title !== '' || content !== '' || targetType !== 'ALL' || targetDetails.length > 0 || startDate !== '' || endDate !== '';
 
@@ -205,7 +214,7 @@ export default function NoticeManagement() {
     } else {
       setData(prev => [newObj, ...prev]);
     }
-    
+
     setIsModalOpen(false);
   };
 
@@ -222,10 +231,10 @@ export default function NoticeManagement() {
         <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색조건</span>
-            <select 
+            <select
               value={searchTopic}
               onChange={(e) => setSearchTopic(e.target.value)}
-              className="w-40 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               <option value="title">제목</option>
               <option value="content">내용</option>
@@ -233,20 +242,20 @@ export default function NoticeManagement() {
           </div>
           <div className="flex items-center gap-4 flex-1">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="검색어 입력"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="flex-1 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
+              className="flex-1 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
           </div>
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">노출여부</span>
-            <select 
+            <select
               value={visibilityFilter}
               onChange={(e) => setVisibilityFilter(e.target.value)}
-              className="w-40 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               <option value="ALL">전체</option>
               <option value="VISIBLE">노출</option>
@@ -273,20 +282,11 @@ export default function NoticeManagement() {
           <span className="text-[#4E5968]"> 건</span>
         </div>
         <div className="flex items-center gap-2">
-          <button 
-            onClick={handleToggleVisibility}
-            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors"
-          >
-            노출여부 변경
-          </button>
-          
-          <button 
+          <button
             onClick={() => openForm()}
             className="h-[32px] bg-[#008d75] hover:bg-black text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
-          >
-             등록
-          </button>
-          <button 
+          >등록</button>
+          <button
             onClick={() => {
               if (selectedIds.length !== 1) {
                 alert('수정할 공지사항을 1개만 선택해주세요.');
@@ -295,11 +295,10 @@ export default function NoticeManagement() {
               const item = data.find(d => d.id === selectedIds[0]);
               if (item) openForm(item);
             }}
-            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors"
-          >
-            수정
-          </button>
-          <button 
+            disabled={selectedIds.length !== 1}
+            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >수정</button>
+          <button
             onClick={() => {
               if (selectedIds.length === 0) {
                 alert('삭제할 공지사항을 선택해주세요.');
@@ -307,9 +306,14 @@ export default function NoticeManagement() {
               }
               setShowDeleteWarning('bulk');
             }}
-            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors"
+            disabled={selectedIds.length === 0}
+            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >삭제</button>
-          
+          <button
+            onClick={handleToggleVisibility}
+            disabled={selectedIds.length === 0}
+            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >사용여부 변경</button>
         </div>
       </div>
 
@@ -320,8 +324,8 @@ export default function NoticeManagement() {
             <thead>
               <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB]">
                 <th className="h-[52px] px-4 text-center w-12 border-r border-[#E5E8EB]">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                     checked={filteredData.length > 0 && selectedIds.length === filteredData.length}
                     onChange={toggleSelectAll}
@@ -344,16 +348,19 @@ export default function NoticeManagement() {
                    </td>
                 </tr>
               ) : filteredData.map((item) => (
-                <tr 
-                  key={item.id} 
-                  className={`h-[52px] hover:bg-[#F9FAFB] transition-colors ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : ''}`}
-                >
+                <tr
+                  key={item.id}
+                  className={`cursor-pointer h-[52px] hover:bg-[#F9FAFB] transition-colors ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : ''}`}
+                  onClick={() => toggleSelect(item.id)}
+                  onDoubleClick={() => { setSelectedIds([item.id]); const found = data.find(d => d.id === item.id); if (found) openForm(found); }}
+                  >
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                       checked={selectedIds.includes(item.id)}
                       onChange={() => toggleSelect(item.id)}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   </td>
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono border-r border-[#E5E8EB]">{item.no}</td>
@@ -390,7 +397,7 @@ export default function NoticeManagement() {
        <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -398,7 +405,7 @@ export default function NoticeManagement() {
             >
               <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
                 <h3 className="text-[16px] font-semibold text-[#191F28]">공지사항 {editItem ? '수정' : '등록'}</h3>
-                <button 
+                <button
                   onClick={closeForm}
                   className="p-2 text-[#8B95A1] hover:text-[#191F28] transition-colors"
                 >
@@ -407,7 +414,7 @@ export default function NoticeManagement() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-8 space-y-8">
-                
+
                 {/* 1. 기본 정보 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
@@ -419,8 +426,8 @@ export default function NoticeManagement() {
                     {/* 제목 */}
                     <div className="space-y-1.5">
                     <label className="block text-[14px] font-semibold text-[#191F28]">제목 <span className="text-[#F04452]">*</span></label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         onBlur={() => {
@@ -436,7 +443,7 @@ export default function NoticeManagement() {
                     {/* 내용 */}
                     <div className="space-y-1.5">
                     <label className="block text-[14px] font-semibold text-[#191F28]">내용 <span className="text-[#F04452]">*</span></label>
-                    <textarea 
+                    <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         onBlur={() => {
@@ -464,7 +471,7 @@ export default function NoticeManagement() {
                     <div className="flex items-center gap-4">
                       {['ALL', 'ERP', 'COMPANY'].map((type) => (
                           <label key={type} className="flex items-center gap-2 cursor-pointer">
-                              <input 
+                              <input
                                   type="checkbox"
                                   className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
                                   checked={targetTypes.includes(type as 'ALL' | 'COMPANY' | 'ERP')}
@@ -496,12 +503,12 @@ export default function NoticeManagement() {
                         <div className="mt-2 bg-white p-3 border border-[#D1D6DB] rounded-md max-h-40 overflow-y-auto space-y-2 shadow-inner">
                              {(targetTypes.includes('COMPANY') ? mockCompanies : []).concat(targetTypes.includes('ERP') ? mockERPs : []).map(item => (
                                  <label key={item} className="flex items-center gap-2 cursor-pointer group">
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
                                         checked={targetDetails.includes(item)}
                                         onChange={(e) => {
-                                            const newDetails = e.target.checked 
+                                            const newDetails = e.target.checked
                                                 ? [...targetDetails, item]
                                                 : targetDetails.filter(d => d !== item);
                                             setTargetDetails(newDetails);
@@ -539,13 +546,13 @@ export default function NoticeManagement() {
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                     <h4 className="text-[15px] font-semibold text-[#191F28]">게시 기간 설정</h4>
                   </div>
-                  
+
                   <div className="p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] w-full">
                     <label className="block text-[14px] font-semibold text-[#191F28] mb-3 text-sm">노출 기간 <span className="text-[#F04452]">*</span></label>
                     <div className="flex items-center gap-2">
                         <div className="flex-1">
-                            <input 
-                            type="date" 
+                            <input
+                            type="date"
                             value={startDate}
                             onChange={(e) => {
                                 setStartDate(e.target.value);
@@ -558,13 +565,13 @@ export default function NoticeManagement() {
                                     setErrors(next);
                                 }
                             }}
-                            className={`w-full h-[36px] px-3 bg-white border ${errors.startDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`} 
+                            className={`w-full h-[36px] px-3 bg-white border ${errors.startDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`}
                             />
                         </div>
                         <span className="text-gray-400">~</span>
                         <div className="flex-1">
-                           <input 
-                            type="date" 
+                           <input
+                            type="date"
                             value={endDate}
                             onChange={(e) => {
                                 setEndDate(e.target.value);
@@ -577,7 +584,7 @@ export default function NoticeManagement() {
                                     setErrors(next);
                                 }
                             }}
-                            className={`w-full h-[36px] px-3 bg-white border ${errors.endDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`} 
+                            className={`w-full h-[36px] px-3 bg-white border ${errors.endDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`}
                             />
                         </div>
                     </div>
@@ -589,13 +596,13 @@ export default function NoticeManagement() {
               </div>
 
               <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
-                <button 
+                <button
                   onClick={closeForm}
                   className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
                 >
                   취소
                 </button>
-                <button 
+                <button
                   onClick={saveForm}
                   className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
                 >
@@ -612,7 +619,7 @@ export default function NoticeManagement() {
         <AnimatePresence>
             {showDeleteWarning && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                     className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
                 >
@@ -622,13 +629,13 @@ export default function NoticeManagement() {
                     <h3 className="text-[18px] font-bold text-[#191F28] mb-3">공지사항을 삭제하시겠습니까?</h3>
                     <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">삭제 후 복구할 수 없습니다.</p>
                     <div className="flex gap-2 justify-center">
-                        <button 
+                        <button
                             onClick={() => setShowDeleteWarning(null)}
                             className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
                         >
                             취소
                         </button>
-                        <button 
+                        <button
                             onClick={() => executeDelete(showDeleteWarning === 'bulk' ? selectedIds : [showDeleteWarning])}
                             className="flex-1 h-[44px] bg-[#F04452] text-white rounded-md text-[14px] font-semibold hover:bg-[#d93a46] transition-colors shadow-sm"
                         >
@@ -645,7 +652,7 @@ export default function NoticeManagement() {
         <AnimatePresence>
             {showCancelWarning && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                     className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
                 >
@@ -655,13 +662,13 @@ export default function NoticeManagement() {
                     <h3 className="text-[18px] font-bold text-[#191F28] mb-3">저장되지 않은 변경사항</h3>
                     <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">현재 입력한 내용이 저장되지 않습니다. 닫으시겠습니까?</p>
                     <div className="flex gap-2 justify-center">
-                        <button 
+                        <button
                             onClick={() => setShowCancelWarning(false)}
                             className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
                         >
                             계속 작성
                         </button>
-                        <button 
+                        <button
                             onClick={() => {
                                 setShowCancelWarning(false);
                                 setIsModalOpen(false);

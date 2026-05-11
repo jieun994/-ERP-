@@ -1,0 +1,57 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v3.2.1/dist/web/static/pretendard.css");
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #008d75;
+  --color-primary-hover: #007a65;
+  --color-bg-gray: #F9FAFB;
+  --color-border-gray: #E5E8EB;
+  --color-text-main: #191F28;
+  --color-text-sub: #8B95A1;
+  --color-input-border: #D1D6DB;
+  --color-table-head: #F2F4F6;
+  --color-status-on: #008d75;
+  --color-status-off: #8B95A1;
+
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Inter", system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-gray text-text-main text-[14px] font-sans antialiased;
+  }
+  
+  input, select, textarea {
+    @apply outline-none transition-all;
+  }
+  
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238B95A1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+    padding-right: 2.5rem !important;
+  }
+  
+  /* Remove default focus ring for cleaner flat look */
+  *:focus {
+    @apply outline-none;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E5E8EB;
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #D1D6DB;
+}

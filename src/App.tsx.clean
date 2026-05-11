@@ -288,243 +288,145 @@ export default function App() {
           <AnimatePresence mode="wait">
             {view === 'gate' && (
               <motion.div key="gate" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }} className="py-2">
-                {/* 헤더 */}
-                <div className="flex items-start justify-between mb-8">
-                  <div>
-                    <h2 className="text-[22px] font-bold text-[#191F28]">화면 퍼블리싱 목록</h2>
-                    <p className="text-[13px] text-[#8B95A1] mt-1">화면명 클릭 시 해당 화면으로 이동합니다.</p>
-                  </div>
-                  <div className="flex gap-5 text-[13px]">
-                    <div className="text-center">
-                      <p className="text-[#8B95A1] mb-0.5">화면</p>
-                      <p className="font-bold text-[16px] text-[#191F28]"><span className="text-emerald-600">27</span><span className="text-[#D1D6DB] mx-1">/</span>27</p>
-                    </div>
-                    <div className="w-px bg-[#E5E8EB]" />
-                    <div className="text-center">
-                      <p className="text-[#8B95A1] mb-0.5">팝업</p>
-                      <p className="font-bold text-[16px] text-[#191F28]"><span className="text-emerald-600">23</span><span className="text-[#D1D6DB] mx-1">/</span>23</p>
-                    </div>
-                  </div>
+                <div className="text-center mb-10">
+                  <h2 className="text-[24px] font-bold text-gray-900 mb-2">화면 퍼블리싱 목록</h2>
+                  <p className="text-gray-500 text-sm">현재 구현된 화면 및 피처 목록입니다.</p>
                 </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[650px] overflow-y-auto pr-4 custom-scrollbar">
+                  {/* Category: Utility */}
+                  <div className="space-y-4">
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1">유틸리티</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('login')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        로그인 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('reset_email')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        비밀번호 변경 (이메일 인증) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('reset_password')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        비밀번호 변경 (새 비밀번호 설정) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('otp_register')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        OTP 등록 (Google OTP) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setKeyboardTarget('otp');
+                          setIsKeyboardOpen(true);
+                        }} 
+                        className="w-full text-left bg-[#008d7508] hover:bg-[#008d7515] text-[#008d75] border border-[#008d7530] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group"
+                      >
+                        가상 키보드 데모 (OTP/비번) <span className="text-xs text-[#008d75] opacity-100 transition-opacity">Demo</span>
+                      </button>
+                    </div>
 
-                {/* 화면 목록 테이블 */}
-                <div className="mb-8">
-                  <h3 className="text-[14px] font-bold text-[#191F28] mb-3 flex items-center gap-2">
-                    <span className="w-1 h-4 bg-[#008d75] rounded-full inline-block" />화면 목록
-                  </h3>
-                  <div className="overflow-x-auto rounded-lg border border-[#E5E8EB] max-h-[420px] overflow-y-auto">
-                    <table className="w-full text-[13px] border-collapse">
-                      <thead className="sticky top-0 z-10">
-                        <tr className="bg-[#F9FAFB] border-b border-[#E5E8EB]">
-                          <th className="px-4 py-2.5 text-left font-semibold text-[#4E5968] w-[42px]">No.</th>
-                          <th className="px-4 py-2.5 text-left font-semibold text-[#4E5968] w-[140px]">카테고리</th>
-                          <th className="px-4 py-2.5 text-left font-semibold text-[#4E5968]">화면명</th>
-                          <th className="px-4 py-2.5 text-center font-semibold text-[#4E5968] w-[64px]">상태</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {/* 유틸리티 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">유틸리티 (게이트 화면)</td></tr>
-                        {[
-                          { no:1,  label:'로그인',                            view:'login' },
-                          { no:2,  label:'OTP 인증',                          view:'otp_verify' },
-                          { no:3,  label:'OTP 등록 (Google OTP)',             view:'otp_register' },
-                          { no:4,  label:'비밀번호 변경 - 이메일 인증',       view:'reset_email' },
-                          { no:5,  label:'비밀번호 변경 - 새 비밀번호 설정',  view:'reset_password' },
-                        ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-2.5 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">유틸리티</td>
-                            <td className="px-4 py-2.5"><button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button></td>
-                            <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                          </tr>
-                        ))}
-                        {/* 메인 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">메인</td></tr>
-                        <tr className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                          <td className="px-4 py-2.5 text-[#8B95A1] text-center">6</td>
-                          <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">메인</td>
-                          <td className="px-4 py-2.5"><button onClick={() => setView('dashboard')} className="text-[#0070F3] font-medium hover:underline text-left">대시보드 (HOME)</button></td>
-                          <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                        </tr>
-                        {/* 기업 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">기업 관리</td></tr>
-                        {[
-                          { no:7,  label:'테넌트 조회',                              view:'dashboard_tenant' },
-                          { no:8,  label:'기업 조회',                                view:'dashboard_ent_list' },
-                          { no:9,  label:'기업 등록 - 기본 정보 (Step 1)',           view:'dashboard_ent_register' },
-                          { no:10, label:'기업 등록 - VAN/펌뱅킹 ID 등록 (Step 2)', view:'dashboard_ent_register_step2' },
-                          { no:11, label:'기업 등록 - 인터페이스 설정 (Step 3)',     view:'dashboard_ent_register_step3' },
-                          { no:12, label:'기업별 사용자 목록',                        view:'dashboard_ent_users' },
-                          { no:13, label:'자금 현황 조회',                            view:'dashboard_fund_status' },
-                          { no:14, label:'타행계좌 예외 관리',                        view:'dashboard_exception_management' },
-                        ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-2.5 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">기업 관리</td>
-                            <td className="px-4 py-2.5"><button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button></td>
-                            <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                          </tr>
-                        ))}
-                        {/* 관리자 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">관리자 관리</td></tr>
-                        <tr className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                          <td className="px-4 py-2.5 text-[#8B95A1] text-center">15</td>
-                          <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">관리자 관리</td>
-                          <td className="px-4 py-2.5"><button onClick={() => setView('dashboard_admin_list')} className="text-[#0070F3] font-medium hover:underline text-left">관리자 관리</button></td>
-                          <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                        </tr>
-                        {/* 메뉴 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">메뉴 관리</td></tr>
-                        <tr className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                          <td className="px-4 py-2.5 text-[#8B95A1] text-center">16</td>
-                          <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">메뉴 관리</td>
-                          <td className="px-4 py-2.5"><button onClick={() => setView('dashboard_menu_management')} className="text-[#0070F3] font-medium hover:underline text-left">메뉴 관리</button></td>
-                          <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                        </tr>
-                        {/* 콘텐츠 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">콘텐츠 관리</td></tr>
-                        {[
-                          { no:17, label:'공지사항 관리',       view:'dashboard_notice_list' },
-                          { no:18, label:'배너 관리',           view:'dashboard_banner_management' },
-                          { no:19, label:'FAQ 관리',            view:'dashboard_faq_management' },
-                          { no:20, label:'이메일 템플릿 관리',  view:'dashboard_email_template' },
-                          { no:21, label:'PUSH 알림 관리',      view:'dashboard_push_mgmt' },
-                        ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-2.5 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">콘텐츠 관리</td>
-                            <td className="px-4 py-2.5"><button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button></td>
-                            <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                          </tr>
-                        ))}
-                        {/* 코드 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">코드 관리</td></tr>
-                        {[
-                          { no:22, label:'코드 관리',    view:'dashboard_code' },
-                          { no:23, label:'메시지 관리',  view:'dashboard_message' },
-                        ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-2.5 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">코드 관리</td>
-                            <td className="px-4 py-2.5"><button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button></td>
-                            <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                          </tr>
-                        ))}
-                        {/* 로그 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">로그 관리</td></tr>
-                        {[
-                          { no:24, label:'작업 이력 (로그)',  view:'dashboard_log_history' },
-                          { no:25, label:'펌뱅킹 실패 현황', view:'dashboard_firmbanking_fail' },
-                        ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-2.5 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">로그 관리</td>
-                            <td className="px-4 py-2.5"><button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button></td>
-                            <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                          </tr>
-                        ))}
-                        {/* 시스템 / 통계 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">시스템 모니터링 / 통계</td></tr>
-                        {[
-                          { no:26, label:'시스템 모니터링',  view:'dashboard_service_status' },
-                          { no:27, label:'통계',             view:'dashboard_statistics' },
-                        ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-2.5 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">시스템/통계</td>
-                            <td className="px-4 py-2.5"><button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button></td>
-                            <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">메인</h3>
+                    <div className="space-y-2">
+                      <button onClick={() => setView('dashboard')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        대시보드 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                    </div>
 
-                {/* 팝업 목록 테이블 */}
-                <div>
-                  <h3 className="text-[14px] font-bold text-[#191F28] mb-3 flex items-center gap-2">
-                    <span className="w-1 h-4 bg-[#6366f1] rounded-full inline-block" />팝업 및 모달
-                  </h3>
-                  <div className="overflow-x-auto rounded-lg border border-[#E5E8EB] max-h-[380px] overflow-y-auto">
-                    <table className="w-full text-[13px] border-collapse">
-                      <thead className="sticky top-0 z-10">
-                        <tr className="bg-[#F9FAFB] border-b border-[#E5E8EB]">
-                          <th className="px-4 py-2.5 text-left font-semibold text-[#4E5968] w-[42px]">No.</th>
-                          <th className="px-4 py-2.5 text-left font-semibold text-[#4E5968] w-[140px]">카테고리</th>
-                          <th className="px-4 py-2.5 text-left font-semibold text-[#4E5968]">팝업명</th>
-                          <th className="px-4 py-2.5 text-center font-semibold text-[#4E5968] w-[64px]">상태</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          { cat:'기업 등록', items:[
-                            { no:1,  label:'이전 단계 이탈 확인 팝업',      view:'dashboard_ent_register' },
-                            { no:2,  label:'건너뛰기 이탈 확인 팝업',       view:'dashboard_ent_register' },
-                            { no:3,  label:'테넌트 중복 확인 메시지/오류',  view:'dashboard_ent_register' },
-                          ]},
-                          { cat:'기업 관리', items:[
-                            { no:4,  label:'기업 정보 수정 팝업',              view:'dashboard_ent_list' },
-                            { no:5,  label:'타행계좌 예외 등록 / 수정 팝업',  view:'dashboard_exception_management' },
-                          ]},
-                          { cat:'관리자 관리', items:[
-                            { no:6,  label:'관리자 등록 / 수정 팝업',  view:'dashboard_admin_list' },
-                          ]},
-                          { cat:'메뉴 관리', items:[
-                            { no:7,  label:'메뉴 수정 팝업',  view:'dashboard_menu_management' },
-                          ]},
-                          { cat:'공지사항 관리', items:[
-                            { no:8,  label:'공지사항 등록 / 수정 팝업',    view:'dashboard_notice_list' },
-                            { no:9,  label:'공지사항 작성 취소 확인 팝업', view:'dashboard_notice_list' },
-                            { no:10, label:'공지사항 삭제 확인 팝업',       view:'dashboard_notice_list' },
-                          ]},
-                          { cat:'배너 관리', items:[
-                            { no:11, label:'배너 등록 / 수정 팝업',    view:'dashboard_banner_management' },
-                            { no:12, label:'배너 작성 취소 확인 팝업', view:'dashboard_banner_management' },
-                            { no:13, label:'배너 삭제 확인 팝업',       view:'dashboard_banner_management' },
-                          ]},
-                          { cat:'FAQ 관리', items:[
-                            { no:14, label:'FAQ 등록 / 수정 팝업',    view:'dashboard_faq_management' },
-                            { no:15, label:'FAQ 작성 취소 확인 팝업', view:'dashboard_faq_management' },
-                            { no:16, label:'FAQ 삭제 확인 팝업',       view:'dashboard_faq_management' },
-                          ]},
-                          { cat:'이메일 템플릿', items:[
-                            { no:17, label:'이메일 템플릿 작성 취소 확인 팝업', view:'dashboard_email_template' },
-                          ]},
-                          { cat:'PUSH 알림', items:[
-                            { no:18, label:'PUSH 템플릿 등록 / 수정 팝업', view:'dashboard_push_mgmt' },
-                            { no:19, label:'PUSH 템플릿 삭제 확인 팝업',   view:'dashboard_push_mgmt' },
-                          ]},
-                          { cat:'코드 관리', items:[
-                            { no:20, label:'코드 등록 / 수정 팝업',      view:'dashboard_code' },
-                            { no:21, label:'코드 미저장 이탈 확인 팝업', view:'dashboard_code' },
-                          ]},
-                          { cat:'메시지 관리', items:[
-                            { no:22, label:'메시지 등록 / 수정 패널',       view:'dashboard_message' },
-                            { no:23, label:'메시지 미저장 이탈 확인 팝업',  view:'dashboard_message' },
-                          ]},
-                        ].map(group => (
-                          <>
-                            <tr key={group.cat} className="bg-[#F2F4F6]">
-                              <td colSpan={4} className="px-4 py-1.5 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">{group.cat}</td>
-                            </tr>
-                            {group.items.map(r => (
-                              <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                                <td className="px-4 py-2.5 text-[#8B95A1] text-center">{r.no}</td>
-                                <td className="px-4 py-2.5 text-[12px] text-[#8B95A1]">{group.cat}</td>
-                                <td className="px-4 py-2.5 font-medium text-[#191F28]">
-                                  <button onClick={() => setView(r.view)} className="text-left hover:text-[#0070F3] transition-colors">{r.label}</button>
-                                </td>
-                                <td className="px-4 py-2.5 text-center"><span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">완료</span></td>
-                              </tr>
-                            ))}
-                          </>
-                        ))}
-                      </tbody>
-                    </table>
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">기업 관리</h3>
+                    <div className="space-y-2">
+                      <button onClick={() => setView('dashboard_tenant')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        테넌트 조회 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_list')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        기업 조회 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_list')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 기업 정보 수정 (팝업) <span className="text-xs text-[#008d75] font-bold">Popup</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_register')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 기업 대량 등록 (엑셀) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_register_step2')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ VAN/펌뱅킹 ID 등록 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_register_step3')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 기업 인터페이스 설정 <span className="text-xs text-[#008d75] font-bold">New</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_ent_users')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        기업별 사용자 목록 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_fund_status')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        자금 현황 조회 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_exception_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        타행계좌 예외 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_admin_list')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 관리자 등록 (팝업) <span className="text-xs text-[#008d75] font-bold">Popup</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">메뉴 관리</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_menu_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        메뉴 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_menu_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                         └ 메뉴 등록 / 수정 (팝업) <span className="text-xs text-[#008d75] font-bold">Popup</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">콘텐츠 관리</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_notice_list')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        공지사항 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_banner_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        배너 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_faq_management')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        FAQ 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_email_template')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        이메일 템플릿 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_push_mgmt')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        PUSH 알림 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-[11px] text-[#8B95A1] mt-2">※ 팝업명 클릭 시 해당 화면으로 이동합니다. 팝업 직접 미리보기는 대시보드 내 퍼블리싱 현황 목록에서 가능합니다.</p>
+
+                  {/* Category: System & Others */}
+                  <div className="space-y-4">
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1">코드 관리</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_code')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        코드 관리 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                       <button onClick={() => setView('dashboard_message')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        메시지 관리 <span className="text-xs text-[#008d75] font-bold">New</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">로그 관리</h3>
+                    <div className="space-y-2">
+                      <button onClick={() => setView('dashboard_log_history')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        작업 이력 (로그) <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                      <button onClick={() => setView('dashboard_firmbanking_fail')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        펌뱅킹 실패 현황 <span className="text-xs text-[#008d75] font-bold">New</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">시스템 모니터링</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_service_status')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#008d75] border border-[#D1D6DB] font-bold text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        시스템 모니터링 <span className="text-xs text-[#008d75] font-bold">New</span>
+                      </button>
+                    </div>
+
+                    <h3 className="text-[14px] font-bold text-[#8B95A1] uppercase tracking-wider px-1 pt-4">통계</h3>
+                    <div className="space-y-2">
+                       <button onClick={() => setView('dashboard_statistics')} className="w-full text-left bg-white hover:bg-[#F2F4F6] text-[#191F28] border border-[#D1D6DB] font-medium text-[14px] py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group">
+                        통계 <span className="text-xs text-[#8B95A1] opacity-0 group-hover:opacity-100 transition-opacity">View</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -917,6 +819,17 @@ export default function App() {
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                         <button
                           type="button"
+                          onClick={() => {
+                            setKeyboardTarget('newPassword');
+                            setIsKeyboardOpen(true);
+                          }}
+                          className="p-1.5 text-[#8B95A1] hover:text-[#008d75] transition-colors"
+                          title="가상키보드 사용"
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => setShowNewPassword(!showNewPassword)}
                           className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none text-[12px] font-medium"
                         >
@@ -951,6 +864,17 @@ export default function App() {
                         className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${confirmPasswordError ? 'border-red-500 focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
                       />
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setKeyboardTarget('confirmPassword');
+                            setIsKeyboardOpen(true);
+                          }}
+                          className="p-1.5 text-[#8B95A1] hover:text-[#008d75] transition-colors"
+                          title="가상키보드 사용"
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
+                        </button>
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -1041,6 +965,26 @@ export default function App() {
       </AnimatePresence>
 
       <VirtualKeyboard
+        isOpen={isKeyboardOpen}
+        onClose={() => setIsKeyboardOpen(false)}
+        onConfirm={handleKeyboardConfirm}
+        title={keyboardTarget === 'otp' ? 'OTP 인증번호 입력' : '보안 키패드 입력'}
+        length={keyboardTarget === 'otp' ? 6 : 8}
+      />
+
+      {view !== 'gate' && (
+        <button
+          onClick={() => setView('gate')}
+          className="fixed bottom-6 right-6 bg-[#191F28] hover:bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-none transition-all z-50 backdrop-blur-sm"
+        >
+          목록으로 이동
+        </button>
+      )}
+    </div>
+  );
+}
+
+Keyboard
         isOpen={isKeyboardOpen}
         onClose={() => setIsKeyboardOpen(false)}
         onConfirm={handleKeyboardConfirm}

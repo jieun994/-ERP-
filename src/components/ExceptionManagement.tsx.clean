@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useLocation } from 'react-router-dom';
 
 interface ExceptionAccount {
   id: number;
@@ -20,18 +19,10 @@ const mockData: ExceptionAccount[] = [
 ];
 
 export default function ExceptionManagement() {
-  const location = useLocation();
   const [data, setData] = useState<ExceptionAccount[]>(mockData);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-
-  useEffect(() => {
-    if ((location.state as any)?.openModal) {
-      setModalMode('create');
-      setIsModalOpen(true);
-    }
-  }, []);
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -92,7 +83,7 @@ export default function ExceptionManagement() {
         <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
-            <select className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
+            <select className="w-40 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
               <option value="all">전체</option>
               <option value="TOSS">(주)토스페이먼츠</option>
               <option value="WOOWAHAN">우아한형제들</option>
@@ -103,7 +94,7 @@ export default function ExceptionManagement() {
             <input 
               type="text" 
               placeholder="기업명 입력" 
-              className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]"
+              className="w-48 h-[36px] px-3 bg-white border border-gray-300 rounded text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]" 
             />
           </div>
         </div>
@@ -128,16 +119,17 @@ export default function ExceptionManagement() {
         
         <div className="flex items-center gap-2">
           <button onClick={handleOpenAddModal} className="h-[36px] px-4 bg-[#008d75] text-white rounded-md text-[14px] font-bold hover:bg-[#007a65] transition-colors shadow-sm">
-            등록
+            예외 등록
           </button>
-          <button onClick={handleOpenEditModal} disabled={selectedIds.length !== 1} className="h-[36px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button onClick={handleOpenEditModal} className="h-[36px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors">
             수정
           </button>
-          <button
+           <button 
             onClick={handleDelete}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >삭제</button>
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >
+            삭제
+          </button>
           <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
             엑셀 다운로드
           </button>
@@ -164,17 +156,9 @@ export default function ExceptionManagement() {
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {data.map((item, index) => (
-                <tr
-                  key={item.id}
-                  className={`h-[52px] transition-colors hover:bg-[#F9FAFB] cursor-pointer ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}
-                  onClick={() => toggleSelect(item.id)}
-                  onDoubleClick={() => {
-                    setSelectedIds([item.id]);
-                    handleOpenEditModal();
-                  }}
-                >
+                <tr key={item.id} className={`h-[52px] transition-colors hover:bg-[#F9FAFB] ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}>
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <input type="checkbox" className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer" checked={selectedIds.includes(item.id)} onChange={() => toggleSelect(item.id)} onClick={(e) => e.stopPropagation()}/>
+                    <input type="checkbox" className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer" checked={selectedIds.includes(item.id)} onChange={() => toggleSelect(item.id)}/>
                   </td>
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] border-r border-[#E5E8EB] font-mono">{index + 1}</td>
                   <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{item.tenant}</td>
@@ -291,8 +275,5 @@ export default function ExceptionManagement() {
       </AnimatePresence>
 
     </div>
-  );
-}
-
   );
 }

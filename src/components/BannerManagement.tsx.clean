@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Trash2, Edit, X, AlertCircle, Upload, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useLocation } from 'react-router-dom';
 
 interface Banner {
   id: string;
@@ -66,20 +65,12 @@ const mockERPs = ['더존 iCUBE', '영림원 K-System', 'SAP ERP', '이카운트
 const mockGroups = ['VIP 그룹', 'A 그룹', 'B 그룹', 'C 그룹'];
 
 export default function BannerManagement() {
-  const location = useLocation();
   const [data, setData] = useState<Banner[]>(mockBanners);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
+  
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<Banner | null>(null);
-
-  useEffect(() => {
-    if ((location.state as any)?.openModal) {
-      setEditItem(null);
-      setIsModalOpen(true);
-    }
-  }, []);
 
   // Warning Modals
   const [showCancelWarning, setShowCancelWarning] = useState(false);
@@ -128,13 +119,13 @@ export default function BannerManagement() {
       alert('상태를 변경할 배너를 선택해주세요.');
       return;
     }
-
+    
     const selectedItems = data.filter(item => selectedIds.includes(item.id));
     const allVisible = selectedItems.every(item => item.isVisible);
     const targetVisibility = !allVisible;
 
     if (window.confirm(`선택한 배너를 ${targetVisibility ? '노출' : '숨김'} 상태로 변경하시겠습니까?`)) {
-      setData(prev => prev.map(item =>
+      setData(prev => prev.map(item => 
         selectedIds.includes(item.id) ? { ...item, isVisible: targetVisibility } : item
       ));
       setSelectedIds([]);
@@ -176,7 +167,7 @@ export default function BannerManagement() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!title.trim()) newErrors.title = '배너명을 입력해주세요.';
-
+    
     if (positions.length === 0) {
       newErrors.positions = '노출 위치를 1개 이상 선택해주세요.';
     }
@@ -208,7 +199,7 @@ export default function BannerManagement() {
 
   const closeForm = () => {
     // Check if dirty
-    const isDirty = editItem
+    const isDirty = editItem 
       ? title !== editItem.title || targetType !== editItem.targetType || JSON.stringify(targetDetails) !== JSON.stringify(editItem.targetDetails) || JSON.stringify(groupDetails) !== JSON.stringify(editItem.groupDetails) || JSON.stringify(positions) !== JSON.stringify(editItem.positions) || imageUrl !== editItem.imageUrl || linkUrl !== editItem.linkUrl || startDate !== editItem.startDate || endDate !== editItem.endDate || order !== editItem.order || isVisible !== editItem.isVisible
       : title !== '' || targetType !== 'ALL' || targetDetails.length > 0 || groupDetails.length > 0 || positions.length > 0 || imageUrl !== '' || linkUrl !== '' || startDate !== '' || endDate !== '' || order !== '';
 
@@ -246,7 +237,7 @@ export default function BannerManagement() {
     } else {
       setData(prev => [newObj, ...prev]);
     }
-
+    
     setIsModalOpen(false);
   };
 
@@ -268,11 +259,11 @@ export default function BannerManagement() {
     if (keyword) {
       matchesKeyword = item.title.toLowerCase().includes(keyword.toLowerCase());
     }
-
+    
     let matchesVisibility = true;
     if (visibilityFilter === 'VISIBLE') matchesVisibility = item.isVisible;
     else if (visibilityFilter === 'HIDDEN') matchesVisibility = !item.isVisible;
-
+    
     return matchesKeyword && matchesVisibility;
   });
 
@@ -283,30 +274,30 @@ export default function BannerManagement() {
         <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색조건</span>
-            <select
+            <select 
               value={searchTopic}
               onChange={(e) => setSearchTopic(e.target.value)}
-              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               <option value="title">배너명</option>
             </select>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
-            <input
-              type="text"
+            <input 
+              type="text" 
               placeholder="검색어 입력"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
+              className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
             />
           </div>
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">노출여부</span>
-            <select
+            <select 
               value={visibilityFilter}
               onChange={(e) => setVisibilityFilter(e.target.value as 'ALL' | 'VISIBLE' | 'HIDDEN')}
-              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
             >
               <option value="ALL">전체</option>
               <option value="VISIBLE">노출</option>
@@ -333,11 +324,23 @@ export default function BannerManagement() {
           <span className="text-[#191F28]"> 건</span>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          
+          
+          
+          
+          <button 
+            onClick={handleToggleVisibility}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >
+            사용여부 변경
+          </button>
+          <button 
             onClick={() => openForm()}
             className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
-          >등록</button>
-          <button
+          >
+             등록
+          </button>
+          <button 
             onClick={() => {
               if (selectedIds.length !== 1) {
                 alert('수정할 배너를 1개만 선택해 주세요.');
@@ -346,10 +349,11 @@ export default function BannerManagement() {
               const item = data.find(d => d.id === selectedIds[0]);
               if (item) openForm(item);
             }}
-            disabled={selectedIds.length !== 1}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >수정</button>
-          <button
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+          >
+            수정
+          </button>
+          <button 
             onClick={() => {
               if (selectedIds.length === 0) {
                 alert('삭제할 배너를 선택해 주세요.');
@@ -357,14 +361,8 @@ export default function BannerManagement() {
               }
               setShowDeleteWarning('bulk');
             }}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
           >삭제</button>
-          <button
-            onClick={handleToggleVisibility}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >사용여부 변경</button>
         </div>
       </div>
 
@@ -375,8 +373,8 @@ export default function BannerManagement() {
             <thead>
               <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
                 <th className="h-[52px] px-4 text-center w-12 border-r border-[#E5E8EB]">
-                  <input
-                    type="checkbox"
+                  <input 
+                    type="checkbox" 
                     className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
                     checked={filteredData.length > 0 && selectedIds.length === filteredData.length}
                     onChange={toggleSelectAll}
@@ -401,19 +399,16 @@ export default function BannerManagement() {
                    </td>
                 </tr>
               ) : filteredData.map((item) => (
-                <tr
-                  key={item.id}
-                  className={`cursor-pointer h-[52px] hover:bg-[#F9FAFB] transition-colors ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}
-                  onClick={() => toggleSelect(item.id)}
-                  onDoubleClick={() => { setSelectedIds([item.id]); const found = data.find(d => d.id === item.id); if (found) openForm(found); }}
-                  >
+                <tr 
+                  key={item.id} 
+                  className={`h-[52px] hover:bg-[#F9FAFB] transition-colors ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}
+                >
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <input
-                      type="checkbox"
+                    <input 
+                      type="checkbox" 
                       className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
                       checked={selectedIds.includes(item.id)}
                       onChange={() => toggleSelect(item.id)}
-                      onClick={(e) => e.stopPropagation()}
                     />
                   </td>
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono border-r border-[#E5E8EB]">{item.no}</td>
@@ -457,7 +452,7 @@ export default function BannerManagement() {
        <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -465,7 +460,7 @@ export default function BannerManagement() {
             >
               <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
                 <h3 className="text-[16px] font-semibold text-[#191F28]">배너 {editItem ? '수정' : '등록'}</h3>
-                <button
+                <button 
                   onClick={closeForm}
                   className="p-2 text-[#8B95A1] hover:text-[#191F28] transition-colors"
                 >
@@ -474,20 +469,20 @@ export default function BannerManagement() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-8 space-y-8">
-
+                
                 {/* 1. 기본 정보 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                     <h4 className="text-[15px] font-semibold text-[#191F28]">기본 정보</h4>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 배너명 */}
                     <div className="space-y-1.5 md:col-span-2">
                       <label className="block text-[14px] font-semibold text-[#191F28]">배너명 <span className="text-[#F04452]">*</span></label>
-                      <input
-                        type="text"
+                      <input 
+                        type="text" 
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         onBlur={() => {
@@ -508,7 +503,7 @@ export default function BannerManagement() {
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                     <h4 className="text-[15px] font-semibold text-[#191F28]">게시 설정</h4>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 gap-6">
                     {/* 게시 대상 */}
                     <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
@@ -516,11 +511,11 @@ export default function BannerManagement() {
                         <div className="flex items-center gap-4 mb-3">
                             {['전체', '더존', '가비아'].map((label) => (
                                 <label key={label} className="flex items-center gap-2 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
+                                    <input 
+                                        type="checkbox" 
                                         checked={targetDetails.includes(label)}
                                         onChange={(e) => {
-                                            const newDetails = e.target.checked
+                                            const newDetails = e.target.checked 
                                                 ? [...targetDetails, label]
                                                 : targetDetails.filter(d => d !== label);
                                             // Handle special logic for '전체'
@@ -554,8 +549,8 @@ export default function BannerManagement() {
                         <div className="space-y-1.5 pt-2 border-t border-[#E5E8EB] mt-4">
                             <label className="block text-[14px] font-semibold text-[#191F28] text-sm">노출 순서 <span className="text-[#F04452]">*</span></label>
                             <div className="flex items-center gap-3">
-                                <input
-                                    type="number"
+                                <input 
+                                    type="number" 
                                     min="1"
                                     value={order}
                                     onChange={(e) => {
@@ -585,7 +580,7 @@ export default function BannerManagement() {
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                     <h4 className="text-[15px] font-semibold text-[#191F28]">배너 상세</h4>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 이미지 파일 */}
                     <div className="space-y-1.5 md:col-span-2">
@@ -629,14 +624,14 @@ export default function BannerManagement() {
                     <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                     <h4 className="text-[15px] font-semibold text-[#191F28]">게시 기간 설정</h4>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 노출 기간 */}
                     <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] md:col-span-2">
                         <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">노출 기간 <span className="text-[#F04452]">*</span></label>
                         <div className="flex flex-row items-center gap-2">
-                            <input
-                              type="date"
+                            <input 
+                              type="date" 
                               value={startDate}
                               onChange={(e) => {
                                   setStartDate(e.target.value);
@@ -649,11 +644,11 @@ export default function BannerManagement() {
                                       setErrors(next);
                                   }
                               }}
-                              className={`flex-1 h-[36px] px-3 bg-white border ${errors.startDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`}
+                              className={`flex-1 h-[36px] px-3 bg-white border ${errors.startDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`} 
                             />
                             <div className="text-[#8B95A1] text-sm">~</div>
-                            <input
-                                type="date"
+                            <input 
+                                type="date" 
                                 value={endDate}
                                 onChange={(e) => {
                                     setEndDate(e.target.value);
@@ -666,7 +661,7 @@ export default function BannerManagement() {
                                         setErrors(next);
                                     }
                                 }}
-                                className={`flex-1 h-[36px] px-3 bg-white border ${errors.endDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`}
+                                className={`flex-1 h-[36px] px-3 bg-white border ${errors.endDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`} 
                             />
                         </div>
                         {errors.startDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.startDate}</p>}
@@ -681,13 +676,13 @@ export default function BannerManagement() {
               </div>
 
               <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
-                <button
+                <button 
                   onClick={closeForm}
                   className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
                 >
                   취소
                 </button>
-                <button
+                <button 
                   onClick={saveForm}
                   className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
                 >
@@ -704,7 +699,7 @@ export default function BannerManagement() {
         <AnimatePresence>
             {showDeleteWarning && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                <motion.div
+                <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                     className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
                 >
@@ -714,13 +709,13 @@ export default function BannerManagement() {
                     <h3 className="text-[18px] font-bold text-[#191F28] mb-3">배너를 삭제하시겠습니까?</h3>
                     <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">삭제 후 복구할 수 없습니다.</p>
                     <div className="flex gap-2 justify-center">
-                        <button
+                        <button 
                             onClick={() => setShowDeleteWarning(null)}
                             className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
                         >
                             취소
                         </button>
-                        <button
+                        <button 
                             onClick={() => executeDelete(showDeleteWarning === 'bulk' ? selectedIds : [showDeleteWarning])}
                             className="flex-1 h-[44px] bg-[#F04452] text-white rounded-md text-[14px] font-semibold hover:bg-[#d93a46] transition-colors shadow-sm"
                         >
@@ -737,7 +732,7 @@ export default function BannerManagement() {
         <AnimatePresence>
             {showCancelWarning && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                <motion.div
+                <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                     className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
                 >
@@ -747,13 +742,13 @@ export default function BannerManagement() {
                     <h3 className="text-[18px] font-bold text-[#191F28] mb-3">저장되지 않은 변경사항</h3>
                     <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">현재 입력한 내용이 저장되지 않습니다. 닫으시겠습니까?</p>
                     <div className="flex gap-2 justify-center">
-                        <button
+                        <button 
                             onClick={() => setShowCancelWarning(false)}
                             className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
                         >
                             계속 작성
                         </button>
-                        <button
+                        <button 
                             onClick={() => {
                                 setShowCancelWarning(false);
                                 setIsModalOpen(false);

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, RotateCcw, Download, Plus, CheckCircle2, ChevronRight, Save, X, Edit2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLocation } from 'react-router-dom';
 
 interface CodeData {
   id: string;
@@ -39,11 +40,12 @@ const mockData: CodeData[] = [
 ];
 
 export default function CodeManagement() {
+  const location = useLocation();
   const [data, setData] = useState<CodeData[]>(mockData);
   const [groups, setGroups] = useState<GroupData[]>(mockGroups);
   const [activeGroup, setActiveGroup] = useState<string>('SYS_STATUS');
   const [searchKeyword, setSearchKeyword] = useState('');
-  
+
   // Group Code related state
   const [isAddingGroup, setIsAddingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
@@ -52,6 +54,12 @@ export default function CodeManagement() {
   // Detailed Code related state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<CodeData | null>(null);
+
+  useEffect(() => {
+    if ((location.state as any)?.openModal) {
+      setIsModalOpen(true);
+    }
+  }, []);
   const [formData, setFormData] = useState<Partial<CodeData>>({
     codeGroup: '',
     codeValue: '',
@@ -67,7 +75,7 @@ export default function CodeManagement() {
     if (!searchKeyword) return true;
     const matchesGroup = g.name.toLowerCase().includes(searchKeyword.toLowerCase());
     const matchesCodes = data.some(d => d.codeGroup === g.name && (
-      d.codeValue.toLowerCase().includes(searchKeyword.toLowerCase()) || 
+      d.codeValue.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       d.codeName.toLowerCase().includes(searchKeyword.toLowerCase())
     ));
     return matchesGroup || matchesCodes;
@@ -89,12 +97,12 @@ export default function CodeManagement() {
     }
   };
 
-  const handleUpdateStatus = (status: boolean) => {
+  const handleBatchToggleUse = () => {
     if (selectedIds.length === 0) {
       alert('변경할 코드를 선택해주세요.');
       return;
     }
-    setData(prev => prev.map(d => selectedIds.includes(d.id) ? { ...d, isUsed: status } : d));
+    setData(prev => prev.map(d => selectedIds.includes(d.id) ? { ...d, isUsed: !d.isUsed } : d));
     setSelectedIds([]);
   };
 
@@ -144,7 +152,7 @@ export default function CodeManagement() {
   };
 
   const handleCloseModal = () => {
-    const isChanged = editItem 
+    const isChanged = editItem
       ? (editItem.codeName !== formData.codeName || editItem.description !== formData.description || editItem.isUsed !== formData.isUsed)
       : (formData.codeValue || formData.codeName || formData.description);
 
@@ -162,7 +170,7 @@ export default function CodeManagement() {
       alert('필수 항목을 모두 입력해주세요.');
       return;
     }
-    
+
     if (!editItem) {
       const isDuplicate = data.some(d => d.codeGroup === formData.codeGroup && d.codeValue === formData.codeValue);
       if (isDuplicate) {
@@ -179,7 +187,7 @@ export default function CodeManagement() {
       setData([{ ...formData, id: newId, updatedAt: new Date().toISOString().split('T')[0] } as CodeData, ...data]);
       alert('등록되었습니다.');
     }
-    
+
     setIsModalOpen(false);
     setSelectedIds([]);
   };
@@ -189,7 +197,7 @@ export default function CodeManagement() {
       alert('그룹명을 입력해주세요.');
       return;
     }
-    
+
     if (editingGroup) {
       if (groups.some(g => g.name === newGroupName.trim() && g.name !== editingGroup)) {
         alert('이미 존재하는 그룹명입니다.');
@@ -207,7 +215,7 @@ export default function CodeManagement() {
       setGroups(prev => [...prev, { name: newGroupName.trim(), isUsed: true }]);
       setActiveGroup(newGroupName.trim());
     }
-    
+
     setNewGroupName('');
     setIsAddingGroup(false);
   };
@@ -226,8 +234,8 @@ export default function CodeManagement() {
           <div className="flex items-center gap-4 flex-1">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
             <div className="relative w-full max-w-md">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="그룹명, 코드명, 코드값 입력"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
@@ -256,7 +264,7 @@ export default function CodeManagement() {
         <div className="w-80 flex flex-col space-y-3">
           <div className="flex items-center justify-between pb-2 border-b-[1px] border-[#191F28] h-10">
             <h3 className="text-[15px] font-bold text-[#191F28]">그룹 코드</h3>
-            <button 
+            <button
               onClick={() => {
                 setEditingGroup(null);
                 setNewGroupName('');
@@ -273,13 +281,13 @@ export default function CodeManagement() {
             <div className="overflow-y-auto max-h-[600px]">
               <AnimatePresence mode="wait">
                 {isAddingGroup && (
-                  <motion.div 
+                  <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     className="p-4 border-b border-[#E5E8EB] bg-[#F9FAFB] space-y-3"
                   >
-                    <input 
+                    <input
                       autoFocus
                       type="text"
                       className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
@@ -292,7 +300,7 @@ export default function CodeManagement() {
                       }}
                     />
                     <div className="flex gap-2 justify-end">
-                      <button 
+                      <button
                         onClick={() => {
                           setIsAddingGroup(false);
                           setEditingGroup(null);
@@ -302,7 +310,7 @@ export default function CodeManagement() {
                       >
                         취소
                       </button>
-                      <button 
+                      <button
                         onClick={handleAddGroup}
                         className="text-[12px] text-[#008d75] hover:text-[#007a65] font-bold px-2 py-1"
                       >
@@ -318,8 +326,8 @@ export default function CodeManagement() {
                   <div
                     key={group.name}
                     className={`group relative flex flex-col transition-colors cursor-pointer ${
-                      activeGroup === group.name 
-                        ? 'bg-[#008d7508]' 
+                      activeGroup === group.name
+                        ? 'bg-[#008d7508]'
                         : 'hover:bg-[#F2F4F640]'
                     }`}
                     onClick={() => {
@@ -342,7 +350,7 @@ export default function CodeManagement() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
+                        <button
                           onClick={(e) => {
                              e.stopPropagation();
                              startEditGroup(group.name);
@@ -351,14 +359,14 @@ export default function CodeManagement() {
                         >
                           수정
                         </button>
-                        <button 
+                        <button
                           onClick={(e) => {
                              e.stopPropagation();
                              handleGroupStatusToggle(group.name);
                           }}
                           className={`px-2 py-1 text-[12px] rounded-md transition-colors font-medium border ${
-                             group.isUsed 
-                               ? 'text-[#F04452] border-[#F0445220] hover:bg-[#F0445210]' 
+                             group.isUsed
+                               ? 'text-[#F04452] border-[#F0445220] hover:bg-[#F0445210]'
                                : 'text-[#008d75] border-[#008d7520] hover:bg-[#008d7510]'
                           }`}
                         >
@@ -380,52 +388,38 @@ export default function CodeManagement() {
 
         {/* Right: Detailed Code Table */}
         <div className="flex-1 flex flex-col space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b-[1px] border-[#191F28] h-10">
-            <div className="text-[15px] font-bold flex items-center gap-3">
-              <span className="text-[#191F28]">{activeGroup || '그룹 선택'}</span>
-              <div className="w-[1px] h-3 bg-[#E5E8EB]"></div>
-              <span className="text-[#8B95A1] text-[13px] font-normal">상세 코드 {activeGroupData.length > 0 && `(${activeGroupData.length})`}</span>
+          <div className="flex items-center pb-2 border-b-[1px] border-[#191F28] h-10">
+            <span className="text-[15px] font-bold text-[#191F28]">{activeGroup || '그룹 선택'}</span>
+            <div className="w-[1px] h-3 bg-[#E5E8EB] mx-3"></div>
+            <span className="text-[#8B95A1] text-[13px] font-normal">상세 코드</span>
+          </div>
+
+          {/* Table Controls */}
+          <div className="flex items-center justify-between">
+            <div className="text-[14px] text-[#191F28]">
+              총 <span className="text-[#008d75] font-bold">{activeGroupData.length.toLocaleString()}</span> 건
             </div>
-            
             <div className="flex items-center gap-2">
-              {selectedIds.length > 0 && (
-                <div className="flex items-center bg-[#F2F4F6] rounded-md p-1 mr-1 gap-1">
-                  <button 
-                    onClick={() => handleUpdateStatus(true)}
-                    className="px-3 h-6 text-[12px] font-semibold text-[#008d75] hover:bg-white rounded-md transition-all shadow-sm bg-transparent"
-                  >
-                    사용
-                  </button>
-                  <button 
-                    onClick={() => handleUpdateStatus(false)}
-                    className="px-3 h-6 text-[12px] font-semibold text-[#8B95A1] hover:bg-white rounded-md transition-all shadow-sm bg-transparent"
-                  >
-                    미사용
-                  </button>
-                </div>
-              )}
-              <button 
-                onClick={handleExcelDownload}
-                className="h-[32px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[12px] font-semibold text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm"
-                disabled={!activeGroup}
-              >
-                엑셀
-              </button>
-              <button 
-                onClick={handleOpenEditModal}
-                className="h-[32px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[12px] font-semibold text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm"
-                disabled={!activeGroup || selectedIds.length !== 1}
-              >
-                수정
-              </button>
-              <button 
+              <button
                 onClick={handleOpenAddModal}
-                className="h-[32px] px-4 bg-[#008d75] text-white rounded-md text-[13px] font-semibold hover:bg-[#007a65] transition-colors flex items-center gap-1.5 shadow-sm"
                 disabled={!activeGroup}
-              >
-                <Plus className="w-3.5 h-3.5" />
-                상세 코드 등록
-              </button>
+                className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm disabled:opacity-50"
+              >등록</button>
+              <button
+                onClick={handleOpenEditModal}
+                disabled={!activeGroup || selectedIds.length !== 1}
+                className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50"
+              >수정</button>
+              <button
+                onClick={handleBatchToggleUse}
+                disabled={selectedIds.length === 0}
+                className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >사용여부 변경</button>
+              <button
+                onClick={handleExcelDownload}
+                disabled={!activeGroup}
+                className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50"
+              >엑셀 다운로드</button>
             </div>
           </div>
 
@@ -435,8 +429,8 @@ export default function CodeManagement() {
                 <thead className="sticky top-0 z-10 bg-white">
                   <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
                     <th className="h-[52px] px-4 text-center w-16 border-r border-[#E5E8EB]">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                         checked={activeGroupData.length > 0 && selectedIds.length === activeGroupData.length}
                         onChange={toggleSelectAll}
@@ -461,16 +455,19 @@ export default function CodeManagement() {
                     </tr>
                   ) : (
                     activeGroupData.map((item) => (
-                      <tr 
-                        key={item.id} 
-                        className={`h-[52px] transition-colors hover:bg-[#F9FAFB] ${!item.isUsed ? 'bg-[#F9FAFB]/50' : 'bg-white'} ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : ''}`}
-                      >
+                      <tr
+                        key={item.id}
+                        className={`cursor-pointer h-[52px] transition-colors hover:bg-[#F9FAFB] ${!item.isUsed ? 'bg-[#F9FAFB]/50' : 'bg-white'} ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : ''}`}
+                  onClick={() => toggleSelect(item.id)}
+                  onDoubleClick={() => { setSelectedIds([item.id]); handleOpenEditModal(); }}
+                  >
                         <td className="px-4 text-center border-r border-[#E5E8EB]">
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                             checked={selectedIds.includes(item.id)}
                             onChange={() => toggleSelect(item.id)}
+                            onClick={(e) => e.stopPropagation()}
                           />
                         </td>
                         <td className="px-4 text-center border-r border-[#E5E8EB]">
@@ -484,8 +481,8 @@ export default function CodeManagement() {
                         </td>
                         <td className="px-4 text-center">
                           <span className={`text-[13px] font-bold ${
-                            item.isUsed 
-                              ? 'text-[#008d75]' 
+                            item.isUsed
+                              ? 'text-[#008d75]'
                               : 'text-[#8B95A1]'
                           }`}>
                             {item.isUsed ? '사용' : '미사용'}
@@ -505,7 +502,7 @@ export default function CodeManagement() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -530,9 +527,9 @@ export default function CodeManagement() {
                     <div className="space-y-4 pl-3">
                       <div className="space-y-1.5">
                         <label className="block text-[14px] font-semibold text-[#191F28]">코드 그룹 <span className="text-[#F04452]">*</span></label>
-                        <input 
+                        <input
                           required
-                          type="text" 
+                          type="text"
                           disabled
                           className="w-full h-[36px] px-3 bg-[#F9FAFB] border border-[#E5E8EB] rounded-md text-[14px] text-[#8B95A1] outline-none cursor-not-allowed font-mono"
                           value={formData.codeGroup}
@@ -541,9 +538,9 @@ export default function CodeManagement() {
 
                       <div className="space-y-1.5">
                          <label className="block text-[14px] font-semibold text-[#191F28]">코드값 <span className="text-[#F04452]">*</span></label>
-                         <input 
+                         <input
                            required
-                           type="text" 
+                           type="text"
                            disabled={!!editItem}
                            className={`w-full h-[36px] px-3 border rounded-md text-[14px] outline-none transition-all font-mono tracking-tight ${editItem ? 'bg-[#F9FAFB] border-[#E5E8EB] text-[#8B95A1] cursor-not-allowed' : 'bg-white border-[#D1D6DB] text-[#191F28] focus:border-[#008d75]'}`}
                            placeholder="예: ACTIVE"
@@ -554,9 +551,9 @@ export default function CodeManagement() {
 
                       <div className="space-y-1.5">
                          <label className="block text-[14px] font-semibold text-[#191F28]">코드명 <span className="text-[#F04452]">*</span></label>
-                         <input 
+                         <input
                            required
-                           type="text" 
+                           type="text"
                            className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
                            placeholder="예: 정상"
                            value={formData.codeName}
@@ -566,7 +563,7 @@ export default function CodeManagement() {
 
                       <div className="space-y-1.5">
                          <label className="block text-[14px] font-semibold text-[#191F28]">설명</label>
-                         <textarea 
+                         <textarea
                            rows={3}
                            className="w-full px-4 py-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all resize-none placeholder-[#8B95A1]"
                            placeholder="코드에 대한 설명을 입력하세요."
@@ -576,10 +573,10 @@ export default function CodeManagement() {
                       </div>
 
                       <div className="flex items-center gap-2 pt-1 border-t border-[#E5E8EB] mt-2 pt-4">
-                         <input 
-                           type="checkbox" 
+                         <input
+                           type="checkbox"
                            id="isUsed"
-                           className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer" 
+                           className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                            checked={formData.isUsed}
                            onChange={e => setFormData({...formData, isUsed: e.target.checked})}
                          />
@@ -591,14 +588,14 @@ export default function CodeManagement() {
               </div>
 
               <div className="h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] flex items-center justify-center gap-3 shrink-0">
-                <button 
+                <button
                   type="button"
                   onClick={handleCloseModal}
                   className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
                 >
                   취소
                 </button>
-                <button 
+                <button
                   onClick={saveForm}
                   className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
                 >
@@ -616,7 +613,7 @@ export default function CodeManagement() {
       <AnimatePresence>
         {showUnsavedWarning && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-              <motion.div 
+              <motion.div
                   initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                   className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
               >
@@ -626,13 +623,13 @@ export default function CodeManagement() {
                   <h3 className="text-[18px] font-bold text-[#191F28] mb-3">저장되지 않은 변경사항</h3>
                   <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">현재 입력한 내용이 유실될 수 있습니다.<br/>그래도 닫으시겠습니까?</p>
                   <div className="flex gap-2 justify-center">
-                      <button 
+                      <button
                           onClick={() => setShowUnsavedWarning(false)}
                           className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
                       >
                           계속 작성
                       </button>
-                      <button 
+                      <button
                           onClick={() => {
                               setShowUnsavedWarning(false);
                               setIsModalOpen(false);

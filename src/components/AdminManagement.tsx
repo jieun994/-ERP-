@@ -115,7 +115,7 @@ export default function AdminManagement() {
             <input 
               type="text" 
               placeholder="이름 또는 이메일 입력" 
-              className="w-80 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
+              className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -123,7 +123,7 @@ export default function AdminManagement() {
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">권한 등급</span>
             <select 
-              className="w-48 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+              className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
             >
@@ -138,7 +138,7 @@ export default function AdminManagement() {
           <div className="flex items-center gap-4">
             <span className="text-[14px] font-bold text-gray-800 shrink-0">사용여부</span>
             <select 
-              className="w-48 h-[40px] px-4 bg-white border border-gray-300 rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+              className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -171,23 +171,14 @@ export default function AdminManagement() {
           <span className="text-[#191F28]"> 건</span>
         </div>
         <div className="flex items-center gap-2">
-          
-          
-          
-          <button 
-            onClick={handleBatchToggleUse}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >사용여부 변경</button>
-          <button 
+          <button
             onClick={() => {
               setEditAdmin(null);
               setIsModalOpen(true);
             }}
             className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
-          >
-             등록
-          </button>
-          <button 
+          >등록</button>
+          <button
             onClick={() => {
               if (selectedIds.length !== 1) {
                 alert('수정할 관리자를 1명 선택해주세요.');
@@ -199,15 +190,19 @@ export default function AdminManagement() {
                 setIsModalOpen(true);
               }
             }}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            수정
-          </button>
-          
-          <button 
+            disabled={selectedIds.length !== 1}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >수정</button>
+          <button
             onClick={handleBatchDelete}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
+            disabled={selectedIds.length === 0}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >삭제</button>
+          <button
+            onClick={handleBatchToggleUse}
+            disabled={selectedIds.length === 0}
+            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >사용여부 변경</button>
           <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
             엑셀 다운로드
           </button>
@@ -237,13 +232,23 @@ export default function AdminManagement() {
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredAdmins.map((admin) => (
-                <tr key={admin.id} className={`h-[52px] hover:bg-[#F9FAFB] transition-colors ${selectedIds.includes(admin.id) ? 'bg-[#008d7508]' : ''}`}>
+                <tr
+                  key={admin.id}
+                  className={`h-[52px] hover:bg-[#F9FAFB] transition-colors cursor-pointer ${selectedIds.includes(admin.id) ? 'bg-[#008d7508]' : ''}`}
+                  onClick={() => toggleSelect(admin.id)}
+                  onDoubleClick={() => {
+                    setSelectedIds([admin.id]);
+                    const found = admins.find(a => a.id === admin.id);
+                    if (found) { setEditAdmin(found); setIsModalOpen(true); }
+                  }}
+                >
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
                     <input 
                       type="checkbox" 
                       className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" 
                       checked={selectedIds.includes(admin.id)}
                       onChange={() => toggleSelect(admin.id)}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   </td>
                   <td className="px-4 text-[14px] text-[#191F28] font-medium border-r border-[#E5E8EB]">{admin.name}</td>
