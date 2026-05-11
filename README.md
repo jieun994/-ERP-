@@ -2,19 +2,89 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# 하나은행 ERP 관리자 사이트 Demo
 
-This contains everything you need to run your app locally.
+하나은행 ERP 시스템의 관리자 페이지 데모입니다.  
+기업 관리, 정산, 공지/배너, 통계 등 ERP 운영에 필요한 주요 화면을 포함합니다.
 
-View your app in AI Studio: https://ai.studio/apps/e96c2591-8b3a-46e3-883e-fcb150d912b7
+---
 
-## Run Locally
+## 업데이트 일정
 
-**Prerequisites:**  Node.js
+> 매일 **오후 5시** 최신 작업 내용을 반영합니다.
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 주요 기능
+
+**기업 관리**
+- 기업 목록 / 등록 / 수정
+- 테넌트 목록
+- 기업 사용자 관리
+- 인터페이스 설정
+
+**정산 및 현황**
+- 펀드 현황
+- 펌뱅킹 실패 현황
+- 서비스 현황
+- 통계
+
+**콘텐츠 관리**
+- 공지사항 / 배너 / FAQ
+- 이메일 템플릿
+- 푸시 알림
+- 메시지 관리
+
+**시스템 관리**
+- 관리자 계정 관리
+- 코드 관리
+- 메뉴 관리
+- 로그 관리
+- 예외 처리 관리
+
+**게이트 화면**
+- 로그인 (가상 키보드 포함)
+- OTP 인증 / OTP 등록 (Google OTP)
+- 비밀번호 변경 (이메일 인증)
+
+---
+
+## 기술 스택
+
+- **React** + **TypeScript**
+- **Vite**
+- **Tailwind CSS**
+- **Recharts** (통계 차트)
+- **Lucide React** (아이콘)
+- **Motion** (애니메이션)
+
+---
+
+## 로컬 실행 방법
+
+**사전 준비:** Node.js 설치 필요
+
+```bash
+# 패키지 설치
+npm install
+
+# 개발 서버 실행
+npm run dev
+```
+
+---
+
+## 배포
+
+**Vercel**을 통해 자동 배포됩니다.  
+`main` 브랜치에 push되면 자동으로 최신 버전이 반영됩니다.
+
+---
+
+## 화면 구성
+
+| 구분 | 화면 수 |
+|------|--------|
+| 화면 (게이트 + 메인) | 27개 |
+| 팝업 및 모달 | 23개 |
+| **합계** | **50개** |

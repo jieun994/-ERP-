@@ -24,6 +24,15 @@ type CompanyVanInfo = {
   subId: string;        subAccount: string;
 };
 
+/**
+ * 기업별 VAN/펌뱅킹 입력 상태
+ *
+ * waiting  (대기)   : 한 번도 탭에 진입하지 않았거나, 진입했지만 아무 값도 입력하지 않은 상태
+ * done     (완료)   : 값이 하나라도 입력된 상태. 다른 기업 탭으로 이동하는 시점에 확정됨
+ * skipped  (건너뜀) : 사용자가 명시적으로 "건너뛰기"를 선택한 상태. 빈 값으로 처리됨
+ *
+ * ※ 실제 저장(서버 전송)은 최종 단계 완료 시 일괄 처리됨
+ */
 type StoredStatus = 'waiting' | 'done' | 'skipped';
 
 const EMPTY_VAN_INFO: CompanyVanInfo = {
@@ -172,11 +181,7 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
     if (next) switchEnterprise(next.id);
   };
 
-  // 사이드바에 표시할 파생 상태
   const getDisplayStatus = (id: string) => {
-    if (id === selectedEntId) {
-      return entStatuses[id] === 'done' ? 'editing' : 'inProgress';
-    }
     return entStatuses[id] || 'waiting';
   };
 
@@ -191,14 +196,14 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
 
   const sidebarSubText: Record<string, string> = {
     waiting:    '미진입',
-    inProgress: '입력 중 · 미저장',
-    done:       '자동저장 완료',
-    skipped:    '등록 없음으로 처리',
-    editing:    '수정 중 · 미저장',
+    inProgress: '입력 중',
+    done:       '입력 완료',
+    skipped:    '건너뜀',
+    editing:    '수정 중',
   };
 
   return (
-    <div className="relative -mx-8 -mt-4">
+    <div className="relative">
 
       {/* ── 건너뛰기 확인 팝업 ─────────────────────────────────────── */}
       {skipConfirm.show && (
@@ -212,7 +217,7 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
               <span className="font-semibold text-gray-700">{skipConfirmEnt?.name}</span>에 이미 입력된 값이 있습니다.<br />
               건너뛰면 아래 데이터가 모두 삭제됩니다.
             </p>
-            <div className="bg-gray-50 rounded-lg p-3 mb-4 text-[12px] divide-y divide-gray-100">
+            <div className="bg-gray-50 rounded-md p-3 mb-4 text-[12px] divide-y divide-gray-100">
               {Object.entries(skipConfirmValues)
                 .filter(([, v]) => (v as string).trim())
                 .map(([k, v]) => (
@@ -222,20 +227,20 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
                   </div>
                 ))}
             </div>
-            <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-[12px] text-amber-700 mb-5">
+            <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-md px-3 py-2 text-[12px] text-amber-700 mb-5">
               <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
               <span>삭제 후에는 해당 기업을 다시 선택해 재입력해야 합니다.</span>
             </div>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setSkipConfirm({ show: false, entId: '' })}
-                className="px-4 py-2 border border-gray-200 rounded-lg text-[13px] text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-md text-[13px] text-gray-700 hover:bg-gray-50"
               >
                 취소 (입력 유지)
               </button>
               <button
                 onClick={() => doSkip(skipConfirm.entId)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[13px] font-semibold"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-[13px] font-semibold"
               >
                 삭제하고 건너뛰기
               </button>
@@ -244,13 +249,9 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
         </div>
       )}
 
-      {/* ── 헤더 & 진행 바 ─────────────────────────────────────────── */}
-      <div className="px-8 pt-4 pb-3">
-        <h2 className="text-[20px] font-bold text-gray-900 mb-1">기업별 VAN/펌뱅킹 ID 등록</h2>
-        <p className="text-[13px] text-gray-500">선택 단계입니다. 등록할 내용이 없으면 건너뛸 수 있습니다.</p>
-      </div>
-      <div className="px-8 pb-4 flex items-center gap-3">
-        <span className="text-[12px] text-gray-500 whitespace-nowrap">
+      {/* ── 진행 현황 바 ───────────────────────────────────────────── */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-[13px] text-gray-500 whitespace-nowrap">
           {enterprises.length}개 기업 중{' '}
           <span className="font-semibold text-gray-700">{completedCount}개</span> 완료
         </span>
@@ -260,178 +261,162 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
             style={{ width: `${progressPct}%` }}
           />
         </div>
-        <span className="text-[12px] text-gray-400 whitespace-nowrap">{progressPct}%</span>
+        <span className="text-[13px] text-gray-400 whitespace-nowrap">{progressPct}%</span>
       </div>
 
       {/* ── 본문: 사이드바 + 콘텐츠 ───────────────────────────────── */}
-      <div className="flex border-t border-gray-100" style={{ minHeight: 460 }}>
+      <div className="flex gap-6" style={{ minHeight: 460 }}>
 
         {/* 사이드바 */}
-        <div className="w-[210px] flex-shrink-0 border-r border-gray-100 bg-gray-50/60 overflow-y-auto">
-          <div className="px-4 py-2 text-[10px] font-semibold text-gray-400 tracking-widest uppercase">
-            등록된 기업
+        <div className="w-[200px] flex-shrink-0 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+            <span className="text-[13px] font-semibold text-gray-700">등록 기업 목록</span>
           </div>
-          {enterprises.map(ent => {
-            const status   = getDisplayStatus(ent.id);
-            const isActive = ent.id === selectedEntId;
-            return (
-              <button
-                key={ent.id}
-                onClick={() => switchEnterprise(ent.id)}
-                className={`w-full text-left px-4 py-3 flex items-center justify-between gap-2 border-l-2 transition-colors ${
-                  isActive
-                    ? 'bg-white border-l-[#008d75]'
-                    : 'border-l-transparent hover:bg-white/60'
-                }`}
-              >
-                <div className="min-w-0">
-                  <div className={`text-[13px] font-semibold truncate ${isActive ? 'text-[#008d75]' : 'text-gray-800'}`}>
-                    {ent.name}
+          <div className="overflow-y-auto">
+            {enterprises.map(ent => {
+              const status   = getDisplayStatus(ent.id);
+              const isActive = ent.id === selectedEntId;
+              return (
+                <button
+                  key={ent.id}
+                  onClick={() => switchEnterprise(ent.id)}
+                  className={`w-full text-left px-4 py-3 flex items-center justify-between gap-2 border-l-2 transition-colors border-b border-gray-50 ${
+                    isActive
+                      ? 'bg-[#008d75]/5 border-l-[#008d75]'
+                      : 'border-l-transparent hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <div className={`text-[13px] font-semibold truncate ${isActive ? 'text-[#008d75]' : 'text-gray-800'}`}>
+                      {ent.name}
+                    </div>
+                    <div className="text-[11px] text-gray-400 mt-0.5">
+                      {sidebarSubText[status]}
+                    </div>
                   </div>
-                  <div className="text-[11px] text-gray-400 mt-0.5">
-                    {sidebarSubText[status]}
-                  </div>
-                </div>
-                <EntStatusBadge status={status} />
-              </button>
-            );
-          })}
+                  <EntStatusBadge status={status} />
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* 콘텐츠 영역 */}
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
+        <div className="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
 
           {/* 콘텐츠 헤더 */}
-          <div className="flex items-start justify-between gap-3">
+          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
             <div>
               <div className="text-[15px] font-bold text-gray-900">
-                {enterprises.find(e => e.id === selectedEntId)?.name} — VAN/펌뱅킹 ID
+                {enterprises.find(e => e.id === selectedEntId)?.name}
               </div>
-              <div className="text-[12px] text-gray-500 mt-1">
-                {entStatuses[selectedEntId] === 'done'
-                  ? '이전에 저장된 값입니다. 수정 후 다른 탭으로 이동하면 자동 재저장됩니다.'
-                  : '사용하는 항목만 입력하세요. 다른 기업으로 이동하면 자동 임시저장됩니다.'}
+              <div className="text-[13px] text-gray-500 mt-0.5">
+                사용하는 항목만 입력하세요. 입력 내용은 최종 단계 완료 시 일괄 등록됩니다.
               </div>
             </div>
             <button
               onClick={handleSkipClick}
-              className="flex-shrink-0 flex items-center gap-1.5 text-[12px] text-gray-500 px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-shrink-0 flex items-center gap-1.5 text-[13px] text-gray-500 px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
             >
-              ↩ 이 기업 건너뛰기
+              ↩ 건너뛰기
             </button>
           </div>
 
-          {/* 재수정 배너 */}
-          {entStatuses[selectedEntId] === 'done' && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-[12px] text-blue-700">
-              <Pencil className="w-3.5 h-3.5 flex-shrink-0" />
-              저장된 내용을 수정하고 있습니다. 다른 탭으로 이동하거나 다음 단계로 이동 시 자동으로 재저장됩니다.
-            </div>
-          )}
+          <div className="p-6 flex flex-col gap-6 flex-1">
 
-          {/* VAN ID (기본 정보) */}
-          <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              <span>기본 정보</span>
-              <div className="flex-1 h-px bg-gray-100" />
-            </div>
-            <label className="block text-[12px] text-gray-500 mb-1.5">VAN ID</label>
-            <input
-              type="text"
-              className={`w-full px-3 py-2.5 border rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-[#008d75] focus:border-[#008d75] transition-colors ${
-                currentRow.van
-                  ? 'border-[#008d75]/40 bg-[#008d75]/[0.02]'
-                  : 'border-gray-200 bg-white'
-              }`}
-              placeholder="VAN ID 입력"
-              value={currentRow.van}
-              onChange={e => handleInputChange('van', e.target.value)}
-            />
-          </div>
+            {/* 재수정 배너 */}
+            {entStatuses[selectedEntId] === 'done' && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-[13px] text-blue-700">
+                <Pencil className="w-3.5 h-3.5 flex-shrink-0" />
+                이전에 입력한 내용을 수정하고 있습니다.
+              </div>
+            )}
 
-          {/* 펌뱅킹 ID (접기/펼치기) */}
-          <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              <span>펌뱅킹 ID</span>
-              <span className="text-[10px] font-normal normal-case tracking-normal text-gray-400">
-                필요한 유형만 펼쳐 입력
-              </span>
-              <div className="flex-1 h-px bg-gray-100" />
+            {/* VAN ID */}
+            <div>
+              <h3 className="text-[13px] font-semibold text-gray-700 mb-3">VAN 정보</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">VAN ID</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75]"
+                    placeholder="VAN ID 입력"
+                    value={currentRow.van}
+                    onChange={e => handleInputChange('van', e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col gap-2">
-              {PUMBANKING_SECTIONS.map(({ idKey, accountKey, label }) => {
-                const isOpen = expandedSections.has(idKey);
-                const hasVal = !!(currentRow[idKey] || currentRow[accountKey]);
-                return (
-                  <div key={idKey} className="border border-gray-200 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => toggleSection(idKey)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-gray-100/70 transition-colors text-left"
-                    >
-                      <span className="flex items-center gap-2 text-[13px] font-medium text-gray-700">
-                        {label}
-                        {hasVal && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
-                            입력됨
-                          </span>
-                        )}
-                      </span>
-                      {isOpen
-                        ? <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        : <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />}
-                    </button>
-                    {isOpen && (
-                      <div className="px-4 py-3 border-t border-gray-100 bg-white">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-[12px] text-gray-500 mb-1.5">펌뱅킹 ID</label>
-                            <input
-                              type="text"
-                              className={`w-full px-3 py-2 border rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-[#008d75] focus:border-[#008d75] transition-colors ${
-                                currentRow[idKey]
-                                  ? 'border-[#008d75]/40 bg-[#008d75]/[0.02]'
-                                  : 'border-gray-200 bg-white'
-                              }`}
-                              placeholder="펌뱅킹 ID 입력"
-                              value={currentRow[idKey] as string}
-                              onChange={e => handleInputChange(idKey, e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[12px] text-gray-500 mb-1.5">
-                              계좌번호 <span className="text-gray-400">(선택)</span>
-                            </label>
-                            <input
-                              type="text"
-                              className={`w-full px-3 py-2 border rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-[#008d75] focus:border-[#008d75] transition-colors ${
-                                currentRow[accountKey]
-                                  ? 'border-[#008d75]/40 bg-[#008d75]/[0.02]'
-                                  : 'border-gray-200 bg-white'
-                              }`}
-                              placeholder="숫자 10~14자리 입력"
-                              value={currentRow[accountKey] as string}
-                              onChange={e => handleInputChange(accountKey, e.target.value)}
-                            />
+
+            {/* 구분선 */}
+            <div className="border-t border-gray-100" />
+
+            {/* 펌뱅킹 ID */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-[13px] font-semibold text-gray-700">펌뱅킹 ID</h3>
+                <span className="text-[12px] text-gray-400">필요한 항목만 펼쳐 입력하세요</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                {PUMBANKING_SECTIONS.map(({ idKey, accountKey, label }) => {
+                  const isOpen = expandedSections.has(idKey);
+                  const hasVal = !!(currentRow[idKey] || currentRow[accountKey]);
+                  return (
+                    <div key={idKey} className="border border-gray-200 rounded-md overflow-hidden">
+                      <button
+                        onClick={() => toggleSection(idKey)}
+                        className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                      >
+                        <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-700">
+                          {label}
+                          {hasVal && (
+                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#008d75]/10 text-[#008d75] border border-[#008d75]/20 font-medium">
+                              입력됨
+                            </span>
+                          )}
+                        </span>
+                        {isOpen
+                          ? <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          : <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />}
+                      </button>
+                      {isOpen && (
+                        <div className="px-4 py-4 border-t border-gray-100 bg-white">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">펌뱅킹 ID</label>
+                              <input
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75]"
+                                placeholder="펌뱅킹 ID 입력"
+                                value={currentRow[idKey] as string}
+                                onChange={e => handleInputChange(idKey, e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">계좌번호 <span className="font-normal text-gray-400">(선택)</span></label>
+                              <input
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75]"
+                                placeholder="숫자 10~14자리"
+                                value={currentRow[accountKey] as string}
+                                onChange={e => handleInputChange(accountKey, e.target.value)}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* 자동저장 안내 */}
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] border ${
-            entStatuses[selectedEntId] === 'done'
-              ? 'bg-[#008d75]/5 border-[#008d75]/20 text-[#008d75]'
-              : 'bg-gray-50 border-gray-100 text-gray-400'
-          }`}>
-            <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-            {entStatuses[selectedEntId] === 'done'
-              ? '다른 탭 이동 시 자동 재저장 · 완료 상태로 유지됩니다.'
-              : '다른 기업 탭으로 이동하면 현재 입력 내용이 자동으로 임시저장됩니다.'}
+            {/* 안내 */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-[13px] text-gray-500 mt-auto">
+              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+              입력 내용은 최종 단계 완료 시 일괄 등록됩니다.
+            </div>
           </div>
         </div>
       </div>
@@ -492,6 +477,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
     const errors: any = {};
     if (!formState.name.trim()) errors.name = '기업명을 입력해주세요.';
     if (!formState.bizNumber.trim()) errors.bizNumber = '사업자등록번호를 입력해주세요.';
+    else if (formState.bizNumber.length !== 10) errors.bizNumber = '사업자등록번호는 10자리 숫자로 입력해주세요.';
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
