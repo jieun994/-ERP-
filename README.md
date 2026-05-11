@@ -3,6 +3,9 @@
 하나은행 ERP 시스템의 관리자 페이지 데모입니다.  
 기업 관리, 정산, 공지/배너, 통계 등 ERP 운영에 필요한 주요 화면을 포함합니다.
 
+- **GitHub:** https://github.com/jieun994/-ERP-
+- **Demo:** https://erp-gules-zeta.vercel.app/
+
 ---
 
 ## 업데이트 일정

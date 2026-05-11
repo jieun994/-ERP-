@@ -6,4 +6,3 @@ export { Input, Select, Textarea }  from './Input';
 export { default as StatusBadge }   from './StatusBadge';
 export { default as PageLayout }    from './PageLayout';
 export { default as SectionCard }   from './SectionCard';
-export { default as EmptyState }    from './EmptyState';
