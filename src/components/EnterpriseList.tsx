@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import EnterpriseEditModal from './EnterpriseEditModal';
 import EnterpriseRegister from './EnterpriseRegister';
+import { Button, SearchBar, DataTable, StatusBadge, PageLayout, Select, Input } from './ui';
 
 interface Enterprise {
   id: number;
@@ -89,75 +90,37 @@ export default function EnterpriseList() {
   };
 
   return (
-    <div className="w-full space-y-0 relative pb-20">
+    <PageLayout>
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
-            <select className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
-              <option value="all">전체</option>
-              <option value="toss">(주)토스페이먼츠</option>
-              <option value="woowahan">우아한형제들</option>
-              <option value="daangn">당근마켓</option>
-              <option value="yanolja">야놀자</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">기업명</span>
-            <input
-              type="text"
-              placeholder="기업명 입력"
-              className="w-56 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">사용여부</span>
-            <select className="w-32 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
-              <option value="all">전체</option>
-              <option value="use">사용</option>
-              <option value="unused">미사용</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
-          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            조회
-          </button>
-          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            초기화
-          </button>
-        </div>
-      </div>
+      <SearchBar onSearch={() => {}} onReset={() => {}}>
+        <SearchBar.Field label="테넌트명">
+          <Select style={{ width: 192 }}>
+            <option value="ALL">전체</option>
+            <option value="toss">(주)토스페이먼츠</option>
+            <option value="woowahan">우아한형제들</option>
+            <option value="daangn">당근마켓</option>
+            <option value="yanolja">야놀자</option>
+          </Select>
+        </SearchBar.Field>
+        <SearchBar.Field label="기업명">
+          <Input type="text" placeholder="기업명 입력" style={{ width: 224 }} />
+        </SearchBar.Field>
+        <SearchBar.Field label="사용여부">
+          <Select style={{ width: 128 }}>
+            <option value="ALL">전체</option>
+            <option value="use">사용</option>
+            <option value="unused">미사용</option>
+          </Select>
+        </SearchBar.Field>
+      </SearchBar>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-        <div className="text-[14px]">
-          <span className="text-[#191F28]">총 </span>
-          <span className="text-[#008d75] font-bold">{data.length}</span>
-          <span className="text-[#191F28]"> 건</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleEdit}
-            disabled={selectedIds.length !== 1}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >수정</button>
-          <button
-            onClick={handleDelete}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >삭제</button>
-          <button
-            onClick={handleToggleUse}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >사용여부 변경</button>
-          <button
-            onClick={handleExcelDownload}
-            className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >엑셀 다운로드</button>
-        </div>
-      </div>
+      {/* Grid Controls */}
+      <DataTable.Controls total={data.length}>
+        <Button variant="ghost" size="sm" disabled={selectedIds.length !== 1} onClick={handleEdit}>수정</Button>
+        <Button variant="ghost" size="sm" disabled={selectedIds.length === 0} onClick={handleDelete}>삭제</Button>
+        <Button variant="ghost" size="sm" disabled={selectedIds.length === 0} onClick={handleToggleUse}>사용여부 변경</Button>
+        <Button variant="ghost" size="sm" onClick={handleExcelDownload}>엑셀 다운로드</Button>
+      </DataTable.Controls>
 
       {/* Table */}
       <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
@@ -208,9 +171,7 @@ export default function EnterpriseList() {
                   <td className="px-4 text-[14px] text-[#4E5968] font-mono tracking-tight border-r border-[#E5E8EB]">{item.bizNumber}</td>
                   <td className="px-4 text-[14px] text-[#4E5968] font-mono tracking-tight border-r border-[#E5E8EB]">{item.corpNumber}</td>
                   <td className="px-4 text-center">
-                    <span className={`text-[14px] font-semibold ${item.isUsed ? 'text-[#008d75]' : 'text-[#8B95A1]'}`}>
-                      {item.isUsed ? '사용' : '미사용'}
-                    </span>
+                    <StatusBadge status={item.isUsed ? 'ON' : 'OFF'} />
                   </td>
                 </tr>
               ))}
@@ -224,8 +185,6 @@ export default function EnterpriseList() {
             </tbody>
           </table>
         </div>
-
-
       </div>
 
       {/* 팝업 */}
@@ -234,6 +193,6 @@ export default function EnterpriseList() {
         onClose={() => setIsEditModalOpen(false)}
         enterpriseId={editEnterpriseId}
       />
-    </div>
+    </PageLayout>
   );
 }

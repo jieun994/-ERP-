@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation } from 'react-router-dom';
+import { Button, SearchBar, DataTable, Input, Select } from './ui';
 
 interface ExceptionAccount {
   id: number;
@@ -86,63 +87,28 @@ export default function ExceptionManagement() {
   };
 
   return (
-    <div className="w-full space-y-0 pb-20">
+    <div className="w-full pb-20">
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
-            <select className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
-              <option value="all">전체</option>
-              <option value="TOSS">(주)토스페이먼츠</option>
-              <option value="WOOWAHAN">우아한형제들</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">기업명</span>
-            <input 
-              type="text" 
-              placeholder="기업명 입력" 
-              className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
-          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            조회
-          </button>
-          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            초기화
-          </button>
-        </div>
-      </div>
-
+      <SearchBar onSearch={() => {}} onReset={() => {}}>
+        <SearchBar.Field label="테넌트명">
+          <Select style={{ width: 160 }}>
+            <option value="ALL">전체</option>
+            <option value="TOSS">(주)토스페이먼츠</option>
+            <option value="WOOWAHAN">우아한형제들</option>
+          </Select>
+        </SearchBar.Field>
+        <SearchBar.Field label="기업명">
+          <Input type="text" placeholder="기업명 입력" style={{ width: 192 }} />
+        </SearchBar.Field>
+      </SearchBar>
 
       {/* Grid Controls */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-[14px]">
-          <span className="text-[#4E5968]">총 </span>
-          <span className="text-[#008d75] font-bold">{data.length}</span>
-          <span className="text-[#4E5968]"> 건</span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button onClick={handleOpenAddModal} className="h-[36px] px-4 bg-[#008d75] text-white rounded-md text-[14px] font-bold hover:bg-[#007a65] transition-colors shadow-sm">
-            등록
-          </button>
-          <button onClick={handleOpenEditModal} disabled={selectedIds.length !== 1} className="h-[36px] px-4 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            수정
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >삭제</button>
-          <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
-            엑셀 다운로드
-          </button>
-        </div>
-      </div>
+      <DataTable.Controls total={data.length}>
+        <Button variant="primary" size="sm" onClick={handleOpenAddModal}>등록</Button>
+        <Button variant="ghost" size="sm" onClick={handleOpenEditModal} disabled={selectedIds.length !== 1}>수정</Button>
+        <Button variant="ghost" size="sm" onClick={handleDelete} disabled={selectedIds.length === 0}>삭제</Button>
+        <Button variant="ghost" size="sm">엑셀 다운로드</Button>
+      </DataTable.Controls>
 
       {/* Grid */}
       <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
@@ -212,14 +178,15 @@ export default function ExceptionManagement() {
                   <div className="pl-3 space-y-4">
                     <div className="space-y-1.5">
                       <label className="text-[14px] font-semibold text-[#191F28]">테넌트 <span className="text-[#F04452]">*</span></label>
-                      <select className="w-full h-[36px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all bg-white">
-                        <option>(주)토스페이먼츠</option>
-                        <option>우아한형제들</option>
-                      </select>
+                      <Select size="sm" fullWidth>
+                        <option value="">테넌트 선택</option>
+                        <option value="toss">(주)토스페이먼츠</option>
+                        <option value="woowa">우아한형제들</option>
+                      </Select>
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[14px] font-semibold text-[#191F28]">기업명 <span className="text-[#F04452]">*</span></label>
-                      <select className="w-full h-[36px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all bg-white">
+                      <Select size="sm" fullWidth>
                         <option value="">기업 선택</option>
                         <option value="toss">(주)토스페이먼츠</option>
                         <option value="toss_sub">(주)토스페이자회사</option>
@@ -228,7 +195,7 @@ export default function ExceptionManagement() {
                         <option value="innovation">(주)혁신테크</option>
                         <option value="yanolja">야놀자</option>
                         <option value="starbucks">스타벅스코리아</option>
-                      </select>
+                      </Select>
                     </div>
                   </div>
                 </div>
@@ -244,20 +211,21 @@ export default function ExceptionManagement() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <label className="text-[14px] font-semibold text-[#191F28]">대상 은행 <span className="text-[#F04452]">*</span></label>
-                        <select className="w-full h-[36px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all bg-white">
-                          <option>국민은행</option>
-                          <option>신한은행</option>
-                          <option>우리은행</option>
-                        </select>
+                        <Select size="sm" fullWidth>
+                          <option value="">은행 선택</option>
+                          <option value="kb">국민은행</option>
+                          <option value="shinhan">신한은행</option>
+                          <option value="woori">우리은행</option>
+                        </Select>
                       </div>
                       <div className="space-y-1.5">
                         <label className="text-[14px] font-semibold text-[#191F28]">대상 계좌번호 <span className="text-[#F04452]">*</span></label>
-                        <input type="text" className="w-full h-[36px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all font-mono" placeholder="계좌번호 (숫자만)" />
+                        <Input size="sm" fullWidth placeholder="계좌번호 (숫자만)" className="font-mono" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[14px] font-semibold text-[#191F28]">예외 사유</label>
-                      <input type="text" className="w-full h-[36px] px-3 border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all" placeholder="예외 등록 사유 입력" />
+                      <Input size="sm" fullWidth placeholder="예외 등록 사유 입력" />
                     </div>
                     {modalMode === 'edit' && (
                     <div className="space-y-1.5">
@@ -278,12 +246,12 @@ export default function ExceptionManagement() {
                 </div>
               </div>
               <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] gap-3 shrink-0">
-                 <button onClick={() => setIsModalOpen(false)} className="w-[120px] h-[40px] text-[14px] font-medium text-[#333333] bg-white border border-[#D1D6DB] rounded-md hover:bg-[#F2F4F6] transition-colors">
-                   취소
-                 </button>
-                 <button className="w-[120px] h-[40px] text-[14px] font-semibold text-white bg-[#008d75] rounded-md hover:bg-[#007a65] transition-colors shadow-sm">
-                   {modalMode === 'create' ? '등록하기' : '저장하기'}
-                 </button>
+                <Button variant="secondary" size="md" style={{ width: 120 }} onClick={() => setIsModalOpen(false)}>
+                  취소
+                </Button>
+                <Button variant="primary" size="md" style={{ width: 120 }}>
+                  {modalMode === 'create' ? '등록하기' : '저장하기'}
+                </Button>
               </div>
             </motion.div>
           </div>

@@ -3,6 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, PieChart, Pie, Cell,
 } from 'recharts';
+import { Button, SearchBar, DataTable, PageLayout, Input, Select } from './ui';
 
 interface DailyStats {
   date: string;
@@ -156,71 +157,50 @@ export default function Statistics() {
   };
 
   return (
-    <div className="w-full space-y-6">
+    <PageLayout bottomPadding={false}>
+      <div className="space-y-6">
 
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-16 shrink-0">테넌트명</span>
-            <select
-              value={selectedTenant}
-              onChange={(e) => setSelectedTenant(e.target.value)}
-              className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
-            >
-              <option value="ALL">전체</option>
-              {tenants.map(t => (
-                <option key={t.id} value={t.id}>{t.name} ({t.id})</option>
-              ))}
-            </select>
-          </div>
+      <SearchBar onSearch={handleSearch} onReset={handleReset}>
+        <SearchBar.Field label="테넌트명">
+          <Select
+            value={selectedTenant}
+            onChange={(e) => setSelectedTenant(e.target.value)}
+            style={{ width: 192 }}
+          >
+            <option value="ALL">전체</option>
+            {tenants.map(t => (
+              <option key={t.id} value={t.id}>{t.name} ({t.id})</option>
+            ))}
+          </Select>
+        </SearchBar.Field>
 
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-16 shrink-0">기업명</span>
-            <input
-              type="text"
-              placeholder="기업명 입력"
-              value={enterpriseName}
-              onChange={(e) => setEnterpriseName(e.target.value)}
-              className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+        <SearchBar.Field label="기업명">
+          <Input
+            type="text"
+            placeholder="기업명 입력"
+            value={enterpriseName}
+            onChange={(e) => setEnterpriseName(e.target.value)}
+            style={{ width: 192 }}
+          />
+        </SearchBar.Field>
+
+        <SearchBar.Field label="조회 기간">
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <span className="text-[#8B95A1]">~</span>
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
-
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">조회 기간</span>
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
-              />
-              <span className="text-[#8B95A1]">~</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 shrink-0">
-          <button
-            onClick={handleSearch}
-            className="w-[100px] flex-1 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-bold transition-all shadow-sm flex items-center justify-center"
-          >
-            조회
-          </button>
-          <button
-            onClick={handleReset}
-            className="w-[100px] flex-1 bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[14px] font-bold transition-all shadow-sm flex items-center justify-center"
-          >
-            초기화
-          </button>
-        </div>
-      </div>
+        </SearchBar.Field>
+      </SearchBar>
 
       {/* ============================================================
           Analytics Charts
@@ -308,21 +288,9 @@ export default function Statistics() {
       )}
 
       {/* Grid Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4">
-        <div className="text-[15px] font-bold">
-          <span className="text-gray-800">총 </span>
-          <span className="text-[#008d75]">{currentData.length.toLocaleString()}</span>
-          <span className="text-gray-800">건</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleExcelDownload}
-            className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm"
-          >
-            엑셀 다운로드
-          </button>
-        </div>
-      </div>
+      <DataTable.Controls total={currentData.length}>
+        <Button variant="ghost" size="sm" onClick={handleExcelDownload}>엑셀 다운로드</Button>
+      </DataTable.Controls>
 
       {/* Grid */}
       <div className="bg-white border border-[#E5E8EB] rounded-md overflow-hidden shadow-sm">
@@ -395,6 +363,7 @@ export default function Statistics() {
         </div>
       </div>
 
-    </div>
+      </div>
+    </PageLayout>
   );
 }

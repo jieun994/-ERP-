@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, X, Folder, FolderOpen, FileText } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { Button, DataTable, PageLayout, StatusBadge, Input } from './ui';
 
 interface Menu {
   id: string;
@@ -200,19 +201,21 @@ export default function MenuManagement() {
   };
 
   return (
-    <div className="w-full space-y-0 pb-10">
+    <PageLayout bottomPadding={false} className="space-y-0 pb-10">
       {/* Grid Controls */}
       <div className="flex items-center justify-end gap-2 mb-4">
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={handleOpenEdit}
           disabled={selectedIds.length !== 1}
-          className="h-[36px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >수정</button>
-        <button
+        >수정</Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={handleToggleUse}
           disabled={selectedIds.length === 0}
-          className="h-[36px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >사용여부 변경</button>
+        >사용여부 변경</Button>
       </div>
 
       {/* Grid */}
@@ -297,11 +300,7 @@ export default function MenuManagement() {
                     </div>
                   </td>
                   <td className="px-4 text-center">
-                    <span className={`text-[13px] font-bold ${
-                      item.isUsed ? 'text-[#008d75]' : 'text-[#8B95A1]'
-                    }`}>
-                      {item.isUsed ? '사용' : '미사용'}
-                    </span>
+                    <StatusBadge status={item.isUsed ? 'ON' : 'OFF'} />
                   </td>
                 </tr>
               ))}
@@ -332,12 +331,13 @@ export default function MenuManagement() {
                   <label className="block text-[14px] font-semibold text-[#191F28]">
                     메뉴명 <span className="text-[#F04452]">*</span>
                   </label>
-                  <input
+                  <Input
+                    size="sm"
+                    fullWidth
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     placeholder="메뉴명 입력"
-                    className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
                   />
                 </div>
               </div>
@@ -374,22 +374,26 @@ export default function MenuManagement() {
             </div>
 
             <div className="h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] flex items-center justify-center gap-3">
-              <button
+              <Button
+                variant="secondary"
+                size="md"
+                style={{ width: 120 }}
                 onClick={() => setIsEditModalOpen(false)}
-                className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
               >
                 닫기
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                style={{ width: 120 }}
                 onClick={handleSaveEdit}
-                className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors"
               >
                 저장하기
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }

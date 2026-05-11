@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, Edit, Pin, X, Calendar, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { X, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation } from 'react-router-dom';
+import { Button, SearchBar, DataTable, StatusBadge, PageLayout, ConfirmModal, Select, Input, Textarea } from './ui';
 
 interface Notice {
   id: string;
@@ -225,97 +226,65 @@ export default function NoticeManagement() {
   });
 
   return (
-    <div className="w-full space-y-0 pb-20">
+    <PageLayout>
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">검색조건</span>
-            <select
-              value={searchTopic}
-              onChange={(e) => setSearchTopic(e.target.value)}
-              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
-            >
-              <option value="title">제목</option>
-              <option value="content">내용</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-4 flex-1">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
-            <input
-              type="text"
-              placeholder="검색어 입력"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="flex-1 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">노출여부</span>
-            <select
-              value={visibilityFilter}
-              onChange={(e) => setVisibilityFilter(e.target.value)}
-              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
-            >
-              <option value="ALL">전체</option>
-              <option value="VISIBLE">노출</option>
-              <option value="HIDDEN">미노출</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
-          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            조회
-          </button>
-          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            초기화
-          </button>
-        </div>
-      </div>
+      <SearchBar onSearch={() => {}} onReset={() => { setKeyword(''); setVisibilityFilter('ALL'); setSearchTopic('title'); }}>
+        <SearchBar.Field label="검색조건">
+          <Select
+            value={searchTopic}
+            onChange={(e) => setSearchTopic(e.target.value)}
+            style={{ width: 160 }}
+          >
+            <option value="title">제목</option>
+            <option value="content">내용</option>
+          </Select>
+        </SearchBar.Field>
+        <SearchBar.Field label="검색어">
+          <Input
+            type="text"
+            placeholder="검색어 입력"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            style={{ width: 300 }}
+          />
+        </SearchBar.Field>
+        <SearchBar.Field label="노출여부">
+          <Select
+            value={visibilityFilter}
+            onChange={(e) => setVisibilityFilter(e.target.value)}
+            style={{ width: 160 }}
+          >
+            <option value="ALL">전체</option>
+            <option value="VISIBLE">노출</option>
+            <option value="HIDDEN">미노출</option>
+          </Select>
+        </SearchBar.Field>
+      </SearchBar>
 
-
-      {/* Grid Controls (Total count and Buttons) */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-[14px]">
-          <span className="text-[#4E5968]">총 </span>
-          <span className="text-[#008d75] font-bold">{filteredData.length.toLocaleString()}</span>
-          <span className="text-[#4E5968]"> 건</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => openForm()}
-            className="h-[32px] bg-[#008d75] hover:bg-black text-white px-4 rounded-md text-[13px] font-medium transition-colors shadow-sm"
-          >등록</button>
-          <button
-            onClick={() => {
-              if (selectedIds.length !== 1) {
-                alert('수정할 공지사항을 1개만 선택해주세요.');
-                return;
-              }
-              const item = data.find(d => d.id === selectedIds[0]);
-              if (item) openForm(item);
-            }}
-            disabled={selectedIds.length !== 1}
-            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >수정</button>
-          <button
-            onClick={() => {
-              if (selectedIds.length === 0) {
-                alert('삭제할 공지사항을 선택해주세요.');
-                return;
-              }
-              setShowDeleteWarning('bulk');
-            }}
-            disabled={selectedIds.length === 0}
-            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >삭제</button>
-          <button
-            onClick={handleToggleVisibility}
-            disabled={selectedIds.length === 0}
-            className="h-[32px] px-3 bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[13px] font-medium hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >사용여부 변경</button>
-        </div>
-      </div>
+      {/* Grid Controls */}
+      <DataTable.Controls total={filteredData.length}>
+        <Button variant="primary" size="sm" onClick={() => openForm()}>등록</Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={selectedIds.length !== 1}
+          onClick={() => {
+            if (selectedIds.length !== 1) { alert('수정할 공지사항을 1개만 선택해주세요.'); return; }
+            const item = data.find(d => d.id === selectedIds[0]);
+            if (item) openForm(item);
+          }}
+        >수정</Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={selectedIds.length === 0}
+          onClick={() => {
+            if (selectedIds.length === 0) { alert('삭제할 공지사항을 선택해주세요.'); return; }
+            setShowDeleteWarning('bulk');
+          }}
+        >삭제</Button>
+        <Button variant="ghost" size="sm" disabled={selectedIds.length === 0} onClick={handleToggleVisibility}>사용여부 변경</Button>
+      </DataTable.Controls>
 
       {/* Grid */}
       <div className="bg-white rounded-lg border border-[#E5E8EB] overflow-hidden shadow-sm">
@@ -378,9 +347,7 @@ export default function NoticeManagement() {
                      </span>
                   </td>
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <span className={`text-[14px] font-medium ${item.isVisible ? 'text-[#008d75]' : 'text-[#8B95A1]'}`}>
-                      {item.isVisible ? '노출' : '미노출'}
-                    </span>
+                    <StatusBadge status={item.isVisible ? '노출' : '미노출'} />
                   </td>
                   <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">{item.author}</td>
                   <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono tracking-tight">
@@ -588,100 +555,44 @@ export default function NoticeManagement() {
                             />
                         </div>
                     </div>
-                    {errors.startDate && <p className="text-[12px] text-[#F04452] mt-2 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.startDate}</p>}
-                    {!errors.startDate && errors.endDate && <p className="text-[12px] text-[#F04452] mt-2 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.endDate}</p>}
+                    {errors.startDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.startDate}</p>}
+                    {!errors.startDate && errors.endDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.endDate}</p>}
                   </div>
                 </div>
 
               </div>
 
               <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
-                <button
-                  onClick={closeForm}
-                  className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={saveForm}
-                  className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
-                >
-                  저장하기
-                </button>
+                <Button variant="secondary" size="md" style={{ width: 120 }} onClick={closeForm}>취소</Button>
+                <Button variant="primary" size="md" style={{ width: 120 }} onClick={saveForm}>저장하기</Button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        open={!!showDeleteWarning}
+        variant="danger"
+        title="공지사항을 삭제하시겠습니까?"
+        description="삭제 후 복구할 수 없습니다."
+        confirmLabel="삭제하기"
+        onConfirm={() => executeDelete(showDeleteWarning === 'bulk' ? selectedIds : [showDeleteWarning!])}
+        onCancel={() => setShowDeleteWarning(null)}
+      />
 
-        {/* Delete Confirmation Modal */}
-        <AnimatePresence>
-            {showDeleteWarning && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                    className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
-                >
-                    <div className="w-12 h-12 bg-[#F0445210] text-[#F04452] rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertCircle className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-[18px] font-bold text-[#191F28] mb-3">공지사항을 삭제하시겠습니까?</h3>
-                    <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">삭제 후 복구할 수 없습니다.</p>
-                    <div className="flex gap-2 justify-center">
-                        <button
-                            onClick={() => setShowDeleteWarning(null)}
-                            className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
-                        >
-                            취소
-                        </button>
-                        <button
-                            onClick={() => executeDelete(showDeleteWarning === 'bulk' ? selectedIds : [showDeleteWarning])}
-                            className="flex-1 h-[44px] bg-[#F04452] text-white rounded-md text-[14px] font-semibold hover:bg-[#d93a46] transition-colors shadow-sm"
-                        >
-                            삭제하기
-                        </button>
-                    </div>
-                </motion.div>
-            </div>
-            )}
-        </AnimatePresence>
-
-
-        {/* Cancel Warning Modal */}
-        <AnimatePresence>
-            {showCancelWarning && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                    className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
-                >
-                    <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertCircle className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-[18px] font-bold text-[#191F28] mb-3">저장되지 않은 변경사항</h3>
-                    <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">현재 입력한 내용이 저장되지 않습니다. 닫으시겠습니까?</p>
-                    <div className="flex gap-2 justify-center">
-                        <button
-                            onClick={() => setShowCancelWarning(false)}
-                            className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
-                        >
-                            계속 작성
-                        </button>
-                        <button
-                            onClick={() => {
-                                setShowCancelWarning(false);
-                                setIsModalOpen(false);
-                            }}
-                            className="flex-1 h-[44px] bg-[#008d75] text-white rounded-md text-[14px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm"
-                        >
-                            닫기
-                        </button>
-                    </div>
-                </motion.div>
-            </div>
-            )}
-        </AnimatePresence>
-    </div>
+      {/* Cancel Warning Modal */}
+      <ConfirmModal
+        open={showCancelWarning}
+        variant="warning"
+        title="저장되지 않은 변경사항"
+        description="현재 입력한 내용이 저장되지 않습니다. 닫으시겠습니까?"
+        confirmLabel="닫기"
+        cancelLabel="계속 작성"
+        onConfirm={() => { setShowCancelWarning(false); setIsModalOpen(false); }}
+        onCancel={() => setShowCancelWarning(false)}
+      />
+    </PageLayout>
   );
 }

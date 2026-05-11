@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Cowork backup files
+*.clean

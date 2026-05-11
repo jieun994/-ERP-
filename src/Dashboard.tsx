@@ -4,7 +4,6 @@ import {
   Building2, 
   Users, 
   ScrollText, 
-  LayoutList, 
   FileText, 
   Wrench,
   ChevronDown,
@@ -32,14 +31,12 @@ import TenantList from './components/TenantList';
 import EnterpriseUsers from './components/EnterpriseUsers';
 import FundStatus from './components/FundStatus';
 import ExceptionManagement from './components/ExceptionManagement';
-import MenuManagement from './components/MenuManagement';
 import NoticeManagement from './components/NoticeManagement';
 import BannerManagement from './components/BannerManagement';
 import FAQManagement from './components/FAQManagement';
 import EmailTemplateManagement from './components/EmailTemplateManagement';
 import PushNotificationManagement from './components/PushNotificationManagement';
 import CodeManagement from './components/CodeManagement';
-import MessageManagement from './components/MessageManagement';
 import Statistics from './components/Statistics';
 import ServiceStatus from './components/ServiceStatus';
 import LogManagement from './components/LogManagement';
@@ -87,11 +84,6 @@ const menus: MenuConfig[] = [
     icon: <Users className="w-5 h-5" />
   },
   {
-    id: 'menu_manage',
-    label: '메뉴 관리',
-    icon: <LayoutList className="w-5 h-5" />,
-  },
-  {
     id: 'content',
     label: '콘텐츠 관리',
     icon: <FileText className="w-5 h-5" />,
@@ -109,7 +101,6 @@ const menus: MenuConfig[] = [
     icon: <Code className="w-5 h-5" />,
     subMenus: [
       { id: 'code_manage', label: '코드 관리' },
-      { id: 'message_manage', label: '메시지 관리' }
     ]
   },
   {
@@ -312,7 +303,7 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
             {activeMenu === 'main' ? (
             <div className="w-full space-y-6">
               {/* Top Stats Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-medium text-gray-500">총 가입 기업</h3>
@@ -327,6 +318,11 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
                   <div className="mt-2 flex items-center text-sm text-[#008d75]">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
                     <span>전월 대비 12% 증가</span>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">활성 1,102</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">대기 94</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-50 text-gray-600 border border-gray-200">중지 44</span>
                   </div>
                 </div>
 
@@ -347,24 +343,7 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-medium text-gray-500">일일 활성 사용자 (DAU)</h3>
-                    <div className="w-10 h-10 rounded-full bg-[#008d7510] flex items-center justify-center text-[#008d75]">
-                      <Activity className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-gray-900">45,281</span>
-                    <span className="text-sm text-gray-500">명</span>
-                  </div>
-                  <div className="mt-2 flex items-center text-sm text-gray-500">
-                    <Clock className="w-4 h-4 mr-1" />
-                    <span>최근 24시간 기준</span>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="bg-white rounded-xl shadow-sm border border-red-100 p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-medium text-gray-500">시스템 오류 접수</h3>
                     <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600">
@@ -375,8 +354,13 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
                     <span className="text-2xl font-bold text-red-600">12</span>
                     <span className="text-sm text-gray-500">건</span>
                   </div>
-                  <div className="mt-2 flex items-center text-sm text-red-500">
-                     <span>신규 접수 3건 (미확인)</span>
+                  <div className="mt-2 flex items-center text-sm text-gray-500">
+                    <span>신규 접수 3건</span>
+                  </div>
+                  <div className="mt-3">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200">
+                      <AlertCircle className="w-3 h-3" />미확인 3건
+                    </span>
                   </div>
                 </div>
               </div>
@@ -406,7 +390,6 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
                           contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                         />
                         <Line type="monotone" dataKey="transactions" stroke="#008d75" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} name="트랜잭션(건)" />
-                        <Line type="monotone" dataKey="activeUsers" stroke="#3BB19C" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} name="활성 사용자" />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -500,17 +483,9 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
             <div className="w-full space-y-6">
               <PushNotificationManagement />
             </div>
-          ) : activeMenu === 'menu_manage' ? (
-            <div className="w-full space-y-6">
-              <MenuManagement />
-            </div>
           ) : activeSubMenu === 'code_manage' ? (
             <div className="w-full space-y-6">
               <CodeManagement />
-            </div>
-          ) : activeSubMenu === 'message_manage' ? (
-            <div className="w-full space-y-6">
-              <MessageManagement />
             </div>
           ) : activeMenu === 'monitoring' ? (
             <div className="w-full space-y-6">

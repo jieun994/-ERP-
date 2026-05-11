@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  Search, 
-  RotateCcw, 
-  Download, 
-  Calendar, 
+import {
+  Download,
   AlertCircle,
   X,
-  ExternalLink,
-  ChevronLeft,
-  ChevronRight,
-  TrendingDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Button, SearchBar, DataTable, Input, Select } from './ui';
 
 interface FailureRecord {
   id: number;
@@ -92,11 +86,11 @@ export default function FirmBankingFailureStatus() {
     startDate: '',
     endDate: '',
     enterpriseName: '',
-    serviceType: '전체',
+    serviceType: 'ALL',
     transactionNo: '',
     errorCode: '',
     errorMessage: '',
-    failureStep: '전체'
+    failureStep: 'ALL'
   });
 
   const [selectedRecord, setSelectedRecord] = useState<FailureRecord | null>(null);
@@ -114,11 +108,11 @@ export default function FirmBankingFailureStatus() {
       startDate: '',
       endDate: '',
       enterpriseName: '',
-      serviceType: '전체',
+      serviceType: 'ALL',
       transactionNo: '',
       errorCode: '',
       errorMessage: '',
-      failureStep: '전체'
+      failureStep: 'ALL'
     });
   };
 
@@ -142,123 +136,89 @@ export default function FirmBankingFailureStatus() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col pb-20">
+    <div className="w-full pb-20">
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-6 rounded-md shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-5">
-            {/* Row 1 */}
-            <div className="flex items-center gap-4 lg:col-span-2">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">조회 기간</span>
-              <div className="flex items-center gap-2 flex-1">
-                <input 
-                  type="date" 
-                  className="flex-1 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                  value={searchParams.startDate}
-                  onChange={e => setSearchParams({...searchParams, startDate: e.target.value})}
-                />
-                <span className="text-[#8B95A1]">~</span>
-                <input 
-                  type="date" 
-                  className="flex-1 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                  value={searchParams.endDate}
-                  onChange={e => setSearchParams({...searchParams, endDate: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">기업명</span>
-              <input 
-                type="text" 
-                placeholder="기업명 입력"
-                className="flex-1 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.enterpriseName}
-                onChange={e => setSearchParams({...searchParams, enterpriseName: e.target.value})}
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">서비스명</span>
-              <select 
-                className="flex-1 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.serviceType}
-                onChange={e => setSearchParams({...searchParams, serviceType: e.target.value})}
-              >
-                <option value="전체">전체</option>
-                <option value="실시간 계좌이체">실시간 계좌이체</option>
-                <option value="대량 급여 이체">대량 급여 이체</option>
-                <option value="가상계좌 발급">가상계좌 발급</option>
-                <option value="펌뱅킹 이체">펌뱅킹 이체</option>
-              </select>
-            </div>
-
-            {/* Row 2 */}
-            <div className="flex items-center gap-4">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">거래번호</span>
-              <input 
-                type="text" 
-                placeholder="거래번호 입력"
-                className="flex-1 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.transactionNo}
-                onChange={e => setSearchParams({...searchParams, transactionNo: e.target.value})}
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">오류코드</span>
-              <input 
-                type="text" 
-                placeholder="오류코드 입력"
-                className="flex-1 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.errorCode}
-                onChange={e => setSearchParams({...searchParams, errorCode: e.target.value})}
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">실패 단계</span>
-              <select 
-                className="flex-1 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                value={searchParams.failureStep}
-                onChange={e => setSearchParams({...searchParams, failureStep: e.target.value})}
-              >
-                <option value="전체">전체</option>
-                <option value="전문 생성 단계">전문 생성 단계</option>
-                <option value="은행 전송 단계">은행 전송 단계</option>
-                <option value="은행 응답 대기">은행 응답 대기</option>
-                <option value="응답 처리 단계">응답 처리 단계</option>
-              </select>
-            </div>
-
-            <div className="lg:col-span-4 flex items-center justify-between gap-8 mt-1 border-t border-gray-200 pt-5">
-              <div className="flex items-center gap-4 w-full">
-                <span className="text-[14px] font-bold text-gray-800 w-20 shrink-0">오류메시지</span>
-                <input 
-                  type="text" 
-                  placeholder="오류메시지 입력 (포함어)"
-                  className="w-[400px] h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75] transition-colors"
-                  value={searchParams.errorMessage}
-                  onChange={e => setSearchParams({...searchParams, errorMessage: e.target.value})}
-                />
-              </div>
-            </div>
+      <SearchBar onSearch={handleSearch} onReset={handleReset}>
+        <SearchBar.Field label="조회 기간">
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              value={searchParams.startDate}
+              onChange={e => setSearchParams({...searchParams, startDate: e.target.value})}
+              style={{ width: 160 }}
+            />
+            <span className="text-[#8B95A1]">~</span>
+            <Input
+              type="date"
+              value={searchParams.endDate}
+              onChange={e => setSearchParams({...searchParams, endDate: e.target.value})}
+              style={{ width: 160 }}
+            />
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-2 shrink-0">
-          <button 
-            onClick={handleSearch}
-            className="w-[100px] flex-1 bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-bold transition-all shadow-sm flex items-center justify-center"
+        </SearchBar.Field>
+        <SearchBar.Field label="기업명">
+          <Input
+            type="text"
+            placeholder="기업명 입력"
+            value={searchParams.enterpriseName}
+            onChange={e => setSearchParams({...searchParams, enterpriseName: e.target.value})}
+            style={{ width: 192 }}
+          />
+        </SearchBar.Field>
+        <SearchBar.Field label="서비스명">
+          <Select
+            value={searchParams.serviceType}
+            onChange={e => setSearchParams({...searchParams, serviceType: e.target.value})}
+            style={{ width: 192 }}
           >
-            조회
-          </button>
-          <button 
-            onClick={handleReset}
-            className="w-[100px] flex-1 bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[14px] font-bold transition-all shadow-sm flex items-center justify-center"
+            <option value="ALL">전체</option>
+            <option value="실시간 계좌이체">실시간 계좌이체</option>
+            <option value="대량 급여 이체">대량 급여 이체</option>
+            <option value="가상계좌 발급">가상계좌 발급</option>
+            <option value="펌뱅킹 이체">펌뱅킹 이체</option>
+          </Select>
+        </SearchBar.Field>
+        <SearchBar.Field label="거래번호">
+          <Input
+            type="text"
+            placeholder="거래번호 입력"
+            value={searchParams.transactionNo}
+            onChange={e => setSearchParams({...searchParams, transactionNo: e.target.value})}
+            style={{ width: 192 }}
+          />
+        </SearchBar.Field>
+        <SearchBar.Field label="오류코드">
+          <Input
+            type="text"
+            placeholder="오류코드 입력"
+            value={searchParams.errorCode}
+            onChange={e => setSearchParams({...searchParams, errorCode: e.target.value})}
+            style={{ width: 160 }}
+          />
+        </SearchBar.Field>
+        <SearchBar.Field label="실패 단계">
+          <Select
+            value={searchParams.failureStep}
+            onChange={e => setSearchParams({...searchParams, failureStep: e.target.value})}
+            style={{ width: 192 }}
           >
-            초기화
-          </button>
-        </div>
-      </div>
+            <option value="ALL">전체</option>
+            <option value="전문 생성 단계">전문 생성 단계</option>
+            <option value="은행 전송 단계">은행 전송 단계</option>
+            <option value="은행 응답 대기">은행 응답 대기</option>
+            <option value="응답 처리 단계">응답 처리 단계</option>
+          </Select>
+        </SearchBar.Field>
+        <SearchBar.Field label="오류메시지">
+          <Input
+            type="text"
+            placeholder="오류메시지 입력 (포함어)"
+            value={searchParams.errorMessage}
+            onChange={e => setSearchParams({...searchParams, errorMessage: e.target.value})}
+            style={{ width: 400 }}
+          />
+        </SearchBar.Field>
+      </SearchBar>
 
       {/* Summary Area */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -292,18 +252,9 @@ export default function FirmBankingFailureStatus() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-[14px] text-[#4E5968]">검색 결과</span>
-          <span className="text-[14px] font-bold text-[#008d75]">{mockData.length}</span>
-          <span className="text-[14px] text-[#4E5968]">건</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="h-[36px] px-4 bg-white border border-[#D1D6DB] rounded-md text-[14px] font-bold text-[#333333] hover:bg-[#F9FAFB] transition-colors shadow-sm">
-            엑셀 다운로드
-          </button>
-        </div>
-      </div>
+      <DataTable.Controls total={mockData.length}>
+        <Button variant="ghost" size="sm">엑셀 다운로드</Button>
+      </DataTable.Controls>
 
       {/* Grid */}
       <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
@@ -490,16 +441,13 @@ export default function FirmBankingFailureStatus() {
 
               {/* Footer */}
               <div className="h-[72px] px-6 bg-white border-t border-[#E5E8EB] flex items-center justify-end gap-3 shrink-0">
-                <button 
-                  onClick={() => setIsDetailOpen(false)}
-                  className="h-[40px] px-6 bg-white border border-[#D1D6DB] text-[#333333] rounded-lg text-[14px] font-medium hover:bg-[#F9FAFB] transition-colors"
-                >
+                <Button variant="secondary" size="md" onClick={() => setIsDetailOpen(false)}>
                   닫기
-                </button>
-                <button className="h-[40px] px-6 bg-[#008d75] text-white rounded-lg text-[14px] font-bold hover:bg-[#007a65] transition-colors flex items-center gap-2">
+                </Button>
+                <Button variant="primary" size="md">
                   <Download className="w-4 h-4" />
                   전문 다운로드
-                </button>
+                </Button>
               </div>
             </motion.div>
           </div>

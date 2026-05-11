@@ -137,7 +137,7 @@ export default function AdminRegisterModal({ isOpen, onClose, onSave, adminToEdi
                         type="email" 
                         readOnly={!!adminToEdit}
                         className={`w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg text-[14px] outline-none transition-all ${adminToEdit ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'bg-white focus:border-[#008d75]'}`}
-                        placeholder="example@email.com"
+                        placeholder="email@email.com"
                         value={formData.loginId}
                         onChange={e => setFormData({...formData, loginId: e.target.value})}
                       />

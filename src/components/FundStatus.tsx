@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SearchBar, DataTable, PageLayout, Button, Input, Select } from './ui';
 
 export default function FundStatus() {
   const [data] = useState([
@@ -12,55 +13,35 @@ export default function FundStatus() {
   };
 
   return (
-    <div className="w-full space-y-0 pb-20">
+    <PageLayout>
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">테넌트명</span>
-            <select className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all">
-              <option value="all">전체</option>
-              <option value="TOSS">(주)토스페이먼츠</option>
-              <option value="WOOWAHAN">우아한형제들</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">기업명</span>
-            <input 
-              type="text" 
-              placeholder="기업명 입력" 
-              className="w-56 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]" 
-            />
-          </div>
-        
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
-          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            조회
-          </button>
-          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            초기화
-          </button>
-        </div>
-      </div>
-
+      <SearchBar onSearch={() => {}} onReset={() => {}}>
+        <SearchBar.Field label="테넌트명">
+          <Select style={{ width: 192 }}>
+            <option value="ALL">전체</option>
+            <option value="TOSS">(주)토스페이먼츠</option>
+            <option value="WOOWAHAN">우아한형제들</option>
+          </Select>
+        </SearchBar.Field>
+        <SearchBar.Field label="기업명">
+          <Input
+            type="text"
+            placeholder="기업명 입력"
+            style={{ width: 224 }}
+          />
+        </SearchBar.Field>
+      </SearchBar>
 
       {/* Grid Controls */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-[14px]">
-          <span className="text-[#4E5968]">총 </span>
-          <span className="text-[#008d75] font-bold">{data.length}</span>
-          <span className="text-[#4E5968]"> 건</span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={handleExcelDownload}
-            className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
-            엑셀 다운로드
-          </button>
-        </div>
-      </div>
+      <DataTable.Controls total={data.length}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleExcelDownload}
+        >
+          엑셀 다운로드
+        </Button>
+      </DataTable.Controls>
 
       {/* Grid */}
       <div className="bg-white rounded-lg border border-[#E5E8EB] overflow-hidden shadow-sm">
@@ -96,6 +77,6 @@ export default function FundStatus() {
           </table>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

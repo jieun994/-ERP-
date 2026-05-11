@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  RotateCcw, 
-  Download, 
-  Plus, 
-  X, 
-  AlertCircle,
-  MoreVertical,
-  Bell
-} from 'lucide-react';
+import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation } from 'react-router-dom';
+import { Button, SearchBar, DataTable, StatusBadge, PageLayout, ConfirmModal, Input, Select } from './ui';
 
 interface PushTemplate {
   id: string;
@@ -78,8 +70,8 @@ export default function PushNotificationManagement() {
   // Search States
   const [searchTemplateCode, setSearchTemplateCode] = useState('');
   const [searchName, setSearchName] = useState('');
-  const [searchSendingType, setSearchSendingType] = useState('all');
-  const [searchIsUsed, setSearchIsUsed] = useState('all');
+  const [searchSendingType, setSearchSendingType] = useState('ALL');
+  const [searchIsUsed, setSearchIsUsed] = useState('ALL');
 
   // Form States
   const [formData, setFormData] = useState({
@@ -94,8 +86,8 @@ export default function PushNotificationManagement() {
   const filteredData = data.filter(item => {
     const matchesCode = searchTemplateCode === '' || item.id.includes(searchTemplateCode);
     const matchesName = searchName === '' || item.name.includes(searchName);
-    const matchesSendingType = searchSendingType === 'all' || item.sendingType === searchSendingType;
-    const matchesIsUsed = searchIsUsed === 'all' || (searchIsUsed === 'use' ? item.isUsed : !item.isUsed);
+    const matchesSendingType = searchSendingType === 'ALL' || item.sendingType === searchSendingType;
+    const matchesIsUsed = searchIsUsed === 'ALL' || (searchIsUsed === 'use' ? item.isUsed : !item.isUsed);
     return matchesCode && matchesName && matchesSendingType && matchesIsUsed;
   });
 
@@ -180,129 +172,100 @@ export default function PushNotificationManagement() {
   const resetSearch = () => {
     setSearchTemplateCode('');
     setSearchName('');
-    setSearchSendingType('all');
-    setSearchIsUsed('all');
+    setSearchSendingType('ALL');
+    setSearchIsUsed('ALL');
   };
 
   return (
-    <div className="space-y-6 pb-20">
+    <PageLayout>
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">템플릿 코드</span>
-            <input 
-              type="text" 
-              placeholder="코드 입력"
-              value={searchTemplateCode}
-              onChange={(e) => setSearchTemplateCode(e.target.value)}
-              className="w-40 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]"
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">템플릿명</span>
-            <div className="relative w-64">
-              <input 
-                type="text" 
-                placeholder="템플릿명 입력"
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-                className="w-full h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]"
-              />
-              <Search className="w-4 h-4 text-[#8B95A1] absolute right-3 top-1/2 -translate-y-1/2" />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">발송 유형</span>
-            <select
-              value={searchSendingType}
-              onChange={(e) => setSearchSendingType(e.target.value)}
-              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75]"
-            >
-              <option value="all">전체</option>
-              <option value="승인">승인</option>
-              <option value="반려">반려</option>
-              <option value="결재대기">결재대기</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">사용여부</span>
-            <select
-              value={searchIsUsed}
-              onChange={(e) => setSearchIsUsed(e.target.value)}
-              className="w-32 h-[40px] px-3 bg-white border border-[#D1D6DB] rounded-lg text-[14px] outline-none focus:border-[#008d75]"
-            >
-              <option value="all">전체</option>
-              <option value="use">사용</option>
-              <option value="unused">미사용</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
-          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            조회
-          </button>
-          <button 
-            onClick={resetSearch}
-            className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            초기화
-          </button>
-        </div>
-      </div>
-
+      <SearchBar onSearch={() => {}} onReset={resetSearch}>
+        <SearchBar.Field label="템플릿 코드">
+          <Input
+            type="text"
+            placeholder="코드 입력"
+            value={searchTemplateCode}
+            onChange={(e) => setSearchTemplateCode(e.target.value)}
+            style={{ width: 160 }}
+          />
+        </SearchBar.Field>
+        <SearchBar.Field label="템플릿명">
+          <Input
+            type="text"
+            placeholder="템플릿명 입력"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            style={{ width: 256 }}
+          />
+        </SearchBar.Field>
+        <SearchBar.Field label="발송 유형">
+          <Select
+            value={searchSendingType}
+            onChange={(e) => setSearchSendingType(e.target.value)}
+            style={{ width: 128 }}
+          >
+            <option value="ALL">전체</option>
+            <option value="승인">승인</option>
+            <option value="반려">반려</option>
+            <option value="결재대기">결재대기</option>
+          </Select>
+        </SearchBar.Field>
+        <SearchBar.Field label="사용여부">
+          <Select
+            value={searchIsUsed}
+            onChange={(e) => setSearchIsUsed(e.target.value)}
+            style={{ width: 128 }}
+          >
+            <option value="ALL">전체</option>
+            <option value="use">사용</option>
+            <option value="unused">미사용</option>
+          </Select>
+        </SearchBar.Field>
+      </SearchBar>
 
       {/* Grid Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-        <div className="text-[14px]">
-          <span className="text-[#4E5968]">총 </span>
-          <span className="text-[#008d75] font-bold">{filteredData.length.toLocaleString()}</span>
-          <span className="text-[#4E5968]"> 건</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => openForm()}
-            className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
-          >등록</button>
-          <button
-            onClick={() => {
-              if (selectedIds.length !== 1) {
-                alert('수정할 항목을 1개만 선택해 주세요.');
-                return;
-              }
-              const item = data.find(d => d.id === selectedIds[0]);
-              if (item) openForm(item);
-            }}
-            disabled={selectedIds.length !== 1}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >수정</button>
-          <button
-            onClick={() => {
-              if (selectedIds.length === 0) {
-                alert('삭제할 항목을 선택해 주세요.');
-                return;
-              }
-              setShowDeleteWarning('bulk');
-            }}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >삭제</button>
-          <button
-            onClick={() => {
-              if (selectedIds.length === 0) {
-                alert('사용 여부를 변경할 항목을 선택해 주세요.');
-                return;
-              }
-              setData(data.map(item => selectedIds.includes(item.id) ? { ...item, isUsed: !item.isUsed } : item));
-              setSelectedIds([]);
-            }}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >사용여부 변경</button>
-          <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
-            엑셀 다운로드
-          </button>
-        </div>
-      </div>
+      <DataTable.Controls total={filteredData.length}>
+        <Button variant="primary" size="sm" onClick={() => openForm()}>등록</Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={selectedIds.length !== 1}
+          onClick={() => {
+            if (selectedIds.length !== 1) {
+              alert('수정할 항목을 1개만 선택해 주세요.');
+              return;
+            }
+            const item = data.find(d => d.id === selectedIds[0]);
+            if (item) openForm(item);
+          }}
+        >수정</Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={selectedIds.length === 0}
+          onClick={() => {
+            if (selectedIds.length === 0) {
+              alert('삭제할 항목을 선택해 주세요.');
+              return;
+            }
+            setShowDeleteWarning('bulk');
+          }}
+        >삭제</Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={selectedIds.length === 0}
+          onClick={() => {
+            if (selectedIds.length === 0) {
+              alert('사용 여부를 변경할 항목을 선택해 주세요.');
+              return;
+            }
+            setData(data.map(item => selectedIds.includes(item.id) ? { ...item, isUsed: !item.isUsed } : item));
+            setSelectedIds([]);
+          }}
+        >사용여부 변경</Button>
+        <Button variant="ghost" size="sm">엑셀 다운로드</Button>
+      </DataTable.Controls>
 
       {/* Table */}
       <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
@@ -311,8 +274,8 @@ export default function PushNotificationManagement() {
             <thead>
               <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
                 <th className="h-[52px] px-4 text-center border-r border-[#E5E8EB] w-12">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                     checked={filteredData.length > 0 && selectedIds.length === filteredData.length}
                     onChange={toggleSelectAll}
@@ -348,8 +311,8 @@ export default function PushNotificationManagement() {
                     }}
                   >
                     <td className="px-4 text-center border-r border-[#E5E8EB]">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
                         checked={selectedIds.includes(item.id)}
                         onChange={() => toggleSelect(item.id)}
@@ -368,11 +331,7 @@ export default function PushNotificationManagement() {
                       {item.sendingType}
                     </td>
                     <td className="px-4 text-center border-r border-[#E5E8EB]">
-                      <span className={`text-[13px] font-bold ${
-                        item.isUsed ? 'text-[#008d75]' : 'text-[#8B95A1]'
-                      }`}>
-                        {item.isUsed ? '사용' : '미사용'}
-                      </span>
+                      <StatusBadge status={item.isUsed ? 'ON' : 'OFF'} />
                     </td>
                     <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB]">
                       {item.updatedBy}
@@ -415,35 +374,38 @@ export default function PushNotificationManagement() {
                     <div className="flex gap-4">
                         <div className="flex-1 space-y-1.5">
                           <label className="block text-[14px] font-semibold text-[#191F28]">템플릿 코드</label>
-                          <input 
+                          <Input
+                            size="sm"
+                            fullWidth
                             type="text"
                             value={formData.id}
                             onChange={(e) => setFormData({ ...formData, id: e.target.value })}
                             disabled={!!editItem}
-                            className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1] disabled:bg-[#F9FAFB]"
                             placeholder="템플릿 코드"
                           />
                         </div>
                         <div className="flex-1 space-y-1.5">
                           <label className="block text-[14px] font-semibold text-[#191F28]">발송 유형 <span className="text-[#F04452]">*</span></label>
-                          <select
+                          <Select
+                            size="sm"
+                            fullWidth
                             value={formData.sendingType}
                             onChange={(e) => setFormData({ ...formData, sendingType: e.target.value as '승인' | '반려' | '결재대기' })}
-                            className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] outline-none focus:border-[#008d75]"
                           >
                             <option value="승인">승인</option>
                             <option value="반려">반려</option>
                             <option value="결재대기">결재대기</option>
-                          </select>
+                          </Select>
                         </div>
                     </div>
                     <div className="space-y-1.5">
                       <label className="block text-[14px] font-semibold text-[#191F28]">템플릿명 <span className="text-[#F04452]">*</span></label>
-                      <input 
+                      <Input
+                        size="sm"
+                        fullWidth
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]"
                         placeholder="예: 승인 완료 알림"
                       />
                     </div>
@@ -494,57 +456,26 @@ export default function PushNotificationManagement() {
 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
-                  <button 
-                    onClick={closeForm}
-                    className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
-                  >
-                    취소
-                  </button>
-                  <button 
-                    onClick={saveForm}
-                    className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
-                  >
+                  <Button variant="secondary" size="md" style={{ width: 120 }} onClick={closeForm}>취소</Button>
+                  <Button variant="primary" size="md" style={{ width: 120 }} onClick={saveForm}>
                     {editItem ? '저장하기' : '등록하기'}
-                  </button>
+                  </Button>
                 </div>
               </motion.div>
             </div>
           )}
         </AnimatePresence>
 
-      {/* Simple Delete Warning Modal */}
-      <AnimatePresence>
-        {showDeleteWarning && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
-            >
-              <div className="w-12 h-12 bg-red-50 text-[#F04452] rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertCircle className="w-6 h-6" />
-              </div>
-              <h3 className="text-[18px] font-bold text-[#191F28] mb-3">PUSH 템플릿을 삭제하시겠습니까?</h3>
-              <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed font-medium">
-                삭제 시 자동 발송 로직이 중단될 수 있습니다.<br/>삭제 후에는 복구가 불가능합니다.
-              </p>
-              <div className="flex gap-2 justify-center">
-                <button 
-                  onClick={() => setShowDeleteWarning(null)}
-                  className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
-                >
-                  취소
-                </button>
-                <button 
-                  onClick={deleteItems}
-                  className="flex-1 h-[44px] bg-[#F04452] text-white rounded-md text-[14px] font-semibold hover:bg-[#d93a46] transition-colors shadow-sm"
-                >
-                  삭제하기
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
+      {/* Delete Confirm Modal */}
+      <ConfirmModal
+        open={!!showDeleteWarning}
+        variant="danger"
+        title="PUSH 템플릿을 삭제하시겠습니까?"
+        description={"삭제 시 자동 발송 로직이 중단될 수 있습니다.\n삭제 후에는 복구가 불가능합니다."}
+        confirmLabel="삭제하기"
+        onConfirm={deleteItems}
+        onCancel={() => setShowDeleteWarning(null)}
+      />
+    </PageLayout>
   );
 }

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, X, AlertCircle, RotateCcw } from 'lucide-react';
+import { Search, Plus, X, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation } from 'react-router-dom';
+import { Button, SearchBar, DataTable, PageLayout, StatusBadge, ConfirmModal, Input } from './ui';
 
 interface MessageData {
   id: string;
@@ -257,36 +258,22 @@ export default function MessageManagement() {
   };
 
   return (
-    <div className="space-y-6 pb-20 flex flex-col">
+    <PageLayout className="space-y-6 flex flex-col">
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
-          <div className="flex items-center gap-4 flex-1">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
-            <div className="relative w-full max-w-md">
-              <input
-                type="text"
-                placeholder="그룹명, 메시지 코드 또는 내용 입력"
-                value={searchKeyword}
-                onChange={e => setSearchKeyword(e.target.value)}
-                className="w-full h-[40px] bg-white border border-[#D1D6DB] rounded-lg px-4 pr-10 text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
-              />
-              <Search className="w-4 h-4 text-[#8B95A1] absolute right-3 top-1/2 -translate-y-1/2" />
-            </div>
+      <SearchBar onSearch={() => {}} onReset={() => setSearchKeyword('')}>
+        <SearchBar.Field label="검색어">
+          <div className="relative w-full max-w-md">
+            <Input
+              type="text"
+              placeholder="그룹명, 메시지 코드 또는 내용 입력"
+              value={searchKeyword}
+              onChange={e => setSearchKeyword(e.target.value)}
+              style={{ width: '100%', paddingRight: '2.5rem' }}
+            />
+            <Search className="w-4 h-4 text-[#8B95A1] absolute right-3 top-1/2 -translate-y-1/2" />
           </div>
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
-          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            조회
-          </button>
-          <button
-            className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm"
-            onClick={() => setSearchKeyword('')}
-          >
-            초기화
-          </button>
-        </div>
-      </div>
+        </SearchBar.Field>
+      </SearchBar>
 
       {/* Main Content Area */}
       <div className="flex gap-6 min-h-[600px]">
@@ -406,33 +393,32 @@ export default function MessageManagement() {
           </div>
 
           {/* Table Controls */}
-          <div className="flex items-center justify-between">
-            <div className="text-[14px] text-[#191F28]">
-              총 <span className="text-[#008d75] font-bold">{activeGroupData.length.toLocaleString()}</span> 건
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleOpenAddModal}
-                disabled={!activeGroup}
-                className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm disabled:opacity-50"
-              >등록</button>
-              <button
-                onClick={handleOpenEditModal}
-                disabled={!activeGroup || selectedIds.length !== 1}
-                className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50"
-              >수정</button>
-              <button
-                onClick={handleBatchToggleUse}
-                disabled={selectedIds.length === 0}
-                className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >사용여부 변경</button>
-              <button
-                onClick={handleExcelDownload}
-                disabled={!activeGroup}
-                className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50"
-              >엑셀 다운로드</button>
-            </div>
-          </div>
+          <DataTable.Controls total={activeGroupData.length}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleOpenAddModal}
+              disabled={!activeGroup}
+            >등록</Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleOpenEditModal}
+              disabled={!activeGroup || selectedIds.length !== 1}
+            >수정</Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBatchToggleUse}
+              disabled={selectedIds.length === 0}
+            >사용여부 변경</Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleExcelDownload}
+              disabled={!activeGroup}
+            >엑셀 다운로드</Button>
+          </DataTable.Controls>
 
           <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
@@ -519,9 +505,7 @@ export default function MessageManagement() {
                           </span>
                         </td>
                         <td className="px-4 text-center">
-                          <span className={`text-[13px] font-bold ${item.isUsed ? 'text-[#008d75]' : 'text-[#8B95A1]'}`}>
-                            {item.isUsed ? '사용' : '미사용'}
-                          </span>
+                          <StatusBadge status={item.isUsed ? 'ON' : 'OFF'} />
                         </td>
                       </tr>
                     ))
@@ -651,15 +635,19 @@ export default function MessageManagement() {
               </div>
 
               <div className="h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] flex items-center justify-center gap-3 shrink-0">
-                <button
+                <Button
+                  variant="secondary"
+                  size="md"
+                  style={{ width: 120 }}
                   type="button"
                   onClick={handleCloseModal}
-                  className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-md bg-white text-[14px] font-medium text-[#333333] hover:bg-[#F2F4F6] transition-colors"
-                >취소</button>
-                <button
+                >취소</Button>
+                <Button
+                  variant="primary"
+                  size="md"
+                  style={{ width: 120 }}
                   onClick={handleSave}
-                  className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[14px] font-semibold transition-colors shadow-sm"
-                >{isAddingNew ? '등록하기' : '저장하기'}</button>
+                >{isAddingNew ? '등록하기' : '저장하기'}</Button>
               </div>
             </motion.div>
           </div>
@@ -667,40 +655,20 @@ export default function MessageManagement() {
       </AnimatePresence>
 
       {/* Unsaved Warning Modal */}
-      <AnimatePresence>
-        {showUnsavedWarning && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
-            >
-              <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertCircle className="w-6 h-6" />
-              </div>
-              <h3 className="text-[18px] font-bold text-[#191F28] mb-3">저장되지 않은 변경사항</h3>
-              <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">
-                현재 입력한 내용이 유실될 수 있습니다.<br />그래도 닫으시겠습니까?
-              </p>
-              <div className="flex gap-2 justify-center">
-                <button
-                  onClick={() => setShowUnsavedWarning(false)}
-                  className="flex-1 h-[44px] bg-white border border-[#D1D6DB] text-[#333333] rounded-md text-[14px] font-semibold hover:bg-[#F9FAFB] transition-colors"
-                >계속 작성</button>
-                <button
-                  onClick={() => {
-                    setShowUnsavedWarning(false);
-                    setIsModalOpen(false);
-                    setIsDirty(false);
-                  }}
-                  className="flex-1 h-[44px] bg-[#008d75] text-white rounded-md text-[14px] font-semibold hover:bg-[#007a65] transition-colors shadow-sm"
-                >닫기</button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
+      <ConfirmModal
+        open={showUnsavedWarning}
+        variant="warning"
+        title="저장되지 않은 변경사항"
+        description={`현재 입력한 내용이 유실될 수 있습니다.\n그래도 닫으시겠습니까?`}
+        confirmLabel="닫기"
+        cancelLabel="계속 작성"
+        onConfirm={() => {
+          setShowUnsavedWarning(false);
+          setIsModalOpen(false);
+          setIsDirty(false);
+        }}
+        onCancel={() => setShowUnsavedWarning(false)}
+      />
+    </PageLayout>
   );
 }

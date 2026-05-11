@@ -196,11 +196,11 @@ export default function Step1({
       {/* Tenant String */}
       <div className="mb-6 bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
         <div className="flex-1">
-          <label className="block text-[14px] font-bold text-gray-800 mb-2">테넌트 (상위기업) <span className="text-red-500">*</span></label>
+          <label className="block text-[14px] font-bold text-gray-800 mb-2">테넌트 (상위기업) <span className="text-[#F04452]">*</span></label>
           <div className="flex gap-2 w-full max-w-md">
             <input
               className={`flex-1 px-3 py-2 bg-white border rounded-md text-[14px] outline-none transition-colors ${
-                tenantError ? 'border-red-500 bg-red-50/30' : 'border-gray-300 focus:bg-white focus:border-[#008d75]'
+                tenantError ? 'border-[#F04452] bg-[#F04452]/5' : 'border-gray-300 focus:bg-white focus:border-[#008d75]'
               }`}
               value={tenantCode}
               onChange={e => {
@@ -209,14 +209,14 @@ export default function Step1({
               }}
               placeholder="테넌트값 입력"
             />
-            <button 
+            <button
               onClick={handleDuplicateCheck}
               className="px-4 py-2 bg-white border border-gray-300 rounded-md text-[13px] font-semibold text-gray-700 hover:bg-gray-50"
             >
               중복 확인
             </button>
           </div>
-          {tenantError && <p className="text-red-500 text-[12px] mt-1.5 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {tenantError}</p>}
+          {tenantError && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{tenantError}</p>}
         </div>
       </div>
 
@@ -225,39 +225,39 @@ export default function Step1({
           <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-6 p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
-                <label className="block text-[13px] font-semibold text-gray-700 mb-1.5 flex items-center gap-1"><span className="text-red-500">*</span> 기업명</label>
+                <label className="block text-[13px] font-semibold text-gray-700 mb-1.5 flex items-center gap-1"><span className="text-[#F04452]">*</span> 기업명</label>
                 <input
                   type="text"
-                  className={`w-full px-3 py-2 border rounded-md text-[14px] outline-none ${formErrors.name ? 'border-red-500 bg-red-50/30' : 'border-gray-300 focus:border-[#008d75]'}`}
+                  className={`w-full px-3 py-2 border rounded-md text-[14px] outline-none ${formErrors.name ? 'border-[#F04452] bg-[#F04452]/5' : 'border-gray-300 focus:border-[#008d75]'}`}
                   value={formState.name}
                   onChange={e => handleFormChange('name', e.target.value)}
                   placeholder="기업명 입력"
                 />
-                {formErrors.name && <p className="text-red-500 text-[12px] mt-1">{formErrors.name}</p>}
+                {formErrors.name && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.name}</p>}
               </div>
               <div>
-                <label className="block text-[13px] font-semibold text-gray-700 mb-1.5 flex items-center gap-1"><span className="text-red-500">*</span> 사업자등록번호</label>
+                <label className="block text-[13px] font-semibold text-gray-700 mb-1.5 flex items-center gap-1"><span className="text-[#F04452]">*</span> 사업자등록번호</label>
                 <input
                   type="text"
                   maxLength={10}
-                  className={`w-full px-3 py-2 border rounded-md text-[14px] outline-none ${formErrors.bizNumber ? 'border-red-500 bg-red-50/30' : 'border-gray-300 focus:border-[#008d75]'}`}
+                  className={`w-full px-3 py-2 border rounded-md text-[14px] outline-none ${formErrors.bizNumber ? 'border-[#F04452] bg-[#F04452]/5' : 'border-gray-300 focus:border-[#008d75]'}`}
                   value={formState.bizNumber}
                   onChange={e => handleFormChange('bizNumber', e.target.value)}
                   placeholder="10자리 숫자 입력"
                 />
-                {formErrors.bizNumber && <p className="text-red-500 text-[12px] mt-1">{formErrors.bizNumber}</p>}
+                {formErrors.bizNumber && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.bizNumber}</p>}
               </div>
               <div>
                 <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">법인등록번호</label>
                 <input
                   type="text"
                   maxLength={13}
-                  className={`w-full px-3 py-2 border rounded-md text-[14px] outline-none ${formErrors.corpNumber ? 'border-red-500 bg-red-50/30' : 'border-gray-300 focus:border-[#008d75]'}`}
+                  className={`w-full px-3 py-2 border rounded-md text-[14px] outline-none ${formErrors.corpNumber ? 'border-[#F04452] bg-[#F04452]/5' : 'border-gray-300 focus:border-[#008d75]'}`}
                   value={formState.corpNumber}
                   onChange={e => handleFormChange('corpNumber', e.target.value)}
                   placeholder="13자리 숫자 입력(선택)"
                 />
-                {formErrors.corpNumber && <p className="text-red-500 text-[12px] mt-1">{formErrors.corpNumber}</p>}
+                {formErrors.corpNumber && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.corpNumber}</p>}
               </div>
             </div>
             <div className="flex justify-end gap-2 border-t border-gray-100 pt-4 mt-2">
@@ -413,15 +413,15 @@ export default function Step1({
                         <td className="px-4 py-3 text-center text-gray-500 font-medium">{idx + 1}</td>
                         <td className="px-4 py-3">
                           {row.name}
-                          {row.errors?.name && <span className="block text-[11px] text-red-500 mt-1 font-medium">{row.errors.name}</span>}
+                          {row.errors?.name && <span className="block text-[11px] text-[#F04452] mt-1 font-medium">{row.errors.name}</span>}
                         </td>
                         <td className="px-4 py-3">
-                          <span className={row.errors?.bizNumber ? 'text-red-500 font-medium' : ''}>{row.bizNumber.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3')}</span>
-                          {row.errors?.bizNumber && <span className="block text-[11px] text-red-500 mt-1 font-medium">{row.errors.bizNumber}</span>}
+                          <span className={row.errors?.bizNumber ? 'text-[#F04452] font-medium' : ''}>{row.bizNumber.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3')}</span>
+                          {row.errors?.bizNumber && <span className="block text-[11px] text-[#F04452] mt-1 font-medium">{row.errors.bizNumber}</span>}
                         </td>
                         <td className="px-4 py-3">
-                          <span className={row.errors?.corpNumber ? 'text-red-500 font-medium' : ''}>{row.corpNumber ? row.corpNumber.replace(/(\d{6})(\d{7})/, '$1-$2') : '-'}</span>
-                          {row.errors?.corpNumber && <span className="block text-[11px] text-red-500 mt-1 font-medium">{row.errors.corpNumber}</span>}
+                          <span className={row.errors?.corpNumber ? 'text-[#F04452] font-medium' : ''}>{row.corpNumber ? row.corpNumber.replace(/(\d{6})(\d{7})/, '$1-$2') : '-'}</span>
+                          {row.errors?.corpNumber && <span className="block text-[11px] text-[#F04452] mt-1 font-medium">{row.errors.corpNumber}</span>}
                         </td>
                       </tr>
                     ))}
@@ -441,7 +441,7 @@ export default function Step1({
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg font-semibold text-[14px] flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-5 ${
-          toast.type === 'success' ? 'bg-gray-800 text-white' : 'bg-red-500 text-white'
+          toast.type === 'success' ? 'bg-gray-800 text-white' : 'bg-[#F04452] text-white'
         }`}>
           {toast.type === 'error' && <AlertCircle className="w-4 h-4" />}
           {toast.message}

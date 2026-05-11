@@ -121,7 +121,7 @@ export default function Step2({ enterprises, vanIds, setVanIds }: Step2Props) {
             <input 
               type="text" 
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75] h-[40px] bg-white" 
-              placeholder="외화 펌뱅킹 ID"
+              placeholder="외화 펌뱅킹 ID 입력"
               value={currentRow.foreign}
               onChange={(e) => handleInputChange('foreign', e.target.value)}
             />
@@ -134,7 +134,7 @@ export default function Step2({ enterprises, vanIds, setVanIds }: Step2Props) {
             <input 
               type="text" 
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75] h-[40px] bg-white" 
-              placeholder="외화대금 펌뱅킹 ID"
+              placeholder="외화대금 펌뱅킹 ID 입력"
               value={currentRow.foreignLoan}
               onChange={(e) => handleInputChange('foreignLoan', e.target.value)}
             />
@@ -144,7 +144,7 @@ export default function Step2({ enterprises, vanIds, setVanIds }: Step2Props) {
             <input 
               type="text" 
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75] h-[40px] bg-white" 
-              placeholder="지급 펌뱅킹 ID"
+              placeholder="지급 펌뱅킹 ID 입력"
               value={currentRow.payment}
               onChange={(e) => handleInputChange('payment', e.target.value)}
             />
@@ -154,7 +154,7 @@ export default function Step2({ enterprises, vanIds, setVanIds }: Step2Props) {
             <input 
               type="text" 
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75] h-[40px] bg-white" 
-              placeholder="가상계좌 펌뱅킹 ID"
+              placeholder="가상계좌 펌뱅킹 ID 입력"
               value={currentRow.virtual}
               onChange={(e) => handleInputChange('virtual', e.target.value)}
             />

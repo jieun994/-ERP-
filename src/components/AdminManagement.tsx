@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Search, Download, Plus, MoreVertical, Shield, User, Filter, AlertCircle, Mail, RotateCcw, Trash2, Home, ChevronRight } from 'lucide-react';
+import { Shield, User, AlertCircle, Mail, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import AdminRegisterModal from './AdminRegisterModal';
+import { Button, SearchBar, DataTable, StatusBadge, PageLayout, Select, Input } from './ui';
 
 interface AdminUser {
   id: string;
@@ -106,108 +107,69 @@ export default function AdminManagement() {
   };
 
   return (
-    <div className="w-full space-y-0 pb-20">
+    <PageLayout>
       {/* Search Area */}
-      <div className="flex items-stretch gap-3 mb-8">
-        <div className="flex-1 bg-[#F9FAFB] border border-[#E5E8EB] px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">검색어</span>
-            <input 
-              type="text" 
-              placeholder="이름 또는 이메일 입력" 
-              className="w-80 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">권한 등급</span>
-            <select 
-              className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-            >
-              <option value="ALL">전체</option>
-              <option value="SUPER">슈퍼관리자</option>
-              <option value="ENTERPRISE">기업관리자</option>
-              <option value="SYSTEM">시스템관리자</option>
-              <option value="OPERATION">운영관리자</option>
-              <option value="VIEWER">조회자</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[14px] font-bold text-gray-800 shrink-0">사용여부</span>
-            <select 
-              className="w-48 h-[40px] px-4 bg-white border border-[#D1D6DB] rounded-lg text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="ALL">전체</option>
-              <option value="USED">사용</option>
-              <option value="UNUSED">미사용</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
-          <button className="w-[100px] h-[48px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-md text-[15px] font-bold transition-colors shadow-sm">
-            조회
-          </button>
-          <button className="w-[100px] h-[48px] bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] rounded-md text-[15px] font-bold transition-colors shadow-sm"
-            onClick={() => {
-              setSearchQuery('');
-              setStatusFilter('ALL');
-            }}
+      <SearchBar
+        onSearch={() => {}}
+        onReset={() => { setSearchQuery(''); setStatusFilter('ALL'); setRoleFilter('ALL'); }}
+      >
+        <SearchBar.Field label="검색어">
+          <Input
+            type="text"
+            placeholder="이름 또는 이메일 입력"
+            style={{ width: 320 }}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </SearchBar.Field>
+        <SearchBar.Field label="권한 등급">
+          <Select
+            style={{ width: 192 }}
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
           >
-            초기화
-          </button>
-        </div>
-      </div>
+            <option value="ALL">전체</option>
+            <option value="SUPER">슈퍼관리자</option>
+            <option value="ENTERPRISE">기업관리자</option>
+            <option value="SYSTEM">시스템관리자</option>
+            <option value="OPERATION">운영관리자</option>
+            <option value="VIEWER">조회자</option>
+          </Select>
+        </SearchBar.Field>
+        <SearchBar.Field label="사용여부">
+          <Select
+            style={{ width: 192 }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="ALL">전체</option>
+            <option value="USED">사용</option>
+            <option value="UNUSED">미사용</option>
+          </Select>
+        </SearchBar.Field>
+      </SearchBar>
 
-      {/* Grid Controls (Total count and Buttons) */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-        <div className="text-[14px]">
-          <span className="text-[#191F28]">총 </span>
-          <span className="text-[#008d75] font-bold">{filteredAdmins.length.toLocaleString()}</span>
-          <span className="text-[#191F28]"> 건</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              setEditAdmin(null);
-              setIsModalOpen(true);
-            }}
-            className="h-[36px] bg-[#008d75] hover:bg-[#007a65] text-white px-5 rounded-md text-[14px] font-bold transition-colors shadow-sm"
-          >등록</button>
-          <button
-            onClick={() => {
-              if (selectedIds.length !== 1) {
-                alert('수정할 관리자를 1명 선택해주세요.');
-                return;
-              }
-              const admin = admins.find(a => a.id === selectedIds[0]);
-              if (admin) {
-                setEditAdmin(admin);
-                setIsModalOpen(true);
-              }
-            }}
-            disabled={selectedIds.length !== 1}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >수정</button>
-          <button
-            onClick={handleBatchDelete}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >삭제</button>
-          <button
-            onClick={handleBatchToggleUse}
-            disabled={selectedIds.length === 0}
-            className="h-[36px] border border-[#D1D6DB] px-4 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >사용여부 변경</button>
-          <button className="h-[36px] border border-[#D1D6DB] px-5 rounded-md text-[14px] font-bold hover:bg-[#F9FAFB] bg-white text-[#333333] transition-colors shadow-sm">
-            엑셀 다운로드
-          </button>
-        </div>
-      </div>
+      {/* Grid Controls */}
+      <DataTable.Controls total={filteredAdmins.length}>
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={() => { setEditAdmin(null); setIsModalOpen(true); }}
+        >등록</Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={selectedIds.length !== 1}
+          onClick={() => {
+            if (selectedIds.length !== 1) { alert('수정할 관리자를 1명 선택해주세요.'); return; }
+            const admin = admins.find(a => a.id === selectedIds[0]);
+            if (admin) { setEditAdmin(admin); setIsModalOpen(true); }
+          }}
+        >수정</Button>
+        <Button variant="ghost" size="sm" disabled={selectedIds.length === 0} onClick={handleBatchDelete}>삭제</Button>
+        <Button variant="ghost" size="sm" disabled={selectedIds.length === 0} onClick={handleBatchToggleUse}>사용여부 변경</Button>
+        <Button variant="ghost" size="sm">엑셀 다운로드</Button>
+      </DataTable.Controls>
 
       {/* Grid */}
       <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
@@ -259,9 +221,7 @@ export default function AdminManagement() {
                     </span>
                   </td>
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <span className={`text-[14px] font-semibold ${admin.isUsed ? 'text-[#008d75]' : 'text-[#8B95A1]'}`}>
-                      {admin.isUsed ? '사용' : '미사용'}
-                    </span>
+                    <StatusBadge status={admin.isUsed ? 'ON' : 'OFF'} />
                   </td>
                   <td className="px-4 text-[13px] text-[#8B95A1] font-mono text-center">{admin.createdAt}</td>
                 </tr>
@@ -291,6 +251,6 @@ export default function AdminManagement() {
           }
         }}
       />
-    </div>
+    </PageLayout>
   );
 }

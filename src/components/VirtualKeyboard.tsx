@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Delete, X, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Delete, X, ShieldCheck } from 'lucide-react';
+import { Button } from './ui';
 
 interface VirtualKeyboardProps {
   isOpen: boolean;
@@ -75,10 +76,10 @@ export default function VirtualKeyboard({
                 </div>
                 <h3 className="text-[18px] font-bold text-[#191F28]">{title}</h3>
               </div>
-              <button 
+              <button
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
                 id="vk-close-btn"
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-6 h-6 text-gray-400" />
               </button>
@@ -109,14 +110,6 @@ export default function VirtualKeyboard({
                     )}
                   </div>
                 ))}
-              </div>
-
-              {/* Security Banner */}
-              <div className="w-full bg-[#F9FAFB] rounded-xl p-3 mb-8 flex items-center justify-center gap-2">
-                <span className="text-[12px] text-[#8B95A1] font-medium">안전을 위해 키패드의 숫자가 무작위로 배치됩니다.</span>
-                <button onClick={shuffleKeys} className="p-1 hover:bg-gray-200 rounded-md transition-colors">
-                  <RefreshCw className="w-3 h-3 text-[#8B95A1]" />
-                </button>
               </div>
 
               {/* Keypad Grid */}
@@ -158,17 +151,15 @@ export default function VirtualKeyboard({
               </div>
 
               {/* Confirm Button */}
-              <button
+              <Button
+                variant={input.length === length ? 'primary' : 'ghost'}
                 disabled={input.length < length}
                 onClick={handleSubmit}
-                className={`mt-10 w-full h-16 rounded-2xl text-[18px] font-bold transition-all shadow-md active:scale-[0.98] ${
-                  input.length === length 
-                    ? 'bg-[#008d75] text-white hover:bg-[#007a65]' 
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
+                fullWidth
+                className="mt-10 h-16 rounded-2xl text-[18px] font-bold shadow-md active:scale-[0.98]"
               >
                 확인
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>
