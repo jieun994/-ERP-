@@ -110,14 +110,14 @@ export function ExceptionRegisterPreview({ onClose }: { onClose: () => void }) {
       <div className="space-y-6">
         <div>
           <Sec label="기본 정보" />
-          <div className="space-y-4 pl-3">
+          <div className="space-y-4">
             <Field label="테넌트" required><select className={SEL}><option value="">테넌트 선택</option><option value="toss">(주)토스페이먼츠</option><option value="woowa">우아한형제들</option></select></Field>
             <Field label="기업명" required><select className={SEL}><option value="">기업 선택</option><option value="toss">(주)토스페이먼츠</option><option value="woowa">우아한형제들</option></select></Field>
           </div>
         </div>
         <div className="border-t border-[#E5E8EB] pt-6">
           <Sec label="계좌 정보" />
-          <div className="space-y-4 pl-3">
+          <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Field label="대상 은행" required><select className={SEL}><option>국민은행</option><option>신한은행</option><option>우리은행</option></select></Field>
               <Field label="대상 계좌번호" required><input type="text" className={INP} placeholder="계좌번호 (숫자만)" /></Field>
@@ -136,11 +136,11 @@ export function MenuEditPreview({ onClose }: { onClose: () => void }) {
       <div className="space-y-6">
         <div>
           <Sec label="메뉴 정보" />
-          <div className="pl-3"><Field label="메뉴명" required><input type="text" className={INP} defaultValue="기업 관리" /></Field></div>
+          <div className=""><Field label="메뉴명" required><input type="text" className={INP} defaultValue="기업 관리" /></Field></div>
         </div>
         <div>
           <Sec label="사용 여부" />
-          <div className="flex gap-8 pl-3">
+          <div className="flex gap-8">
             <Radio name="menuUse" label="사용 (ON)" defaultChecked />
             <Radio name="menuUse" label="미사용 (OFF)" />
           </div>
@@ -255,7 +255,7 @@ export function EmailTemplateModalPreview({ onClose }: { onClose: () => void }) 
       <div className="space-y-8">
         <div>
           <Sec label="기본 정보" />
-          <div className="pl-3 space-y-4">
+          <div className="space-y-4">
             <Field label="템플릿명" required><input type="text" className={INP} placeholder="템플릿 목록에서 구분할 이름" /></Field>
             <div className="grid grid-cols-2 gap-6">
               <Field label="템플릿 코드" required><input type="text" className={INP + " font-mono tracking-tight"} placeholder="영문 대문자, 숫자, 언더바(_)" /></Field>
@@ -274,7 +274,7 @@ export function EmailTemplateModalPreview({ onClose }: { onClose: () => void }) 
         </div>
         <div className="border-t border-[#E5E8EB] pt-6">
           <Sec label="이메일 내용" />
-          <div className="pl-3 space-y-4">
+          <div className="space-y-4">
             <Field label="이메일 제목" required><input type="text" className={INP} placeholder="수신자에게 표시될 메일 제목을 입력하세요" /></Field>
             <Field label="이메일 본문" required><textarea className={TXA + " resize-y"} rows={8} placeholder="메일 본문을 입력하세요. 줄바꿈은 메일에서도 동일하게 적용됩니다." /></Field>
           </div>
@@ -288,7 +288,7 @@ export function PushModalPreview({ onClose }: { onClose: () => void }) {
   return (
     <ModalWrap title="PUSH 템플릿 등록" size="max-w-2xl" saveLabel="등록하기" onClose={onClose}>
       <Sec label="템플릿 정보" />
-      <div className="space-y-4 pl-3">
+      <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <Field label="템플릿 코드"><input type="text" className={INP} placeholder="템플릿 코드" /></Field>
           <Field label="발송 유형" required><select className={SEL}><option>승인</option><option>반려</option><option>결재대기</option></select></Field>
@@ -308,7 +308,7 @@ export function CodeModalPreview({ onClose }: { onClose: () => void }) {
   return (
     <ModalWrap title="신규 상세 코드 등록" size="max-w-md" saveLabel="등록하기" onClose={onClose}>
       <Sec label="상세 코드 정보" />
-      <div className="space-y-4 pl-3">
+      <div className="space-y-4">
         <Field label="코드 그룹" required><input type="text" disabled className={DIS + " font-mono"} defaultValue="USE_STATUS" /></Field>
         <Field label="코드값" required><input type="text" className={INP + " font-mono"} placeholder="예: ACTIVE" /></Field>
         <Field label="코드명" required><input type="text" className={INP} placeholder="예: 정상" /></Field>

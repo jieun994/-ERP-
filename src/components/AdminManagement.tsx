@@ -12,6 +12,7 @@ interface AdminUser {
   roleLabel: string;
   isUsed: boolean;
   createdAt: string;
+  otpStatus: 'REGISTERED' | 'UNREGISTERED';
 }
 
 const mockAdmins: AdminUser[] = [
@@ -20,27 +21,30 @@ const mockAdmins: AdminUser[] = [
     loginId: 'admin_toss@example.com', 
     name: '김토스', 
     role: 'SUPER', 
-    roleLabel: '슈퍼관리자', 
-    isUsed: true, 
-    createdAt: '2024-03-01'
+    roleLabel: '슈퍼관리자',
+    isUsed: true,
+    createdAt: '2024-03-01',
+    otpStatus: 'REGISTERED',
   },
-  { 
-    id: '2', 
-    loginId: 'eng_kim@example.com', 
-    name: '박엔지', 
-    role: 'SYSTEM', 
-    roleLabel: '시스템관리자', 
-    isUsed: true, 
-    createdAt: '2024-03-15'
+  {
+    id: '2',
+    loginId: 'eng_kim@example.com',
+    name: '박엔지',
+    role: 'SYSTEM',
+    roleLabel: '시스템관리자',
+    isUsed: true,
+    createdAt: '2024-03-15',
+    otpStatus: 'REGISTERED',
   },
-  { 
-    id: '3', 
-    loginId: 'viewer_lee@example.com', 
-    name: '이조회', 
-    role: 'VIEWER', 
-    roleLabel: '조회자', 
-    isUsed: false, 
-    createdAt: '2024-04-10'
+  {
+    id: '3',
+    loginId: 'viewer_lee@example.com',
+    name: '이조회',
+    role: 'VIEWER',
+    roleLabel: '조회자',
+    isUsed: false,
+    createdAt: '2024-04-10',
+    otpStatus: 'UNREGISTERED',
   },
 ];
 

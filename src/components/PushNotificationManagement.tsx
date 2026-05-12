@@ -370,7 +370,7 @@ export default function PushNotificationManagement() {
                     <h4 className="text-[14px] font-semibold text-[#191F28]">템플릿 정보</h4>
                   </div>
                   
-                  <div className="pl-3 space-y-4">
+                  <div className="space-y-4">
                     <div className="flex gap-4">
                         <div className="flex-1 space-y-1.5">
                           <label className="block text-[14px] font-semibold text-[#191F28]">템플릿 코드</label>

@@ -489,7 +489,7 @@ export default function CodeManagement() {
                        <h4 className="text-[14px] font-semibold text-[#191F28]">상세 코드 정보</h4>
                     </div>
 
-                    <div className="space-y-4 pl-3">
+                    <div className="space-y-4">
                       <div className="space-y-1.5">
                         <label className="block text-[14px] font-semibold text-[#191F28]">코드 그룹 <span className="text-[#F04452]">*</span></label>
                         <input

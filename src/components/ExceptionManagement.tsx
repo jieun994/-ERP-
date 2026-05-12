@@ -175,7 +175,7 @@ export default function ExceptionManagement() {
                     <h4 className="text-[14px] font-semibold text-[#191F28]">기본 정보</h4>
                   </div>
                   
-                  <div className="pl-3 space-y-4">
+                  <div className="space-y-4">
                     <div className="space-y-1.5">
                       <label className="text-[14px] font-semibold text-[#191F28]">테넌트 <span className="text-[#F04452]">*</span></label>
                       <Select size="sm" fullWidth>
@@ -207,7 +207,7 @@ export default function ExceptionManagement() {
                     <h4 className="text-[14px] font-semibold text-[#191F28]">계좌 정보</h4>
                   </div>
                   
-                  <div className="pl-3 space-y-4">
+                  <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <label className="text-[14px] font-semibold text-[#191F28]">대상 은행 <span className="text-[#F04452]">*</span></label>

@@ -544,7 +544,7 @@ export default function MessageManagement() {
                       <div className="w-1 h-4 bg-[#008d75] rounded-full" />
                       <h4 className="text-[14px] font-semibold text-[#191F28]">기본 설정</h4>
                     </div>
-                    <div className="grid grid-cols-2 gap-6 pl-3">
+                    <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-1.5">
                         <label className="block text-[14px] font-semibold text-[#191F28]">
                           메시지 그룹 <span className="text-[#F04452]">*</span>
@@ -575,7 +575,7 @@ export default function MessageManagement() {
                         />
                       </div>
                     </div>
-                    <div className="pl-3">
+                    <div className="">
                       <label className="block text-[14px] font-semibold text-[#191F28] mb-2">사용 여부</label>
                       <div className="flex items-center gap-6">
                         <label className="flex items-center gap-2 cursor-pointer group">
@@ -608,7 +608,7 @@ export default function MessageManagement() {
                       <div className="w-1 h-4 bg-[#008d75] rounded-full" />
                       <h4 className="text-[14px] font-semibold text-[#191F28]">다국어 정보 입력</h4>
                     </div>
-                    <div className="space-y-5 pl-3">
+                    <div className="space-y-5">
                       {mockLangCodes.map(lang => (
                         <div key={lang.code} className="space-y-1.5">
                           <label className="text-[14px] font-semibold text-[#191F28] block">

@@ -374,7 +374,7 @@ export default function EmailTemplateManagement() {
                   <h4 className="text-[14px] font-semibold text-[#191F28]">기본 정보</h4>
                 </div>
 
-                <div className="pl-3 space-y-4">
+                <div className="space-y-4">
                   <div className="space-y-1.5">
                       <label className="block text-[14px] font-semibold text-[#191F28]">템플릿명 <span className="text-[#F04452]">*</span></label>
                       <Input
@@ -466,7 +466,7 @@ export default function EmailTemplateManagement() {
                   <h4 className="text-[14px] font-semibold text-[#191F28]">이메일 내용</h4>
                 </div>
 
-                <div className="pl-3 space-y-5">
+                <div className="space-y-5">
                   <div className="space-y-1.5">
                     <label className="block text-[14px] font-semibold text-[#191F28]">이메일 제목 <span className="text-[#F04452]">*</span></label>
                     <Input

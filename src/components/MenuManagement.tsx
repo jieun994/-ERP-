@@ -327,7 +327,7 @@ export default function MenuManagement() {
                   <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                   <h3 className="text-[15px] font-semibold text-[#191F28]">메뉴 정보</h3>
                 </div>
-                <div className="space-y-2 pl-3">
+                <div className="space-y-2">
                   <label className="block text-[14px] font-semibold text-[#191F28]">
                     메뉴명 <span className="text-[#F04452]">*</span>
                   </label>
@@ -348,7 +348,7 @@ export default function MenuManagement() {
                   <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
                   <h3 className="text-[15px] font-semibold text-[#191F28]">사용 여부</h3>
                 </div>
-                <div className="flex items-center gap-8 pl-3">
+                <div className="flex items-center gap-8">
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <input
                       type="radio"

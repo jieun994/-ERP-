@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { X, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Dashboard from './Dashboard';
@@ -8,8 +8,131 @@ import { POPUP_MAP } from './components/PopupPreviews';
 
 // ... (keep ViewState and other states, but we'll adapt them)
 
+// 퍼블리싱 목록 전체 항목 (화면/팝업 카운트 자동 동기화용)
+type PublishingItem = { no: number; label: string; view: string; popup: boolean; popupId?: string };
+const PUBLISHING_ITEMS: PublishingItem[] = [
+  // 유틸리티 (게이트 화면)
+  { no:1,  label:'로그인',                                    view:'login',                         popup:false },
+  { no:3,  label:'OTP 등록 (Google OTP)',                     view:'otp_register',                  popup:false },
+  { no:4,  label:'비밀번호 변경 - 이메일 인증',               view:'reset_email',                   popup:false },
+  { no:5,  label:'비밀번호 변경 - 새 비밀번호 설정',          view:'reset_password',                popup:false },
+  // 기업 관리
+  { no:7,  label:'테넌트 조회',                               view:'dashboard_tenant',              popup:false },
+  { no:8,  label:'기업 조회',                                 view:'dashboard_ent_list',            popup:false },
+  { no:9,  label:'기업 정보 수정 팝업',                       view:'dashboard_ent_list',            popup:true,  popupId:'ent_edit_modal' },
+  { no:10, label:'기업 등록 - 기본 정보 (Step 1)',            view:'dashboard_ent_register',        popup:false },
+  { no:11, label:'기업 등록 - VAN/펌뱅킹 ID 등록 (Step 2)',  view:'dashboard_ent_register_step2',  popup:false },
+  { no:12, label:'기업 등록 - 인터페이스 설정 (Step 3)',      view:'dashboard_ent_register_step3',  popup:false },
+  { no:13, label:'이전 단계 이탈 확인 팝업',                  view:'dashboard_ent_register',        popup:true,  popupId:'dirty_check_prev' },
+  { no:14, label:'건너뛰기 이탈 확인 팝업',                   view:'dashboard_ent_register',        popup:true,  popupId:'dirty_check_skip' },
+  { no:15, label:'테넌트 중복 확인 팝업',                     view:'dashboard_ent_register',        popup:true,  popupId:'tenant_check_status' },
+  { no:16, label:'기업별 사용자 목록',                         view:'dashboard_ent_users',           popup:false },
+  { no:17, label:'자금 현황 조회',                             view:'dashboard_fund_status',         popup:false },
+  { no:18, label:'타행계좌 예외 관리',                         view:'dashboard_exception_management',popup:false },
+  { no:19, label:'타행계좌 예외 등록 / 수정 팝업',            view:'dashboard_exception_management',popup:true,  popupId:'exception_register_modal' },
+  // 관리자
+  { no:20, label:'관리자 관리',                               view:'dashboard_admin_list',          popup:false },
+  { no:21, label:'관리자 등록 / 수정 팝업',                   view:'dashboard_admin_list',          popup:true,  popupId:'admin_register_modal' },
+  // 시스템
+  { no:22, label:'메뉴 관리',                                 view:'dashboard_menu',                popup:false },
+  { no:23, label:'메뉴 수정 팝업',                            view:'dashboard_menu',                popup:true,  popupId:'menu_edit_modal' },
+  // 콘텐츠
+  { no:24, label:'공지사항 관리',                             view:'dashboard_notice_list',         popup:false },
+  { no:25, label:'공지사항 등록 / 수정 팝업',                 view:'dashboard_notice_list',         popup:true,  popupId:'notice_modal' },
+  { no:26, label:'공지사항 작성 취소 확인 팝업',              view:'dashboard_notice_list',         popup:true,  popupId:'notice_cancel_warning' },
+  { no:27, label:'공지사항 삭제 확인 팝업',                   view:'dashboard_notice_list',         popup:true,  popupId:'notice_delete_warning' },
+  { no:28, label:'배너 관리',                                 view:'dashboard_banner_management',   popup:false },
+  { no:29, label:'배너 등록 / 수정 팝업',                     view:'dashboard_banner_management',   popup:true,  popupId:'banner_modal' },
+  { no:30, label:'배너 작성 취소 확인 팝업',                  view:'dashboard_banner_management',   popup:true,  popupId:'banner_cancel_warning' },
+  { no:31, label:'배너 삭제 확인 팝업',                       view:'dashboard_banner_management',   popup:true,  popupId:'banner_delete_warning' },
+  { no:32, label:'FAQ 관리',                                  view:'dashboard_faq_management',      popup:false },
+  { no:33, label:'FAQ 등록 / 수정 팝업',                      view:'dashboard_faq_management',      popup:true,  popupId:'faq_modal' },
+  { no:34, label:'FAQ 작성 취소 확인 팝업',                   view:'dashboard_faq_management',      popup:true,  popupId:'faq_cancel_warning' },
+  { no:35, label:'FAQ 삭제 확인 팝업',                        view:'dashboard_faq_management',      popup:true,  popupId:'faq_delete_warning' },
+  { no:36, label:'이메일 템플릿 관리',                        view:'dashboard_email_template',      popup:false },
+  { no:37, label:'이메일 템플릿 등록 / 수정 팝업',            view:'dashboard_email_template',      popup:true,  popupId:'email_modal' },
+  { no:38, label:'이메일 템플릿 작성 취소 확인 팝업',         view:'dashboard_email_template',      popup:true,  popupId:'email_cancel_warning' },
+  { no:39, label:'PUSH 알림 관리',                            view:'dashboard_push_mgmt',           popup:false },
+  { no:40, label:'PUSH 템플릿 등록 / 수정 팝업',              view:'dashboard_push_mgmt',           popup:true,  popupId:'push_modal' },
+  { no:41, label:'PUSH 템플릿 삭제 확인 팝업',                view:'dashboard_push_mgmt',           popup:true,  popupId:'push_delete_warning' },
+  // 코드
+  { no:42, label:'코드 관리',                                 view:'dashboard_code',                popup:false },
+  { no:43, label:'코드 등록 / 수정 팝업',                     view:'dashboard_code',                popup:true,  popupId:'code_modal' },
+  { no:44, label:'코드 미저장 이탈 확인 팝업',                view:'dashboard_code',                popup:true,  popupId:'code_unsaved_warning' },
+  // 로그
+  { no:47, label:'작업 이력 (로그)',                          view:'dashboard_log_history',         popup:false },
+  { no:48, label:'펌뱅킹 실패 현황',                         view:'dashboard_firmbanking_fail',     popup:false },
+  { no:49, label:'펌뱅킹 실패 상세 팝업',                    view:'dashboard_firmbanking_fail',     popup:true,  popupId:'firmbanking_detail' },
+  // 모니터링 & 통계
+  { no:50, label:'시스템 모니터링',                           view:'dashboard_service_status',      popup:false },
+  { no:51, label:'통계',                                      view:'dashboard_statistics',          popup:false },
+];
+const SCREEN_COUNT = PUBLISHING_ITEMS.filter(r => !r.popup).length;
+const POPUP_COUNT  = PUBLISHING_ITEMS.filter(r => r.popup).length;
+
+// view 상태값 → URL 매핑 테이블
+const VIEW_TO_URL: Record<string, string> = {
+  // 유틸리티 (게이트 화면)
+  'gate':                           '/',
+  'login':                          '/login',
+  'otp_verify':                     '/otp-verify',
+  'otp_register':                   '/otp-register',
+  'reset_email':                    '/reset-email',
+  'reset_password':                 '/reset-password',
+  'reset_complete':                 '/reset-complete',
+  // 대시보드
+  'dashboard':                      '/dashboard/main',
+  'dashboard_tenant':               '/dashboard/enterprise/tenant_list',
+  'dashboard_ent_list':             '/dashboard/enterprise/ent_list',
+  'dashboard_ent_register':         '/dashboard/enterprise/ent_register',
+  'dashboard_ent_register_excel':   '/dashboard/enterprise/ent_register',
+  'dashboard_ent_register_step2':   '/dashboard/enterprise/ent_register',
+  'dashboard_ent_register_step3':   '/dashboard/enterprise/ent_register',
+  'dashboard_ent_users':            '/dashboard/enterprise/ent_users',
+  'dashboard_fund_status':          '/dashboard/enterprise/fund_status',
+  'dashboard_exception_management': '/dashboard/enterprise/exception_management',
+  'dashboard_admin_list':           '/dashboard/admin',
+  'dashboard_notice_list':          '/dashboard/content/notice',
+  'dashboard_banner_management':    '/dashboard/content/banner',
+  'dashboard_faq_management':       '/dashboard/content/faq',
+  'dashboard_email_template':       '/dashboard/content/email_template',
+  'dashboard_push_mgmt':            '/dashboard/content/push_mgmt',
+  'dashboard_code':                 '/dashboard/code/code_manage',
+  'dashboard_statistics':           '/dashboard/statistics',
+  'dashboard_log_history':          '/dashboard/logs/work_history',
+  'dashboard_firmbanking_fail':     '/dashboard/logs/firmbanking_fail',
+  'dashboard_service_status':       '/dashboard/monitoring',
+};
+
+// URL → view 상태값 역매핑
+const URL_TO_VIEW: Record<string, string> = {
+  '/':                'gate',
+  '/login':           'login',
+  '/otp-verify':      'otp_verify',
+  '/otp-register':    'otp_register',
+  '/reset-email':     'reset_email',
+  '/reset-password':  'reset_password',
+  '/reset-complete':  'reset_complete',
+};
+
 export default function App() {
-  const [view, setView] = useState<string>('gate');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [view, setView] = useState<string>(() => {
+    const path = window.location.pathname;
+    // URL로 초기 view 결정
+    if (path.startsWith('/dashboard')) return 'dashboard';
+    if (URL_TO_VIEW[path]) return URL_TO_VIEW[path];
+    return 'gate';
+  });
+
+  // view 상태가 바뀔 때마다 URL을 동기화
+  useEffect(() => {
+    const url = VIEW_TO_URL[view];
+    if (url && location.pathname !== url) {
+      navigate(url, { replace: false });
+    }
+  }, [view]);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [keyboardTarget, setKeyboardTarget] = useState<'password' | 'otp' | 'newPassword' | 'confirmPassword' | null>(null);
   const [gatePopupId, setGatePopupId] = useState<string | null>(null);
@@ -240,19 +363,24 @@ export default function App() {
       initialSubMenu = '';
     }
 
+    const dashboardElement = (
+      <>
+        <Dashboard onLogout={() => setView('login')} initialMenu={initialMenu} initialSubMenu={initialSubMenu} initialRegisterConfig={initialRegisterConfig} />
+        <button
+          onClick={() => setView('gate')}
+          className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
+        >
+          목록으로 이동
+        </button>
+      </>
+    );
+
     return (
     <Routes>
-      <Route path="*" element={
-        <>
-          <Dashboard onLogout={() => setView('login')} initialMenu={initialMenu} initialSubMenu={initialSubMenu} initialRegisterConfig={initialRegisterConfig} />
-          <button
-            onClick={() => setView('gate')}
-            className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
-          >
-            목록으로 이동
-          </button>
-        </>
-      } />
+      <Route path="/dashboard/:menuId/:subMenuId" element={dashboardElement} />
+      <Route path="/dashboard/:menuId" element={dashboardElement} />
+      <Route path="/dashboard" element={dashboardElement} />
+      <Route path="*" element={dashboardElement} />
     </Routes>
 );
   }
@@ -293,12 +421,12 @@ export default function App() {
                   <div className="flex gap-5 text-[13px]">
                     <div className="text-center">
                       <p className="text-[#8B95A1] mb-0.5">화면</p>
-                      <p className="font-bold text-[16px] text-[#191F28]">25</p>
+                      <p className="font-bold text-[16px] text-[#191F28]">{SCREEN_COUNT}</p>
                     </div>
                     <div className="w-px bg-[#E5E8EB]" />
                     <div className="text-center">
                       <p className="text-[#8B95A1] mb-0.5">팝업</p>
-                      <p className="font-bold text-[16px] text-[#191F28]">24</p>
+                      <p className="font-bold text-[16px] text-[#191F28]">{POPUP_COUNT}</p>
                     </div>
                   </div>
                 </div>
@@ -778,7 +906,7 @@ export default function App() {
                              메일로 받은 인증번호를 입력해 주세요. (스팸함 확인)
                            </p>
                          )}
-                      </div>
+                       </div>
                     </motion.div>
                   )}
 
@@ -802,7 +930,7 @@ export default function App() {
                       >
                         이메일 발송
                       </button>
-                     </div>
+                    </div>
                   ) : (
                     <div className="pt-4 flex space-x-3">
                       <button
@@ -904,105 +1032,32 @@ export default function App() {
                         </button>
                       </div>
                     </div>
-                    {confirmPasswordError && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{confirmPasswordError}</p>}
+                    {confirmPasswordError && (
+                      <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3.5 h-3.5" />{confirmPasswordError}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="flex space-x-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setView('login');
-                        setNewPasswordError('');
-                        setConfirmPasswordError('');
-                        setLoginIdError('');
-                        setLoginPasswordError('');
-                      }}
-                      className="flex-1 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-colors duration-200"
-                    >
-                      취소
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
-                    >
-                      비밀번호 변경
-                    </button>
-                  </div>
+                  <button
+                    type="submit"
+                    className="w-full mt-4 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                  >
+                    비밀번호 변경
+                  </button>
                 </form>
               </motion.div>
             )}
 
-            {view === 'reset_complete' && (
-              <motion.div key="reset_complete" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }} className="text-center py-6">
-                <h2 className="text-xl font-bold text-[#191F28] mb-3">비밀번호 설정 완료</h2>
-                <p className="text-[13px] text-[#4E5968] leading-relaxed mb-10">
-                  비밀번호가 정상적으로 설정되었습니다.<br/>
-                  변경한 비밀번호로 로그인해 서비스를 이용해 주세요.
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setView('login');
-                    setResetLoginId('');
-                    setResetEmail('');
-                    setIsCodeSent(false);
-                    setVerificationCode('');
-                    setVerificationCodeError('');
-                    setNewPassword('');
-                    setConfirmPassword('');
-                    setLoginIdError('');
-                    setLoginPasswordError('');
-                  }}
-                  className="w-full bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
-                >
-                  로그인
-                </button>
-              </motion.div>
-            )}
           </AnimatePresence>
 
+          <VirtualKeyboard
+            isOpen={isKeyboardOpen}
+            onClose={() => setIsKeyboardOpen(false)}
+            onConfirm={handleKeyboardConfirm}
+          />
         </div>
-
-
       </motion.div>
-
-      {/* Toast Notification for Resend/Errors */}
-      <AnimatePresence>
-        {toastMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, x: '-50%' }}
-            exit={{ opacity: 0, y: 20, x: '-50%' }}
-            className="fixed bottom-10 left-1/2 bg-[#1a1a1a] text-white px-5 py-3.5 rounded-lg shadow-lg flex items-center justify-between w-[90%] max-w-[460px] text-[13px] z-50"
-          >
-            <span>{toastMessage}</span>
-            <button onClick={() => setToastMessage(null)} className="text-gray-400 hover:text-white transition-colors ml-4 focus:outline-none">
-              
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <VirtualKeyboard
-        isOpen={isKeyboardOpen}
-        onClose={() => setIsKeyboardOpen(false)}
-        onConfirm={handleKeyboardConfirm}
-        title={keyboardTarget === 'otp' ? 'OTP 인증번호 입력' : '보안 키패드 입력'}
-        length={6}
-      />
-
-      {/* 게이트 팝업 렌더링 */}
-      {gatePopupId && POPUP_MAP[gatePopupId]?.(() => setGatePopupId(null))}
-
-      {view !== 'gate' && (
-        <button
-          onClick={() => setView('gate')}
-          className="fixed bottom-6 right-6 bg-[#191F28] hover:bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-none transition-all z-50 backdrop-blur-sm"
-        >
-          목록으로 이동
-        </button>
-      )}
     </div>
   );
 }

@@ -512,15 +512,66 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
     setSelectedIds([]);
   };
 
+  const validateExcelRows = (rows: any[]) => {
+    // 시스템에 이미 등록된 번호 (mock — 실제 구현 시 API로 조회)
+    const SYSTEM_BIZ_NUMBERS  = ['9999999999'];
+    const SYSTEM_CORP_NUMBERS = ['9999999999999'];
+
+    // 파일 내 중복 집계
+    const bizCount: Record<string, number>  = {};
+    const corpCount: Record<string, number> = {};
+    rows.forEach(r => {
+      if (r.bizNumber)  bizCount[r.bizNumber]   = (bizCount[r.bizNumber]   || 0) + 1;
+      if (r.corpNumber) corpCount[r.corpNumber]  = (corpCount[r.corpNumber] || 0) + 1;
+    });
+
+    return rows.map(row => {
+      const errors: Record<string, string> = {};
+
+      // 기업명 필수
+      if (!row.name?.trim()) errors.name = '기업명을 입력해주세요.';
+
+      // 사업자등록번호 필수 + 형식 + 중복
+      if (!row.bizNumber?.trim()) {
+        errors.bizNumber = '사업자등록번호를 입력해주세요.';
+      } else if (!/^\d{10}$/.test(row.bizNumber)) {
+        errors.bizNumber = '10자리 숫자로 입력해주세요.';
+      } else if (SYSTEM_BIZ_NUMBERS.includes(row.bizNumber)) {
+        errors.bizNumber = '시스템에 이미 등록된 사업자등록번호입니다.';
+      } else if (bizCount[row.bizNumber] > 1) {
+        errors.bizNumber = '파일 내 중복된 사업자등록번호입니다.';
+      }
+
+      // 법인등록번호 선택 + 형식 + 중복
+      if (row.corpNumber?.trim()) {
+        if (!/^\d{13}$/.test(row.corpNumber)) {
+          errors.corpNumber = '13자리 숫자로 입력해주세요.';
+        } else if (SYSTEM_CORP_NUMBERS.includes(row.corpNumber)) {
+          errors.corpNumber = '시스템에 이미 등록된 법인등록번호입니다.';
+        } else if (corpCount[row.corpNumber] > 1) {
+          errors.corpNumber = '파일 내 중복된 법인등록번호입니다.';
+        }
+      }
+
+      return { ...row, errors: Object.keys(errors).length > 0 ? errors : undefined };
+    });
+  };
+
   const handleUploadExcel = () => {
     setPageError('');
-    // Mock upload
+    // Mock 파일 파싱 결과 — 실제 구현 시 xlsx 라이브러리로 파일 읽기
+    const rawRows = [
+      { id: '1', name: '혁신기업(주)', bizNumber: '1234567890', corpNumber: '1234567890123' },
+      { id: '2', name: '미래상사',     bizNumber: '1234567890', corpNumber: '' },
+      { id: '3', name: '테스트컴퍼니', bizNumber: '11122233',   corpNumber: '' },
+      { id: '4', name: '',             bizNumber: '5555555555', corpNumber: '9999999999999' },
+    ];
     setIsUploaded(true);
-    setExcelData([
-      { id: '1', selected: false, name: '혁신기업(주)', bizNumber: '1234567890', corpNumber: '1234567890123' },
-      { id: '2', selected: false, name: '미래상사', bizNumber: '0987654321', corpNumber: '', errors: { bizNumber: '이미 등록된 번호입니다.' } },
-      { id: '3', selected: false, name: '테스트컴퍼니', bizNumber: '11122233', corpNumber: '', errors: { bizNumber: '10자리 숫자로 입력해주세요.' } },
-    ]);
+    setExcelData(validateExcelRows(rawRows));
+  };
+
+  const handleDeleteErrorRows = () => {
+    setExcelData((prev: any[]) => prev.filter(d => !d.errors));
   };
 
   const handleNextStep = () => {
@@ -566,7 +617,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
             <div className="mb-8">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="md:col-span-4">
-                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">테넌트 <span className="text-[#F04452]">*</span></label>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">테넌트 <span className="text-red-500">*</span></label>
                   <div className="flex items-start gap-2">
                     <div className="flex flex-col w-full max-w-sm gap-1">
                       <input
@@ -685,20 +736,101 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                       <button onClick={handleUploadExcel} className="px-6 py-3 bg-[#008d75] rounded-md text-[14px] font-semibold text-white">파일 업로드 (.xlsx, .xls)</button>
                     </div>
                  ) : (
-                   <div className="pt-6 border-t border-gray-200">
+                   <div>
+                     {/* 헤더 */}
                      <div className="flex justify-between items-end mb-4">
                        <div>
                          <h3 className="text-[16px] font-bold text-gray-900 mb-1">기업 목록 (엑셀)</h3>
-                         <button onClick={() => setIsUploaded(false)} className="text-[13px] text-[#008d75] font-semibold underline">다른 파일 업로드</button>
+                         <div className="flex items-center gap-3 text-[13px]">
+                           <span className="text-gray-500">총 {excelData.length}개</span>
+                           <span className="text-[#008d75] font-semibold">
+                             정상 {excelData.filter((d: any) => !d.errors).length}개
+                           </span>
+                           {excelData.some((d: any) => d.errors) && (
+                             <span className="text-red-500 font-semibold">
+                               오류 {excelData.filter((d: any) => d.errors).length}개
+                             </span>
+                           )}
+                         </div>
+                       </div>
+                       <div className="flex items-center gap-2">
+                         {excelData.some((d: any) => d.errors) && (
+                           <button
+                             onClick={handleDeleteErrorRows}
+                             className="px-4 py-2 border border-red-300 rounded-md text-[12px] font-semibold text-red-600 hover:bg-red-50"
+                           >
+                             오류 행 삭제
+                           </button>
+                         )}
+                         <button
+                           onClick={() => setIsUploaded(false)}
+                           className="px-4 py-2 border border-gray-300 rounded-md text-[12px] font-semibold text-gray-600 hover:bg-gray-50"
+                         >
+                           다른 파일 업로드
+                         </button>
                        </div>
                      </div>
-                     <table className="w-full text-left text-[13px]">
-                        <thead className="bg-gray-50 text-gray-600">
-                          <tr><th className="p-3">기업명</th><th className="p-3">사업자등록번호</th><th className="p-3">법인등록번호</th></tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {excelData.map(d => <tr key={d.id} className="hover:bg-gray-50"><td className="p-3">{d.name}</td><td className="p-3">{d.bizNumber}</td><td className="p-3">{d.corpNumber || '-'}</td></tr>)}
-                        </tbody>
+
+                     {/* 테이블 */}
+                     <table className="w-full text-left text-[13px] table-fixed">
+                       <colgroup>
+                         <col style={{ width: '38%' }} />
+                         <col style={{ width: '27%' }} />
+                         <col style={{ width: '27%' }} />
+                         <col style={{ width: '8%' }} />
+                       </colgroup>
+                       <thead className="bg-gray-50 text-gray-600">
+                         <tr>
+                           <th className="p-3">기업명</th>
+                           <th className="p-3">사업자등록번호</th>
+                           <th className="p-3">법인등록번호</th>
+                           <th className="p-3"></th>
+                         </tr>
+                       </thead>
+                       <tbody className="divide-y divide-gray-100">
+                         {excelData.map((d: any) => {
+                           const hasError = !!d.errors;
+                           return (
+                             <tr key={d.id} className={hasError ? 'bg-red-50' : 'hover:bg-gray-50'}>
+                               <td className="p-3">
+                                 <div className={`font-semibold truncate ${d.errors?.name ? 'text-red-500' : ''}`}>
+                                   {d.name || '(미입력)'}
+                                 </div>
+                                 {d.errors?.name && (
+                                   <div className="text-[11px] text-red-500 mt-0.5">{d.errors.name}</div>
+                                 )}
+                               </td>
+                               <td className="p-3">
+                                 <div className={`truncate ${d.errors?.bizNumber ? 'text-red-500' : ''}`}>
+                                   {d.bizNumber || '(미입력)'}
+                                 </div>
+                                 {d.errors?.bizNumber && (
+                                   <div className="text-[11px] text-red-500 mt-0.5">{d.errors.bizNumber}</div>
+                                 )}
+                               </td>
+                               <td className="p-3">
+                                 <div className={`truncate ${d.errors?.corpNumber ? 'text-red-500' : ''}`}>
+                                   {d.corpNumber || '-'}
+                                 </div>
+                                 {d.errors?.corpNumber && (
+                                   <div className="text-[11px] text-red-500 mt-0.5">{d.errors.corpNumber}</div>
+                                 )}
+                               </td>
+                               <td className="p-3 text-center">
+                                 {hasError && (
+                                   <button
+                                     onClick={() => setExcelData((prev: any[]) => prev.filter((r: any) => r.id !== d.id))}
+                                     className="text-gray-400 hover:text-red-500 transition-colors"
+                                     title="이 행 삭제"
+                                   >
+                                     <X className="w-4 h-4" />
+                                   </button>
+                                 )}
+                               </td>
+                             </tr>
+                           );
+                         })}
+                       </tbody>
                      </table>
                    </div>
                  )}
@@ -714,7 +846,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
         )}
       </div>
 
-      {/* 4. Footer */}
+      {/* Footer */}
       {pageError && (
         <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-[13px] font-semibold flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
