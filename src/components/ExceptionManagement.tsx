@@ -7,6 +7,7 @@ import { Button, SearchBar, DataTable, Input, Select } from './ui';
 interface ExceptionAccount {
   id: number;
   tenant: string;
+  tenantCode: string;
   enterprise: string;
   bankName: string;
   accountNo: string;
@@ -16,8 +17,8 @@ interface ExceptionAccount {
 }
 
 const mockData: ExceptionAccount[] = [
-  { id: 1, tenant: '(주)토스페이먼츠', enterprise: '(주)토스페이먼츠', bankName: '국민은행', accountNo: '111-222-333333', reason: '법인카드 결제계좌', isUsed: true, registeredAt: '2026-05-01' },
-  { id: 2, tenant: '우아한형제들', enterprise: '우아한형제들', bankName: '신한은행', accountNo: '110-444-555555', reason: '특수목적 자금', isUsed: false, registeredAt: '2026-05-02' },
+  { id: 1, tenant: '(주)토스페이먼츠', tenantCode: 'TOSS',     enterprise: '(주)토스페이먼츠', bankName: '국민은행', accountNo: '111-222-333333', reason: '법인카드 결제계좌', isUsed: true,  registeredAt: '2026-05-01' },
+  { id: 2, tenant: '우아한형제들',     tenantCode: 'WOOWAHAN', enterprise: '우아한형제들',     bankName: '신한은행', accountNo: '110-444-555555', reason: '특수목적 자금',    isUsed: false, registeredAt: '2026-05-02' },
 ];
 
 export default function ExceptionManagement() {
@@ -93,8 +94,8 @@ export default function ExceptionManagement() {
         <SearchBar.Field label="테넌트명">
           <Select style={{ width: 160 }}>
             <option value="ALL">전체</option>
-            <option value="TOSS">(주)토스페이먼츠</option>
-            <option value="WOOWAHAN">우아한형제들</option>
+            <option value="TOSS">(주)토스페이먼츠(TOSS)</option>
+            <option value="WOOWAHAN">우아한형제들(WOOWAHAN)</option>
           </Select>
         </SearchBar.Field>
         <SearchBar.Field label="기업명">
@@ -111,45 +112,45 @@ export default function ExceptionManagement() {
       </DataTable.Controls>
 
       {/* Grid */}
-      <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-white border border-border-gray rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
-              <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
-                <th className="h-[52px] px-4 text-center border-r border-[#E5E8EB] w-12">
-                  <input type="checkbox" className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer" checked={data.length > 0 && selectedIds.length === data.length} onChange={toggleSelectAll}/>
+              <tr className="bg-bg-muted border-b border-border-gray text-text-body">
+                <th className="h-[52px] px-4 text-center border-r border-border-gray w-12">
+                  <input type="checkbox" className="w-4 h-4 rounded border-border-input text-primary focus:ring-0 accent-[#008d75] cursor-pointer" checked={data.length > 0 && selectedIds.length === data.length} onChange={toggleSelectAll}/>
                 </th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-16">No.</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">테넌트</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">기업명</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">은행명</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">대상 계좌번호</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">예외 사유</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center">등록일자</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center border-r border-border-gray w-16">No.</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">테넌트</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">기업명</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">은행명</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">대상 계좌번호</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">예외 사유</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center">등록일자</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {data.map((item, index) => (
                 <tr
                   key={item.id}
-                  className={`h-[52px] transition-colors hover:bg-[#F9FAFB] cursor-pointer ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}
+                  className={`h-[52px] transition-colors hover:bg-bg-gray cursor-pointer ${selectedIds.includes(item.id) ? 'bg-primary/5' : 'bg-white'}`}
                   onClick={() => toggleSelect(item.id)}
                   onDoubleClick={() => {
                     setSelectedIds([item.id]);
                     handleOpenEditModal();
                   }}
                 >
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <input type="checkbox" className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer" checked={selectedIds.includes(item.id)} onChange={() => toggleSelect(item.id)} onClick={(e) => e.stopPropagation()}/>
+                  <td className="px-4 text-center border-r border-border-gray">
+                    <input type="checkbox" className="w-4 h-4 rounded border-border-input text-primary focus:ring-0 accent-[#008d75] cursor-pointer" checked={selectedIds.includes(item.id)} onChange={() => toggleSelect(item.id)} onClick={(e) => e.stopPropagation()}/>
                   </td>
-                  <td className="px-4 text-center text-[13px] text-[#8B95A1] border-r border-[#E5E8EB] font-mono">{index + 1}</td>
-                  <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{item.tenant}</td>
-                  <td className="px-4 text-[14px] text-[#191F28] font-medium border-r border-[#E5E8EB]">{item.enterprise}</td>
-                  <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{item.bankName}</td>
-                  <td className="px-4 text-[14px] text-[#4E5968] font-mono tracking-tight border-r border-[#E5E8EB]">{item.accountNo}</td>
-                  <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{item.reason}</td>
+                  <td className="px-4 text-center text-body-sm text-text-sub border-r border-border-gray font-mono">{index + 1}</td>
+                  <td className="px-4 text-body text-text-body border-r border-border-gray">{item.tenant}({item.tenantCode})</td>
+                  <td className="px-4 text-body text-text-main font-medium border-r border-border-gray">{item.enterprise}</td>
+                  <td className="px-4 text-body text-text-body border-r border-border-gray">{item.bankName}</td>
+                  <td className="px-4 text-body text-text-body font-mono tracking-tight border-r border-border-gray">{item.accountNo}</td>
+                  <td className="px-4 text-body text-text-body border-r border-border-gray">{item.reason}</td>
                   
-                  <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono">{item.registeredAt}</td>
+                  <td className="px-4 text-center text-body-sm text-text-sub font-mono">{item.registeredAt}</td>
                 </tr>
               ))}
             </tbody>
@@ -161,9 +162,9 @@ export default function ExceptionManagement() {
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-lg bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
-              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
-                <h2 className="text-[16px] font-semibold text-[#191F28]">타행계좌 예외 {modalMode === 'create' ? '등록' : '수정'}</h2>
-                <button onClick={() => setIsModalOpen(false)} className="text-[#8B95A1] hover:text-[#191F28] transition-colors p-2">
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-border-gray shrink-0 bg-white">
+                <h2 className="text-title-sm font-semibold text-text-main">타행계좌 예외 {modalMode === 'create' ? '등록' : '수정'}</h2>
+                <button onClick={() => setIsModalOpen(false)} className="text-text-sub hover:text-text-main transition-colors p-2">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -171,21 +172,21 @@ export default function ExceptionManagement() {
                 {/* 기본 정보 세션 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[14px] font-semibold text-[#191F28]">기본 정보</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body font-semibold text-text-main">기본 정보</h4>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-[14px] font-semibold text-[#191F28]">테넌트 <span className="text-[#F04452]">*</span></label>
+                      <label className="text-body font-semibold text-text-main">테넌트 <span className="text-status-error">*</span></label>
                       <Select size="sm" fullWidth>
                         <option value="">테넌트 선택</option>
-                        <option value="toss">(주)토스페이먼츠</option>
-                        <option value="woowa">우아한형제들</option>
+                        <option value="TOSS">(주)토스페이먼츠(TOSS)</option>
+                        <option value="WOOWAHAN">우아한형제들(WOOWAHAN)</option>
                       </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[14px] font-semibold text-[#191F28]">기업명 <span className="text-[#F04452]">*</span></label>
+                      <label className="text-body font-semibold text-text-main">기업명 <span className="text-status-error">*</span></label>
                       <Select size="sm" fullWidth>
                         <option value="">기업 선택</option>
                         <option value="toss">(주)토스페이먼츠</option>
@@ -201,16 +202,16 @@ export default function ExceptionManagement() {
                 </div>
 
                 {/* 계좌 정보 세션 */}
-                <div className="space-y-4 pt-4 border-t border-[#E5E8EB]">
+                <div className="space-y-4 pt-4 border-t border-border-gray">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[14px] font-semibold text-[#191F28]">계좌 정보</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body font-semibold text-text-main">계좌 정보</h4>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-[14px] font-semibold text-[#191F28]">대상 은행 <span className="text-[#F04452]">*</span></label>
+                        <label className="text-body font-semibold text-text-main">대상 은행 <span className="text-status-error">*</span></label>
                         <Select size="sm" fullWidth>
                           <option value="">은행 선택</option>
                           <option value="kb">국민은행</option>
@@ -219,25 +220,25 @@ export default function ExceptionManagement() {
                         </Select>
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-[14px] font-semibold text-[#191F28]">대상 계좌번호 <span className="text-[#F04452]">*</span></label>
+                        <label className="text-body font-semibold text-text-main">대상 계좌번호 <span className="text-status-error">*</span></label>
                         <Input size="sm" fullWidth placeholder="계좌번호 (숫자만)" className="font-mono" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[14px] font-semibold text-[#191F28]">예외 사유</label>
+                      <label className="text-body font-semibold text-text-main">예외 사유</label>
                       <Input size="sm" fullWidth placeholder="예외 등록 사유 입력" />
                     </div>
                     {modalMode === 'edit' && (
                     <div className="space-y-1.5">
-                      <label className="text-[14px] font-semibold text-[#191F28]">사용여부</label>
+                      <label className="text-body font-semibold text-text-main">사용여부</label>
                       <div className="flex gap-6 pt-1">
                         <label className="flex items-center gap-2 cursor-pointer group">
                           <input type="radio" name="isUsed" className="w-4 h-4 accent-[#008d75]" defaultChecked />
-                          <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28]">사용</span>
+                          <span className="text-body text-text-body group-hover:text-text-main">사용</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer group">
                           <input type="radio" name="isUsed" className="w-4 h-4 accent-[#008d75]" />
-                          <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28]">미사용</span>
+                          <span className="text-body text-text-body group-hover:text-text-main">미사용</span>
                         </label>
                       </div>
                     </div>
@@ -245,7 +246,7 @@ export default function ExceptionManagement() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] gap-3 shrink-0">
+              <div className="flex items-center justify-center h-[72px] px-6 border-t border-border-gray bg-bg-gray gap-3 shrink-0">
                 <Button variant="secondary" size="md" style={{ width: 120 }} onClick={() => setIsModalOpen(false)}>
                   취소
                 </Button>

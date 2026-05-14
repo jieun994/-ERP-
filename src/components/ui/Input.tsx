@@ -25,17 +25,18 @@ export function Input({
   ...props
 }: InputProps) {
   const sizeClass = size === 'sm'
-    ? 'h-[36px] px-3 text-[14px]'
-    : 'h-[40px] px-4 text-[14px]';
+    ? 'h-[36px] px-3 text-body'
+    : 'h-[40px] px-4 text-body';
 
   const borderClass = error
-    ? 'border-[#F04452] focus:border-[#F04452]'
+    ? 'border-status-error focus:border-status-error'
     : 'border-input-border focus:border-primary';
 
   return (
     <input
       className={[
         'bg-white rounded-lg border transition-all text-text-main placeholder-text-sub',
+        'disabled:bg-[#F2F4F6] disabled:text-[#8B95A1] disabled:cursor-not-allowed disabled:border-[#E5E8EB] disabled:select-none',
         sizeClass,
         borderClass,
         fullWidth ? 'w-full' : '',
@@ -75,11 +76,11 @@ export function Select({
   ...props
 }: SelectProps) {
   const sizeClass = size === 'sm'
-    ? 'h-[36px] px-3 text-[14px]'
-    : 'h-[40px] px-4 text-[14px]';
+    ? 'h-[36px] px-3 text-body'
+    : 'h-[40px] px-4 text-body';
 
   const borderClass = error
-    ? 'border-[#F04452] focus:border-[#F04452]'
+    ? 'border-status-error focus:border-status-error'
     : 'border-input-border focus:border-primary';
 
   return (
@@ -119,13 +120,13 @@ export function Textarea({
   ...props
 }: TextareaProps) {
   const borderClass = error
-    ? 'border-[#F04452] focus:border-[#F04452]'
+    ? 'border-status-error focus:border-status-error'
     : 'border-input-border focus:border-primary';
 
   return (
     <textarea
       className={[
-        'bg-white rounded-lg border px-4 py-3 text-[14px] text-text-main placeholder-text-sub transition-all resize-none',
+        'bg-white rounded-lg border px-4 py-3 text-body text-text-main placeholder-text-sub transition-all resize-none',
         borderClass,
         fullWidth ? 'w-full' : '',
         className,

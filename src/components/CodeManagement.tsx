@@ -244,7 +244,7 @@ export default function CodeManagement() {
               onKeyDown={(e) => e.key === 'Enter' && alert('조회하기')}
               style={{ width: 360, paddingRight: 40 }}
             />
-            <Search className="w-4 h-4 text-[#8B95A1] absolute right-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-text-sub absolute right-3 top-1/2 -translate-y-1/2" />
           </div>
         </SearchBar.Field>
       </SearchBar>
@@ -253,8 +253,8 @@ export default function CodeManagement() {
       <div className="flex gap-6 min-h-[600px]">
         {/* Left: Group Code List */}
         <div className="w-80 flex flex-col space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b-[1px] border-[#191F28] h-10">
-            <h3 className="text-[15px] font-bold text-[#191F28]">그룹 코드</h3>
+          <div className="flex items-center justify-between pb-2 border-b-[1px] border-text-main h-10">
+            <h3 className="text-body-lg font-bold text-text-main">그룹 코드</h3>
             <Button
               variant="primary"
               size="sm"
@@ -269,7 +269,7 @@ export default function CodeManagement() {
             </Button>
           </div>
 
-          <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden flex flex-col shadow-sm">
+          <div className="bg-white border border-border-gray rounded-lg overflow-hidden flex flex-col shadow-sm">
             <div className="overflow-y-auto max-h-[600px]">
               <AnimatePresence mode="wait">
                 {isAddingGroup && (
@@ -277,12 +277,12 @@ export default function CodeManagement() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="p-4 border-b border-[#E5E8EB] bg-[#F9FAFB] space-y-3"
+                    className="p-4 border-b border-border-gray bg-bg-gray space-y-3"
                   >
                     <input
                       autoFocus
                       type="text"
-                      className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+                      className="w-full h-[36px] px-3 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary transition-all"
                       placeholder={editingGroup ? "그룹명 수정" : "신규 그룹명 입력"}
                       value={newGroupName}
                       onChange={(e) => setNewGroupName(e.target.value)}
@@ -298,13 +298,13 @@ export default function CodeManagement() {
                           setEditingGroup(null);
                           setNewGroupName('');
                         }}
-                        className="text-[12px] text-[#8B95A1] hover:text-[#4E5968] font-bold px-2 py-1"
+                        className="text-caption text-text-sub hover:text-text-body font-bold px-2 py-1"
                       >
                         취소
                       </button>
                       <button
                         onClick={handleAddGroup}
-                        className="text-[12px] text-[#008d75] hover:text-[#007a65] font-bold px-2 py-1"
+                        className="text-caption text-primary hover:text-primary-hover font-bold px-2 py-1"
                       >
                         저장
                       </button>
@@ -319,8 +319,8 @@ export default function CodeManagement() {
                     key={group.name}
                     className={`group relative flex flex-col transition-colors cursor-pointer ${
                       activeGroup === group.name
-                        ? 'bg-[#008d7508]'
-                        : 'hover:bg-[#F2F4F640]'
+                        ? 'bg-primary/5'
+                        : 'hover:bg-bg-muted/25'
                     }`}
                     onClick={() => {
                       setActiveGroup(group.name);
@@ -328,16 +328,16 @@ export default function CodeManagement() {
                     }}
                   >
                     {activeGroup === group.name && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#008d75]"></div>
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
                     )}
                     <div className="flex items-center justify-between px-4 py-4">
                       <div className="flex-1 text-left min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className={`text-[14px] font-medium truncate ${activeGroup === group.name ? 'text-[#008d75]' : 'text-[#191F28]'}`}>
+                          <span className={`text-body font-medium truncate ${activeGroup === group.name ? 'text-primary' : 'text-text-main'}`}>
                             {group.name}
                           </span>
                           {!group.isUsed && (
-                            <span className="text-[11px] bg-[#F2F4F6] text-[#8B95A1] px-1.5 py-0.5 rounded-md border border-[#E5E8EB] font-medium">미사용</span>
+                            <span className="text-caption bg-bg-muted text-text-sub px-1.5 py-0.5 rounded-md border border-border-gray font-medium">미사용</span>
                           )}
                         </div>
                       </div>
@@ -347,7 +347,7 @@ export default function CodeManagement() {
                              e.stopPropagation();
                              startEditGroup(group.name);
                           }}
-                          className="px-2 py-1 text-[12px] text-[#4E5968] hover:text-[#191F28] hover:bg-[#F2F4F6] rounded-md transition-colors font-medium border border-[#D1D6DB]"
+                          className="px-2 py-1 text-caption text-text-body hover:text-text-main hover:bg-bg-muted rounded-md transition-colors font-medium border border-border-input"
                         >
                           수정
                         </button>
@@ -356,10 +356,10 @@ export default function CodeManagement() {
                              e.stopPropagation();
                              handleGroupStatusToggle(group.name);
                           }}
-                          className={`px-2 py-1 text-[12px] rounded-md transition-colors font-medium border ${
+                          className={`px-2 py-1 text-caption rounded-md transition-colors font-medium border ${
                              group.isUsed
-                               ? 'text-[#F04452] border-[#F0445220] hover:bg-[#F0445210]'
-                               : 'text-[#008d75] border-[#008d7520] hover:bg-[#008d7510]'
+                               ? 'text-status-error border-status-error/20 hover:bg-status-error/10'
+                               : 'text-primary border-primary/20 hover:bg-primary/10'
                           }`}
                         >
                           {group.isUsed ? '미사용' : '사용'}
@@ -369,7 +369,7 @@ export default function CodeManagement() {
                   </div>
                 ))}
                 {filteredGroups.length === 0 && (
-                  <div className="py-20 text-center text-[#8B95A1] text-[13px]">
+                  <div className="py-20 text-center text-text-sub text-body-sm">
                     검색 결과가 없습니다.
                   </div>
                 )}
@@ -380,10 +380,10 @@ export default function CodeManagement() {
 
         {/* Right: Detailed Code Table */}
         <div className="flex-1 flex flex-col space-y-3">
-          <div className="flex items-center pb-2 border-b-[1px] border-[#191F28] h-10">
-            <span className="text-[15px] font-bold text-[#191F28]">{activeGroup || '그룹 선택'}</span>
-            <div className="w-[1px] h-3 bg-[#E5E8EB] mx-3"></div>
-            <span className="text-[#8B95A1] text-[13px] font-normal">상세 코드</span>
+          <div className="flex items-center pb-2 border-b-[1px] border-text-main h-10">
+            <span className="text-body-lg font-bold text-text-main">{activeGroup || '그룹 선택'}</span>
+            <div className="w-[1px] h-3 bg-border-gray mx-3"></div>
+            <span className="text-text-sub text-body-sm font-normal">상세 코드</span>
           </div>
 
           {/* Table Controls */}
@@ -394,32 +394,32 @@ export default function CodeManagement() {
             <Button variant="ghost" size="sm" disabled={!activeGroup} onClick={handleExcelDownload}>엑셀 다운로드</Button>
           </DataTable.Controls>
 
-          <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
+          <div className="bg-white border border-border-gray rounded-lg overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead className="sticky top-0 z-10 bg-white">
-                  <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
-                    <th className="h-[52px] px-4 text-center w-16 border-r border-[#E5E8EB]">
+                  <tr className="bg-bg-muted border-b border-border-gray text-text-body">
+                    <th className="h-[52px] px-4 text-center w-16 border-r border-border-gray">
                       <input
                         type="checkbox"
-                        className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
+                        className="w-4 h-4 rounded border-border-input text-primary focus:ring-0 accent-[#008d75] cursor-pointer"
                         checked={activeGroupData.length > 0 && selectedIds.length === activeGroupData.length}
                         onChange={toggleSelectAll}
                         disabled={activeGroupData.length === 0}
                       />
                     </th>
-                    <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-40 border-r border-[#E5E8EB]">코드값</th>
-                    <th className="h-[52px] px-4 text-[14px] font-semibold w-48 border-r border-[#E5E8EB]">코드명</th>
-                    <th className="h-[52px] px-4 text-[14px] font-semibold min-w-[200px] border-r border-[#E5E8EB]">설명</th>
-                    <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-32 border-b border-[#E5E8EB]">사용여부</th>
+                    <th className="h-[52px] px-4 text-body font-semibold text-center w-40 border-r border-border-gray">코드값</th>
+                    <th className="h-[52px] px-4 text-body font-semibold w-48 border-r border-border-gray">코드명</th>
+                    <th className="h-[52px] px-4 text-body font-semibold min-w-[200px] border-r border-border-gray">설명</th>
+                    <th className="h-[52px] px-4 text-body font-semibold text-center w-32 border-b border-border-gray">사용여부</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E8EB]">
                   {activeGroupData.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-40 text-center text-[#8B95A1] text-[14px]">
+                      <td colSpan={5} className="py-40 text-center text-text-sub text-body">
                         <div className="flex flex-col items-center justify-center space-y-3 opacity-60">
-                          <RotateCcw className="w-10 h-10 text-[#D1D6DB]" />
+                          <RotateCcw className="w-10 h-10 text-border-input" />
                           <p className="font-medium">{activeGroup ? '등록된 상세 코드가 없습니다.' : '상세 코드를 보실 그룹을 목록에서 선택해주세요.'}</p>
                         </div>
                       </td>
@@ -428,27 +428,27 @@ export default function CodeManagement() {
                     activeGroupData.map((item) => (
                       <tr
                         key={item.id}
-                        className={`cursor-pointer h-[52px] transition-colors hover:bg-[#F9FAFB] ${!item.isUsed ? 'bg-[#F9FAFB]/50' : 'bg-white'} ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : ''}`}
+                        className={`cursor-pointer h-[52px] transition-colors hover:bg-bg-gray ${!item.isUsed ? 'bg-bg-gray/50' : 'bg-white'} ${selectedIds.includes(item.id) ? 'bg-primary/5' : ''}`}
                         onClick={() => toggleSelect(item.id)}
                         onDoubleClick={() => { setSelectedIds([item.id]); handleOpenEditModal(); }}
                       >
-                        <td className="px-4 text-center border-r border-[#E5E8EB]">
+                        <td className="px-4 text-center border-r border-border-gray">
                           <input
                             type="checkbox"
-                            className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
+                            className="w-4 h-4 rounded border-border-input text-primary focus:ring-0 accent-[#008d75] cursor-pointer"
                             checked={selectedIds.includes(item.id)}
                             onChange={() => toggleSelect(item.id)}
                             onClick={(e) => e.stopPropagation()}
                           />
                         </td>
-                        <td className="px-4 text-center border-r border-[#E5E8EB]">
-                          <span className="text-[14px] font-semibold text-[#191F28] font-mono tracking-tight">{item.codeValue}</span>
+                        <td className="px-4 text-center border-r border-border-gray">
+                          <span className="text-body font-semibold text-text-main font-mono tracking-tight">{item.codeValue}</span>
                         </td>
-                        <td className="px-4 border-r border-[#E5E8EB]">
-                          <span className="text-[14px] text-[#191F28] font-medium">{item.codeName}</span>
+                        <td className="px-4 border-r border-border-gray">
+                          <span className="text-body text-text-main font-medium">{item.codeName}</span>
                         </td>
-                        <td className="px-4 border-r border-[#E5E8EB]">
-                          <span className="text-[14px] text-[#4E5968] truncate max-w-xs block" title={item.description}>{item.description || '-'}</span>
+                        <td className="px-4 border-r border-border-gray">
+                          <span className="text-body text-text-body truncate max-w-xs block" title={item.description}>{item.description || '-'}</span>
                         </td>
                         <td className="px-4 text-center">
                           <StatusBadge status={item.isUsed ? 'ON' : 'OFF'} />
@@ -473,9 +473,9 @@ export default function CodeManagement() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="relative w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden flex flex-col"
             >
-              <div className="px-6 h-[56px] border-b border-[#E5E8EB] flex items-center justify-between bg-white shrink-0">
-                <h3 className="font-semibold text-[16px] text-[#191F28]">{editItem ? '코드 수정' : '신규 상세 코드 등록'}</h3>
-                <button type="button" onClick={handleCloseModal} className="p-2 text-[#8B95A1] hover:text-[#191F28] transition-colors">
+              <div className="px-6 h-[56px] border-b border-border-gray flex items-center justify-between bg-white shrink-0">
+                <h3 className="font-semibold text-title-sm text-text-main">{editItem ? '코드 수정' : '신규 상세 코드 등록'}</h3>
+                <button type="button" onClick={handleCloseModal} className="p-2 text-text-sub hover:text-text-main transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -485,29 +485,29 @@ export default function CodeManagement() {
                   {/* 코드 그룹 정보 */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                       <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                       <h4 className="text-[14px] font-semibold text-[#191F28]">상세 코드 정보</h4>
+                       <div className="w-1 h-4 bg-primary rounded-full"></div>
+                       <h4 className="text-body font-semibold text-text-main">상세 코드 정보</h4>
                     </div>
 
                     <div className="space-y-4">
                       <div className="space-y-1.5">
-                        <label className="block text-[14px] font-semibold text-[#191F28]">코드 그룹 <span className="text-[#F04452]">*</span></label>
+                        <label className="block text-body font-semibold text-text-main">코드 그룹 <span className="text-status-error">*</span></label>
                         <input
                           required
                           type="text"
                           disabled
-                          className="w-full h-[36px] px-3 bg-[#F9FAFB] border border-[#E5E8EB] rounded-md text-[14px] text-[#8B95A1] outline-none cursor-not-allowed font-mono"
+                          className="w-full h-[36px] px-3 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed font-mono"
                           value={formData.codeGroup}
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                         <label className="block text-[14px] font-semibold text-[#191F28]">코드값 <span className="text-[#F04452]">*</span></label>
+                         <label className="block text-body font-semibold text-text-main">코드값 <span className="text-status-error">*</span></label>
                          <input
                            required
                            type="text"
                            disabled={!!editItem}
-                           className={`w-full h-[36px] px-3 border rounded-md text-[14px] outline-none transition-all font-mono tracking-tight ${editItem ? 'bg-[#F9FAFB] border-[#E5E8EB] text-[#8B95A1] cursor-not-allowed' : 'bg-white border-[#D1D6DB] text-[#191F28] focus:border-[#008d75]'}`}
+                           className={`w-full h-[36px] px-3 border rounded-md text-body outline-none transition-all font-mono tracking-tight ${editItem ? 'bg-bg-gray border-border-gray text-text-sub cursor-not-allowed' : 'bg-white border-border-input text-text-main focus:border-primary'}`}
                            placeholder="예: ACTIVE"
                            value={formData.codeValue}
                            onChange={e => setFormData({...formData, codeValue: e.target.value})}
@@ -515,11 +515,11 @@ export default function CodeManagement() {
                       </div>
 
                       <div className="space-y-1.5">
-                         <label className="block text-[14px] font-semibold text-[#191F28]">코드명 <span className="text-[#F04452]">*</span></label>
+                         <label className="block text-body font-semibold text-text-main">코드명 <span className="text-status-error">*</span></label>
                          <input
                            required
                            type="text"
-                           className="w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all"
+                           className="w-full h-[36px] px-3 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary transition-all"
                            placeholder="예: 정상"
                            value={formData.codeName}
                            onChange={e => setFormData({...formData, codeName: e.target.value})}
@@ -527,32 +527,32 @@ export default function CodeManagement() {
                       </div>
 
                       <div className="space-y-1.5">
-                         <label className="block text-[14px] font-semibold text-[#191F28]">설명</label>
+                         <label className="block text-body font-semibold text-text-main">설명</label>
                          <textarea
                            rows={3}
-                           className="w-full px-4 py-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all resize-none placeholder-[#8B95A1]"
+                           className="w-full px-4 py-3 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary transition-all resize-none placeholder-[#8B95A1]"
                            placeholder="코드에 대한 설명을 입력하세요."
                            value={formData.description}
                            onChange={e => setFormData({...formData, description: e.target.value})}
                          />
                       </div>
 
-                      <div className="flex items-center gap-2 pt-1 border-t border-[#E5E8EB] mt-2 pt-4">
+                      <div className="flex items-center gap-2 pt-1 border-t border-border-gray mt-2 pt-4">
                          <input
                            type="checkbox"
                            id="isUsed"
-                           className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
+                           className="w-4 h-4 rounded border-border-input text-primary focus:ring-0 accent-[#008d75] cursor-pointer"
                            checked={formData.isUsed}
                            onChange={e => setFormData({...formData, isUsed: e.target.checked})}
                          />
-                         <label htmlFor="isUsed" className="text-[14px] text-[#4E5968] font-medium cursor-pointer hover:text-[#191F28] transition-colors">이 코드 사용</label>
+                         <label htmlFor="isUsed" className="text-body text-text-body font-medium cursor-pointer hover:text-text-main transition-colors">이 코드 사용</label>
                       </div>
                     </div>
                   </div>
                 </form>
               </div>
 
-              <div className="h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] flex items-center justify-center gap-3 shrink-0">
+              <div className="h-[72px] px-6 border-t border-border-gray bg-bg-gray flex items-center justify-center gap-3 shrink-0">
                 <Button variant="secondary" size="md" style={{ width: 120 }} onClick={handleCloseModal}>취소</Button>
                 <Button variant="primary" size="md" style={{ width: 120 }} onClick={saveForm as any}>
                   {editItem ? '저장하기' : '등록하기'}

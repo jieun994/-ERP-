@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Shield, User, AlertCircle, Mail, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import AdminRegisterModal from './AdminRegisterModal';
-import { Button, SearchBar, DataTable, StatusBadge, PageLayout, Select, Input } from './ui';
+import { Button, FilterBar, DataTable, StatusBadge, PageLayout, Select, Input } from './ui';
 
 interface AdminUser {
   id: string;
@@ -113,22 +113,22 @@ export default function AdminManagement() {
   return (
     <PageLayout>
       {/* Search Area */}
-      <SearchBar
+      <FilterBar
         onSearch={() => {}}
         onReset={() => { setSearchQuery(''); setStatusFilter('ALL'); setRoleFilter('ALL'); }}
       >
-        <SearchBar.Field label="검색어">
+        <FilterBar.Field label="검색어">
           <Input
             type="text"
             placeholder="이름 또는 이메일 입력"
-            style={{ width: 320 }}
+            width="lg"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </SearchBar.Field>
-        <SearchBar.Field label="권한 등급">
+        </FilterBar.Field>
+        <FilterBar.Field label="권한 등급">
           <Select
-            style={{ width: 192 }}
+            width="lg"
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
           >
@@ -139,10 +139,10 @@ export default function AdminManagement() {
             <option value="OPERATION">운영관리자</option>
             <option value="VIEWER">조회자</option>
           </Select>
-        </SearchBar.Field>
-        <SearchBar.Field label="사용여부">
+        </FilterBar.Field>
+        <FilterBar.Field label="사용여부">
           <Select
-            style={{ width: 192 }}
+            width="md"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -150,8 +150,8 @@ export default function AdminManagement() {
             <option value="USED">사용</option>
             <option value="UNUSED">미사용</option>
           </Select>
-        </SearchBar.Field>
-      </SearchBar>
+        </FilterBar.Field>
+      </FilterBar>
 
       {/* Grid Controls */}
       <DataTable.Controls total={filteredAdmins.length}>
@@ -176,31 +176,31 @@ export default function AdminManagement() {
       </DataTable.Controls>
 
       {/* Grid */}
-      <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-white border border-border-gray rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
-              <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
-                <th className="h-[52px] px-4 text-center w-12 border-r border-[#E5E8EB]">
+              <tr className="bg-bg-muted border-b border-border-gray text-text-body">
+                <th className="h-[52px] px-4 text-center w-12 border-r border-border-gray">
                    <input 
                      type="checkbox" 
-                     className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" 
+                     className="w-4 h-4 border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]" 
                      checked={selectedIds.length === filteredAdmins.length && filteredAdmins.length > 0}
                      onChange={toggleSelectAll}
                    />
                 </th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">관리자명</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">이메일(아이디)</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">권한 등급</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-32">사용 여부</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-40">등록일</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">관리자명</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">이메일(아이디)</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">권한 등급</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center border-r border-border-gray w-32">사용 여부</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-40">등록일</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredAdmins.map((admin) => (
                 <tr
                   key={admin.id}
-                  className={`h-[52px] hover:bg-[#F9FAFB] transition-colors cursor-pointer ${selectedIds.includes(admin.id) ? 'bg-[#008d7508]' : ''}`}
+                  className={`h-[52px] hover:bg-bg-gray transition-colors cursor-pointer ${selectedIds.includes(admin.id) ? 'bg-primary/5' : ''}`}
                   onClick={() => toggleSelect(admin.id)}
                   onDoubleClick={() => {
                     setSelectedIds([admin.id]);
@@ -208,31 +208,31 @@ export default function AdminManagement() {
                     if (found) { setEditAdmin(found); setIsModalOpen(true); }
                   }}
                 >
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
+                  <td className="px-4 text-center border-r border-border-gray">
                     <input 
                       type="checkbox" 
-                      className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" 
+                      className="w-4 h-4 border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]" 
                       checked={selectedIds.includes(admin.id)}
                       onChange={() => toggleSelect(admin.id)}
                       onClick={(e) => e.stopPropagation()}
                     />
                   </td>
-                  <td className="px-4 text-[14px] text-[#191F28] font-medium border-r border-[#E5E8EB]">{admin.name}</td>
-                  <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{admin.loginId}</td>
-                  <td className="px-4 border-r border-[#E5E8EB]">
-                    <span className={`text-[13px] font-medium ${admin.role === 'SUPER' ? 'text-red-500' : admin.role === 'SYSTEM' ? 'text-blue-600' : admin.role === 'ENTERPRISE' ? 'text-[#008d75]' : admin.role === 'OPERATION' ? 'text-emerald-700' : 'text-[#8B95A1]'}`}>
+                  <td className="px-4 text-body text-text-main font-medium border-r border-border-gray">{admin.name}</td>
+                  <td className="px-4 text-body text-text-body border-r border-border-gray">{admin.loginId}</td>
+                  <td className="px-4 border-r border-border-gray">
+                    <span className={`text-body-sm font-medium ${admin.role === 'SUPER' ? 'text-red-500' : admin.role === 'SYSTEM' ? 'text-blue-600' : admin.role === 'ENTERPRISE' ? 'text-primary' : admin.role === 'OPERATION' ? 'text-emerald-700' : 'text-text-sub'}`}>
                       {admin.roleLabel}
                     </span>
                   </td>
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
+                  <td className="px-4 text-center border-r border-border-gray">
                     <StatusBadge status={admin.isUsed ? 'ON' : 'OFF'} />
                   </td>
-                  <td className="px-4 text-[13px] text-[#8B95A1] font-mono text-center">{admin.createdAt}</td>
+                  <td className="px-4 text-body-sm text-text-sub font-mono text-center">{admin.createdAt}</td>
                 </tr>
               ))}
               {filteredAdmins.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-20 text-center text-[#8B95A1] text-[14px]">
+                  <td colSpan={6} className="py-20 text-center text-text-sub text-body">
                     검색 결과가 없습니다.
                   </td>
                 </tr>

@@ -4,10 +4,10 @@ import AdminRegisterModal from './AdminRegisterModal';
 import EnterpriseEditModal from './EnterpriseEditModal';
 
 // ─── 공통 스타일 ────────────────────────────────────────────────────────────
-export const INP = "w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all placeholder-[#8B95A1]";
-export const SEL = "w-full h-[36px] px-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all";
-export const TXA = "w-full px-4 py-3 bg-white border border-[#D1D6DB] rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] transition-all resize-none placeholder-[#8B95A1]";
-export const DIS = "w-full h-[36px] px-3 bg-[#F9FAFB] border border-[#E5E8EB] rounded-md text-[14px] text-[#8B95A1] outline-none cursor-not-allowed";
+export const INP = "w-full h-[36px] px-3 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary transition-all placeholder-[#8B95A1]";
+export const SEL = "w-full h-[36px] px-3 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary transition-all";
+export const TXA = "w-full px-4 py-3 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary transition-all resize-none placeholder-[#8B95A1]";
+export const DIS = "w-full h-[36px] px-3 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed";
 
 // ─── 공통 컴포넌트 ───────────────────────────────────────────────────────────
 export function ModalWrap({ title, size = 'max-w-2xl', saveLabel = '등록하기', onClose, children }: {
@@ -16,14 +16,14 @@ export function ModalWrap({ title, size = 'max-w-2xl', saveLabel = '등록하기
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 sm:p-6">
       <div className={`bg-white rounded-xl shadow-2xl w-full ${size} flex flex-col max-h-[90vh] overflow-hidden`}>
-        <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0">
-          <p className="text-[16px] font-semibold text-[#191F28]">{title}</p>
-          <button onClick={onClose} className="p-2 text-[#8B95A1] hover:text-[#191F28] transition-colors"><X className="w-5 h-5" /></button>
+        <div className="flex items-center justify-between px-6 h-[56px] border-b border-border-gray shrink-0">
+          <p className="text-title-sm font-semibold text-text-main">{title}</p>
+          <button onClick={onClose} className="p-2 text-text-sub hover:text-text-main transition-colors"><X className="w-5 h-5" /></button>
         </div>
         <div className="flex-1 overflow-y-auto p-8 space-y-6">{children}</div>
-        <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] gap-3 shrink-0">
-          <button onClick={onClose} className="w-[120px] h-[40px] border border-[#D1D6DB] rounded-lg text-[14px] font-medium text-[#4E5968] bg-white hover:bg-[#F2F4F6] transition-colors">취소</button>
-          <button onClick={onClose} className="w-[120px] h-[40px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-lg text-[14px] font-semibold transition-colors shadow-sm">{saveLabel}</button>
+        <div className="flex items-center justify-center h-[72px] px-6 border-t border-border-gray bg-bg-gray gap-3 shrink-0">
+          <button onClick={onClose} className="w-[120px] h-[40px] border border-border-input rounded-lg text-body font-medium text-text-body bg-white hover:bg-bg-muted transition-colors">취소</button>
+          <button onClick={onClose} className="w-[120px] h-[40px] bg-primary hover:bg-primary-hover text-white rounded-lg text-body font-semibold transition-colors shadow-sm">{saveLabel}</button>
         </div>
       </div>
     </div>
@@ -33,8 +33,8 @@ export function ModalWrap({ title, size = 'max-w-2xl', saveLabel = '등록하기
 export function Sec({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
-      <div className="w-1 h-4 bg-[#008d75] rounded-full" />
-      <h4 className="text-[14px] font-semibold text-[#191F28]">{label}</h4>
+      <div className="w-1 h-4 bg-primary rounded-full" />
+      <h4 className="text-body font-semibold text-text-main">{label}</h4>
     </div>
   );
 }
@@ -42,7 +42,7 @@ export function Sec({ label }: { label: string }) {
 export function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[14px] font-semibold text-[#191F28]">{label}{required && <span className="text-[#F04452] ml-1">*</span>}</label>
+      <label className="block text-body font-semibold text-text-main">{label}{required && <span className="text-status-error ml-1">*</span>}</label>
       {children}
     </div>
   );
@@ -52,7 +52,7 @@ export function Radio({ name, label, defaultChecked }: { name: string; label: st
   return (
     <label className="flex items-center gap-2 cursor-pointer">
       <input type="radio" name={name} defaultChecked={defaultChecked} className="w-4 h-4 accent-[#008d75]" />
-      <span className="text-[14px] text-[#4E5968]">{label}</span>
+      <span className="text-body text-text-body">{label}</span>
     </label>
   );
 }
@@ -65,11 +65,11 @@ export function ConfirmPopup({ title, message, confirmLabel = '확인', cancelLa
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-5">
-        <p className="text-[15px] font-bold text-[#191F28]">{title}</p>
-        <p className="text-[13px] text-[#4E5968] leading-relaxed -mt-2">{message}</p>
+        <p className="text-body-lg font-bold text-text-main">{title}</p>
+        <p className="text-body-sm text-text-body leading-relaxed -mt-2">{message}</p>
         <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 h-[44px] border border-[#D1D6DB] rounded-lg text-[14px] font-medium text-[#4E5968] hover:bg-[#F2F4F6] transition-colors">{cancelLabel}</button>
-          <button onClick={onClose} className="flex-1 h-[44px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-lg text-[14px] font-semibold transition-colors">{confirmLabel}</button>
+          <button onClick={onClose} className="flex-1 h-[44px] border border-border-input rounded-lg text-body font-medium text-text-body hover:bg-bg-muted transition-colors">{cancelLabel}</button>
+          <button onClick={onClose} className="flex-1 h-[44px] bg-primary hover:bg-primary-hover text-white rounded-lg text-body font-semibold transition-colors">{confirmLabel}</button>
         </div>
       </div>
     </div>
@@ -81,24 +81,24 @@ export function TenantCheckPopup({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <p className="text-[15px] font-bold text-[#191F28]">테넌트 중복 확인</p>
-          <button onClick={onClose} className="text-[#8B95A1] hover:text-[#191F28]"><X className="w-5 h-5" /></button>
+          <p className="text-body-lg font-bold text-text-main">테넌트 중복 확인</p>
+          <button onClick={onClose} className="text-text-sub hover:text-text-main"><X className="w-5 h-5" /></button>
         </div>
-        <div className="rounded-lg border border-[#008d75] bg-[#008d7510] px-4 py-3 flex items-center gap-3">
-          <span className="text-[#008d75] font-bold text-lg">&#10003;</span>
+        <div className="rounded-lg border border-primary bg-primary/10 px-4 py-3 flex items-center gap-3">
+          <span className="text-primary font-bold text-title">&#10003;</span>
           <div>
-            <p className="text-[13px] font-bold text-[#008d75]">사용 가능한 테넌트 ID입니다.</p>
-            <p className="text-[12px] text-[#008d75]/70 mt-0.5">입력하신 테넌트 ID를 사용할 수 있습니다.</p>
+            <p className="text-body-sm font-bold text-primary">사용 가능한 테넌트 ID입니다.</p>
+            <p className="text-caption text-primary/70 mt-0.5">입력하신 테넌트 ID를 사용할 수 있습니다.</p>
           </div>
         </div>
-        <div className="rounded-lg border border-[#F04452] bg-[#F0445210] px-4 py-3 flex items-center gap-3">
-          <span className="text-[#F04452] font-bold text-lg">&#10007;</span>
+        <div className="rounded-lg border border-status-error bg-status-error/10 px-4 py-3 flex items-center gap-3">
+          <span className="text-status-error font-bold text-title">&#10007;</span>
           <div>
-            <p className="text-[13px] font-bold text-[#F04452]">이미 사용 중인 테넌트 ID입니다.</p>
-            <p className="text-[12px] text-[#F04452]/70 mt-0.5">다른 테넌트 ID를 입력해 주세요.</p>
+            <p className="text-body-sm font-bold text-status-error">이미 사용 중인 테넌트 ID입니다.</p>
+            <p className="text-caption text-status-error/70 mt-0.5">다른 테넌트 ID를 입력해 주세요.</p>
           </div>
         </div>
-        <button onClick={onClose} className="w-full h-[44px] bg-[#008d75] hover:bg-[#007a65] text-white rounded-lg text-[14px] font-semibold transition-colors">확인</button>
+        <button onClick={onClose} className="w-full h-[44px] bg-primary hover:bg-primary-hover text-white rounded-lg text-body font-semibold transition-colors">확인</button>
       </div>
     </div>
   );
@@ -115,7 +115,7 @@ export function ExceptionRegisterPreview({ onClose }: { onClose: () => void }) {
             <Field label="기업명" required><select className={SEL}><option value="">기업 선택</option><option value="toss">(주)토스페이먼츠</option><option value="woowa">우아한형제들</option></select></Field>
           </div>
         </div>
-        <div className="border-t border-[#E5E8EB] pt-6">
+        <div className="border-t border-border-gray pt-6">
           <Sec label="계좌 정보" />
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -161,7 +161,7 @@ export function NoticeModalPreview({ onClose }: { onClose: () => void }) {
             <Field label="내용" required><textarea className={TXA} rows={6} placeholder="공지사항 내용을 입력하세요." /></Field>
           </div>
         </div>
-        <div className="border-t border-[#E5E8EB] pt-6">
+        <div className="border-t border-border-gray pt-6">
           <Sec label="게시 설정" />
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -174,13 +174,13 @@ export function NoticeModalPreview({ onClose }: { onClose: () => void }) {
             </div>
             <label className="flex items-center gap-2 cursor-pointer pt-1">
               <input type="checkbox" className="w-4 h-4 accent-[#008d75]" />
-              <span className="text-[14px] text-[#4E5968]">상단 고정</span>
+              <span className="text-body text-text-body">상단 고정</span>
             </label>
           </div>
         </div>
-        <div className="border-t border-[#E5E8EB] pt-6">
+        <div className="border-t border-border-gray pt-6">
           <Sec label="첨부파일" />
-          <div className="border-2 border-dashed border-[#D1D6DB] rounded-lg p-8 text-center text-[13px] text-[#8B95A1]">파일을 드래그하거나 클릭하여 업로드하세요. (최대 10MB)</div>
+          <div className="border-2 border-dashed border-border-input rounded-lg p-8 text-center text-body-sm text-text-sub">파일을 드래그하거나 클릭하여 업로드하세요. (최대 10MB)</div>
         </div>
       </div>
     </ModalWrap>
@@ -195,23 +195,23 @@ export function BannerModalPreview({ onClose }: { onClose: () => void }) {
           <Sec label="기본 정보" />
           <Field label="배너명" required><input type="text" className={INP} placeholder="배너명을 입력하세요 (내부 관리용)" /></Field>
         </div>
-        <div className="border-t border-[#E5E8EB] pt-6">
+        <div className="border-t border-border-gray pt-6">
           <Sec label="이미지" />
           <div className="grid grid-cols-2 gap-6">
             {['PC 배너 이미지', '모바일 배너 이미지'].map(lbl => (
               <div key={lbl}>
-                <p className="text-[14px] font-semibold text-[#191F28] mb-2">{lbl} <span className="text-[#F04452]">*</span></p>
-                <div className="border-2 border-dashed border-[#D1D6DB] rounded-lg h-32 flex items-center justify-center text-[13px] text-[#8B95A1] cursor-pointer hover:border-[#008d75] transition-colors">이미지 업로드</div>
+                <p className="text-body font-semibold text-text-main mb-2">{lbl} <span className="text-status-error">*</span></p>
+                <div className="border-2 border-dashed border-border-input rounded-lg h-32 flex items-center justify-center text-body-sm text-text-sub cursor-pointer hover:border-primary transition-colors">이미지 업로드</div>
               </div>
             ))}
           </div>
         </div>
-        <div className="border-t border-[#E5E8EB] pt-6">
+        <div className="border-t border-border-gray pt-6">
           <Sec label="게시 설정" />
           <div className="space-y-4">
-            <div className="p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-              <p className="text-[14px] font-semibold text-[#191F28] mb-3">게시 대상 <span className="text-[#F04452]">*</span></p>
-              <div className="flex gap-6">{['전체','더존','가비아'].map(v => (<label key={v} className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[#008d75]" /><span className="text-[14px] text-[#4E5968]">{v}</span></label>))}</div>
+            <div className="p-4 border border-border-gray rounded-lg bg-bg-gray">
+              <p className="text-body font-semibold text-text-main mb-3">게시 대상 <span className="text-status-error">*</span></p>
+              <div className="flex gap-6">{['전체','더존','가비아'].map(v => (<label key={v} className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[#008d75]" /><span className="text-body text-text-body">{v}</span></label>))}</div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <Field label="노출 시작일" required><input type="date" className={INP} /></Field>
@@ -237,7 +237,7 @@ export function FaqModalPreview({ onClose }: { onClose: () => void }) {
             <Field label="답변" required><textarea className={TXA} rows={8} placeholder="상세 답변 내용을 입력하세요." /></Field>
           </div>
         </div>
-        <div className="border-t border-[#E5E8EB] pt-6">
+        <div className="border-t border-border-gray pt-6">
           <Sec label="게시 설정" />
           <div className="grid grid-cols-2 gap-4">
             <Field label="노출 여부"><div className="flex gap-6 pt-1"><Radio name="faqVis" label="노출" defaultChecked /><Radio name="faqVis" label="미노출" /></div></Field>
@@ -272,7 +272,7 @@ export function EmailTemplateModalPreview({ onClose }: { onClose: () => void }) 
             <Field label="사용 여부"><div className="flex items-center gap-6 pt-1"><Radio name="emailActive" label="사용" defaultChecked /><Radio name="emailActive" label="미사용" /></div></Field>
           </div>
         </div>
-        <div className="border-t border-[#E5E8EB] pt-6">
+        <div className="border-t border-border-gray pt-6">
           <Sec label="이메일 내용" />
           <div className="space-y-4">
             <Field label="이메일 제목" required><input type="text" className={INP} placeholder="수신자에게 표시될 메일 제목을 입력하세요" /></Field>
@@ -297,7 +297,7 @@ export function PushModalPreview({ onClose }: { onClose: () => void }) {
         <Field label="사용 여부"><div className="flex gap-6 pt-1"><Radio name="pushUse" label="사용" defaultChecked /><Radio name="pushUse" label="미사용" /></div></Field>
         <Field label="메시지 내용" required>
           <textarea className={TXA} rows={4} maxLength={100} placeholder="수신자에게 노출될 알림 내용을 입력하세요." />
-          <p className="text-[12px] text-[#8B95A1] text-right mt-1">0 / 100자</p>
+          <p className="text-caption text-text-sub text-right mt-1">0 / 100자</p>
         </Field>
       </div>
     </ModalWrap>
@@ -313,9 +313,9 @@ export function CodeModalPreview({ onClose }: { onClose: () => void }) {
         <Field label="코드값" required><input type="text" className={INP + " font-mono"} placeholder="예: ACTIVE" /></Field>
         <Field label="코드명" required><input type="text" className={INP} placeholder="예: 정상" /></Field>
         <Field label="설명"><textarea className={TXA} rows={3} placeholder="코드에 대한 설명을 입력하세요." /></Field>
-        <div className="flex items-center gap-2 pt-2 border-t border-[#E5E8EB]">
+        <div className="flex items-center gap-2 pt-2 border-t border-border-gray">
           <input type="checkbox" id="codeUsed" defaultChecked className="w-4 h-4 accent-[#008d75] cursor-pointer" />
-          <label htmlFor="codeUsed" className="text-[14px] text-[#4E5968] font-medium cursor-pointer">이 코드 사용</label>
+          <label htmlFor="codeUsed" className="text-body text-text-body font-medium cursor-pointer">이 코드 사용</label>
         </div>
       </div>
     </ModalWrap>
@@ -326,34 +326,34 @@ export function FirmBankingDetailPreview({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50">
       <div className="relative bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="h-[64px] px-6 bg-[#191F28] flex items-center justify-between shrink-0">
+        <div className="h-[64px] px-6 bg-text-main flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
               <AlertCircle className="w-5 h-5 text-red-600" />
             </div>
-            <h3 className="text-[18px] font-bold text-white">펌뱅킹 실패 상세 내역</h3>
+            <h3 className="text-title font-bold text-white">펌뱅킹 실패 상세 내역</h3>
           </div>
           <button onClick={onClose} className="text-white/70 hover:text-white transition-colors"><X className="w-6 h-6" /></button>
         </div>
         <div className="flex-1 overflow-y-auto p-8 space-y-8">
           <section>
-            <div className="flex items-center gap-2 mb-4"><div className="w-1.5 h-4 bg-[#008d75] rounded-full" /><h4 className="text-[16px] font-bold text-[#191F28]">거래 기본 정보</h4></div>
+            <div className="flex items-center gap-2 mb-4"><div className="w-1.5 h-4 bg-primary rounded-full" /><h4 className="text-title-sm font-bold text-text-main">거래 기본 정보</h4></div>
             <div className="grid grid-cols-2 gap-x-12 gap-y-5">
               {[['발생일시','2024-03-15 14:32:01'],['기업명 (코드)','(주)토스페이먼츠 (ENT0001)'],['서비스명','자금이체 서비스'],['실패 단계','수취인 조회'],['거래번호','TRX20240315143201'],['요청번호','REQ20240315143200']].map(([k,v]) => (
-                <div key={k}><p className="text-[12px] text-[#8B95A1] mb-1">{k}</p><p className="text-[14px] font-medium text-[#191F28]">{v}</p></div>
+                <div key={k}><p className="text-caption text-text-sub mb-1">{k}</p><p className="text-body font-medium text-text-main">{v}</p></div>
               ))}
             </div>
           </section>
           <section className="bg-red-50/50 p-6 rounded-lg border border-red-100">
-            <div className="flex items-center gap-2 mb-4"><div className="w-1.5 h-4 bg-red-500 rounded-full" /><h4 className="text-[16px] font-bold text-red-700">오류 상세 정보</h4></div>
+            <div className="flex items-center gap-2 mb-4"><div className="w-1.5 h-4 bg-red-500 rounded-full" /><h4 className="text-title-sm font-bold text-red-700">오류 상세 정보</h4></div>
             <div className="space-y-4">
-              <div><p className="text-[12px] text-gray-500 mb-1">오류코드</p><p className="text-[14px] text-red-600 font-bold font-mono">ERR_RECEIVER_NAME_MISMATCH</p></div>
-              <div><p className="text-[12px] text-gray-500 mb-1">오류 메시지</p><p className="text-[14px] text-red-600 font-medium bg-white p-3 border border-red-100 rounded">수취인 성명이 일치하지 않습니다. 계좌 정보를 확인해 주세요.</p></div>
+              <div><p className="text-caption text-gray-500 mb-1">오류코드</p><p className="text-body text-red-600 font-bold font-mono">ERR_RECEIVER_NAME_MISMATCH</p></div>
+              <div><p className="text-caption text-gray-500 mb-1">오류 메시지</p><p className="text-body text-red-600 font-medium bg-white p-3 border border-red-100 rounded">수취인 성명이 일치하지 않습니다. 계좌 정보를 확인해 주세요.</p></div>
             </div>
           </section>
         </div>
-        <div className="h-[72px] px-6 bg-white border-t border-[#E5E8EB] flex items-center justify-end">
-          <button onClick={onClose} className="px-6 h-[40px] border border-[#D1D6DB] rounded-lg text-[14px] font-medium text-[#4E5968] bg-white hover:bg-[#F2F4F6] transition-colors">닫기</button>
+        <div className="h-[72px] px-6 bg-white border-t border-border-gray flex items-center justify-end">
+          <button onClick={onClose} className="px-6 h-[40px] border border-border-input rounded-lg text-body font-medium text-text-body bg-white hover:bg-bg-muted transition-colors">닫기</button>
         </div>
       </div>
     </div>

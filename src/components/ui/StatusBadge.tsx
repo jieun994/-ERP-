@@ -44,7 +44,7 @@ interface StatusBadgeProps {
 export default function StatusBadge({ status, colorClass }: StatusBadgeProps) {
   const cls = colorClass ?? PRESET[status] ?? FALLBACK;
   return (
-    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${cls}`}>
+    <span className={`inline-block px-2.5 py-0.5 rounded-full text-caption font-semibold ${cls}`}>
       {status}
     </span>
   );

@@ -1,30 +1,118 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v3.2.1/dist/web/static/pretendard.css");
 @import "tailwindcss";
 
+/* =========================================================================
+   Design System Tokens
+   - 폰트 사이즈: 역할 기반 (caption / body / title / display)
+   - 색상: 의미 기반 (brand / text / bg / border / status / chart)
+   - 최소 본문/보조 텍스트 폰트 사이즈: 12px (caption)
+   ========================================================================= */
 @theme {
-  --color-primary: #008d75;
-  --color-primary-hover: #007a65;
-  --color-bg-gray: #F9FAFB;
-  --color-border-gray: #E5E8EB;
-  --color-text-main: #191F28;
-  --color-text-sub: #8B95A1;
-  --color-input-border: #D1D6DB;
-  --color-table-head: #F2F4F6;
-  --color-status-on: #008d75;
-  --color-status-off: #8B95A1;
-
+  /* ---------- Font family ---------- */
   --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Inter", system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* ---------- Font size scale (역할 기반, 최소 12px) ---------- */
+  /* 보조라벨 / 캡션 / 태그 / 뱃지 — 접근성 최소값 */
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+
+  /* 본문 보조 (테이블 셀, 폼 헬프 텍스트) */
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 18px;
+
+  /* 본문 기본 */
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+
+  /* 본문 강조 (버튼 라벨, 입력 필드) */
+  --text-body-lg: 15px;
+  --text-body-lg--line-height: 22px;
+
+  /* 소제목 / 카드 타이틀 */
+  --text-title-sm: 16px;
+  --text-title-sm--line-height: 24px;
+
+  /* 섹션 타이틀 */
+  --text-title: 18px;
+  --text-title--line-height: 26px;
+
+  /* 페이지 서브 헤딩 */
+  --text-title-lg: 20px;
+  --text-title-lg--line-height: 28px;
+
+  /* 페이지 타이틀 */
+  --text-display-sm: 22px;
+  --text-display-sm--line-height: 30px;
+
+  /* KPI 값 */
+  --text-display: 24px;
+  --text-display--line-height: 32px;
+
+  /* 강조 디스플레이 (로그인 헤드라인 등) */
+  --text-display-lg: 28px;
+  --text-display-lg--line-height: 36px;
+
+  /* ---------- Brand ---------- */
+  --color-primary: #008D75;
+  --color-primary-hover: #007A65;
+  --color-primary-dark: #006E5A;
+  --color-primary-soft: #F2F9F7;
+
+  /* ---------- Text ---------- */
+  --color-text-main: #191F28;     /* 본문 기본 */
+  --color-text-body: #4E5968;     /* 보조 본문 / 라벨 */
+  --color-text-sub: #8B95A1;      /* 약한 보조 텍스트 */
+  --color-text-muted: #B0B8C1;    /* 아이콘 톤 */
+  --color-text-disabled: #C5CBD2; /* 비활성 / placeholder */
+  --color-text-link: #0070F3;
+  --color-text-info: #1B64DA;
+
+  /* ---------- Background ---------- */
+  --color-bg-gray: #F9FAFB;        /* 페이지 배경 */
+  --color-bg-subtle: #FAFBFC;      /* 매우 옅은 표면 (zebra) */
+  --color-bg-muted: #F2F4F6;       /* 테이블 헤더 / hover row */
+  --color-bg-neutral: #EDF0F3;     /* 중립 칩 */
+  --color-bg-success-soft: #E9F7F3;
+  --color-table-head: #F2F4F6;     /* (deprecated alias) — bg-bg-muted 사용 권장 */
+
+  /* ---------- Border ---------- */
+  --color-border-gray: #E5E8EB;    /* 기본 디바이더 */
+  --color-border-input: #D1D6DB;   /* 입력 컨트롤 */
+  --color-border-strong: #B0B8C1;
+  --color-input-border: #D1D6DB;   /* (deprecated alias) — border-border-input 사용 권장 */
+
+  /* ---------- Status ---------- */
+  --color-status-on: #008D75;
+  --color-status-off: #8B95A1;
+  --color-status-error: #F04452;
+  --color-status-error-strong: #D93A46;
+  --color-status-warn: #F59E0B;
+  --color-status-warn-soft: #FEF3C7;
+  --color-status-info: #0070F3;
+  --color-status-danger: #EF4444;
+  --color-status-danger-soft: #FEE2E2;
+
+  /* ---------- Chart / Data-viz ---------- */
+  --color-chart-1: #008D75;
+  --color-chart-2: #5BB8A4;
+  --color-chart-3: #B7E0D4;
+  --color-chart-grid: #F3F4F6;
+
+  /* ---------- Surface (dark) ---------- */
+  --color-surface-dark: #1E1E1E;        /* 로그 콘솔 */
+  --color-surface-dark-text: #D4D4D4;
 }
 
 @layer base {
   body {
-    @apply bg-bg-gray text-text-main text-[14px] font-sans antialiased;
+    @apply bg-bg-gray text-text-main text-body font-sans antialiased;
   }
-  
+
   input, select, textarea {
     @apply outline-none transition-all;
   }
-  
+
   select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -35,7 +123,7 @@
     background-size: 1.25em 1.25em;
     padding-right: 2.5rem !important;
   }
-  
+
   /* Remove default focus ring for cleaner flat look */
   *:focus {
     @apply outline-none;

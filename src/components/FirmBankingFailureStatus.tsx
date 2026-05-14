@@ -1,475 +1,375 @@
-import React, { useState } from 'react';
-import {
-  Download,
-  AlertCircle,
-  X,
-} from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Button, SearchBar, DataTable, Input, Select } from './ui';
+import { Button, FilterBar, DataTable, Input, Select } from './ui';
+import { MOCK_TENANTS } from './tenant/tenants';
+
+/* ------------------------------------------------------------------ */
+/*  데이터 모델                                                        */
+/* ------------------------------------------------------------------ */
 
 interface FailureRecord {
   id: number;
-  occurredAt: string;
-  enterpriseName: string;
-  enterpriseCode: string;
-  serviceName: string;
-  transactionNo: string;
-  requestNo: string;
-  failureStep: string;
-  errorCode: string;
-  errorMessage: string;
-  manager: string;
-  finalProcessedAt: string;
+  occurredAt: string;        // 발생일시
+  tenantCode: string;        // 테넌트
+  tenantName: string;
+  erpVendor: string;         // ERP사
+  system: string;            // 시스템 (Biz-서비스 1 / 2 등)
+  source: SourceCode;        // 출처 (오류 발신처)
+  enterpriseName: string;    // 기업명
+  errorCode: string;         // 오류코드
+  errorMessage: string;      // 오류 메시지
 }
+
+type SourceCode = 'BANK_API' | 'INTERNAL' | 'MIDDLEWARE' | 'EXTERNAL_GW';
+
+/** 출처 메타데이터 — 색상 배지 + 담당팀 라우팅 */
+const SOURCE_META: Record<SourceCode, { label: string; badge: string; team: string }> = {
+  BANK_API:    { label: '은행 API',     badge: 'bg-red-50 text-red-700 border-red-200',           team: '은행 연계팀' },
+  INTERNAL:    { label: '내부 모듈',    badge: 'bg-blue-50 text-blue-700 border-blue-200',        team: '플랫폼 개발팀' },
+  MIDDLEWARE:  { label: '미들웨어',     badge: 'bg-purple-50 text-purple-700 border-purple-200',  team: '인프라팀' },
+  EXTERNAL_GW: { label: '외부 게이트웨이', badge: 'bg-amber-50 text-amber-700 border-amber-200',     team: '대외 연계팀' },
+};
+
+/* ------------------------------------------------------------------ */
+/*  목업 데이터                                                        */
+/* ------------------------------------------------------------------ */
+
+const ERP_VENDORS = ['더존비즈온', '영림원소프트랩', '이카운트'];
+const SYSTEMS = ['Biz-서비스 1', 'Biz-서비스 2'];
 
 const mockData: FailureRecord[] = [
   {
     id: 1,
-    occurredAt: '2023-10-25 14:32:01',
-    enterpriseName: '(주)토스페이먼츠',
-    enterpriseCode: 'ENT0001',
-    serviceName: '실시간 계좌이체',
-    transactionNo: 'TXN202310250001',
-    requestNo: 'REQ250001',
-    failureStep: '은행 전송 단계',
+    occurredAt: '2026-05-12 14:32:01',
+    tenantCode: 'TOSS',
+    tenantName: '(주)토스페이먼츠',
+    erpVendor: '더존비즈온',
+    system: 'Biz-서비스 1',
+    source: 'BANK_API',
+    enterpriseName: '(주)한국전자',
     errorCode: 'E4001',
     errorMessage: '수취인 예금주 성명 불일치',
-    manager: '-',
-    finalProcessedAt: '-'
   },
   {
     id: 2,
-    occurredAt: '2023-10-25 14:15:22',
-    enterpriseName: '우아한형제들',
-    enterpriseCode: 'ENT0002',
-    serviceName: '대량 급여 이체',
-    transactionNo: 'TXN202310250002',
-    requestNo: 'REQ250002',
-    failureStep: '전문 생성 단계',
+    occurredAt: '2026-05-12 11:15:22',
+    tenantCode: 'WOOWAHAN',
+    tenantName: '우아한형제들',
+    erpVendor: '영림원소프트랩',
+    system: 'Biz-서비스 2',
+    source: 'INTERNAL',
+    enterpriseName: '(주)미래산업',
     errorCode: 'E2010',
     errorMessage: '필수 항목 누락 (금액)',
-    manager: '김철수',
-    finalProcessedAt: '2023-10-25 14:40:00'
   },
   {
     id: 3,
-    occurredAt: '2023-10-25 13:50:44',
-    enterpriseName: '당근마켓',
-    enterpriseCode: 'ENT0003',
-    serviceName: '가상계좌 발급',
-    transactionNo: 'TXN202310250003',
-    requestNo: 'REQ250003',
-    failureStep: '은행 응답 대기',
+    occurredAt: '2026-05-11 17:50:44',
+    tenantCode: 'INNOVATION',
+    tenantName: '(주)혁신테크',
+    erpVendor: '이카운트',
+    system: 'Biz-서비스 1',
+    source: 'MIDDLEWARE',
+    enterpriseName: '(주)한강건설',
     errorCode: 'E5002',
-    errorMessage: '네트워크 타임아웃',
-    manager: '이영희',
-    finalProcessedAt: '2023-10-25 14:10:00'
+    errorMessage: '미들웨어 응답 타임아웃 (5000ms 초과)',
   },
   {
     id: 4,
-    occurredAt: '2023-10-25 12:10:05',
+    occurredAt: '2026-05-11 12:10:05',
+    tenantCode: 'TOSS',
+    tenantName: '(주)토스페이먼츠',
+    erpVendor: '더존비즈온',
+    system: 'Biz-서비스 1',
+    source: 'BANK_API',
     enterpriseName: '(주)직방',
-    enterpriseCode: 'ENT0004',
-    serviceName: '펌뱅킹 이체',
-    transactionNo: 'TXN202310250004',
-    requestNo: 'REQ250004',
-    failureStep: '은행 전송 단계',
     errorCode: 'E4005',
     errorMessage: '계좌 상태 오류 (해지)',
-    manager: '-',
-    finalProcessedAt: '-'
-  }
+  },
+  {
+    id: 5,
+    occurredAt: '2026-05-10 09:22:18',
+    tenantCode: 'WOOWAHAN',
+    tenantName: '우아한형제들',
+    erpVendor: '영림원소프트랩',
+    system: 'Biz-서비스 2',
+    source: 'EXTERNAL_GW',
+    enterpriseName: '(주)야놀자',
+    errorCode: 'E9001',
+    errorMessage: '대외 게이트웨이 인증 실패',
+  },
 ];
+
+/* ------------------------------------------------------------------ */
+/*  컴포넌트                                                           */
+/* ------------------------------------------------------------------ */
 
 export default function FirmBankingFailureStatus() {
   const [searchParams, setSearchParams] = useState({
-    startDate: '',
-    endDate: '',
+    startDate: '2026-04-13',
+    endDate: '2026-05-13',
+    tenantCode: 'ALL',
+    erpVendor: 'ALL',
+    system: 'ALL',
+    source: 'ALL',
     enterpriseName: '',
-    serviceType: 'ALL',
-    transactionNo: '',
     errorCode: '',
-    errorMessage: '',
-    failureStep: 'ALL'
   });
 
   const [selectedRecord, setSelectedRecord] = useState<FailureRecord | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [data] = useState<FailureRecord[]>(mockData);
+
+  /* 요약 계산 (그리드 위 1줄 요약) */
+  const summary = useMemo(() => {
+    const tenants = new Set(data.map(d => d.tenantCode));
+    const enterprises = new Set(data.map(d => d.enterpriseName));
+    return { total: data.length, tenants: tenants.size, enterprises: enterprises.size };
+  }, [data]);
 
   const handleSearch = () => {
-    setIsSearching(true);
-    setTimeout(() => setIsSearching(false), 500);
+    // 실제 구현 시 API 호출
   };
 
   const handleReset = () => {
     setSearchParams({
-      startDate: '',
-      endDate: '',
+      startDate: '2026-04-13',
+      endDate: '2026-05-13',
+      tenantCode: 'ALL',
+      erpVendor: 'ALL',
+      system: 'ALL',
+      source: 'ALL',
       enterpriseName: '',
-      serviceType: 'ALL',
-      transactionNo: '',
       errorCode: '',
-      errorMessage: '',
-      failureStep: 'ALL'
     });
-  };
-
-  const openDetail = (record: FailureRecord) => {
-    setSelectedRecord(record);
-    setIsDetailOpen(true);
-  };
-
-  const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setSelectedIds(mockData.map(d => d.id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
-
-  const toggleSelect = (id: number) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
   };
 
   return (
     <div className="w-full pb-20">
-      {/* Search Area */}
-      <SearchBar onSearch={handleSearch} onReset={handleReset}>
-        <SearchBar.Field label="조회 기간">
-          <div className="flex items-center gap-2">
-            <Input
-              type="date"
-              value={searchParams.startDate}
-              onChange={e => setSearchParams({...searchParams, startDate: e.target.value})}
-              style={{ width: 160 }}
-            />
-            <span className="text-[#8B95A1]">~</span>
-            <Input
-              type="date"
-              value={searchParams.endDate}
-              onChange={e => setSearchParams({...searchParams, endDate: e.target.value})}
-              style={{ width: 160 }}
-            />
-          </div>
-        </SearchBar.Field>
-        <SearchBar.Field label="기업명">
+      {/* ────────── 검색 영역 ────────── */}
+      <FilterBar cols={3} onSearch={handleSearch} onReset={handleReset}>
+        <FilterBar.DateRange
+          startDate={searchParams.startDate}
+          endDate={searchParams.endDate}
+          onChange={(s, e) => setSearchParams({ ...searchParams, startDate: s, endDate: e })}
+          colSpan={2}
+        />
+
+        <FilterBar.Field label="테넌트">
+          <Select
+            value={searchParams.tenantCode}
+            onChange={e => setSearchParams({ ...searchParams, tenantCode: e.target.value })}
+            fullWidth
+          >
+            <option value="ALL">전체</option>
+            {MOCK_TENANTS.map(t => (
+              <option key={t.tenantCode} value={t.tenantCode}>{t.tenantName}</option>
+            ))}
+          </Select>
+        </FilterBar.Field>
+
+        <FilterBar.Field label="ERP사">
+          <Select
+            value={searchParams.erpVendor}
+            onChange={e => setSearchParams({ ...searchParams, erpVendor: e.target.value })}
+            fullWidth
+          >
+            <option value="ALL">전체</option>
+            {ERP_VENDORS.map(v => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </Select>
+        </FilterBar.Field>
+
+        <FilterBar.Field label="시스템">
+          <Select
+            value={searchParams.system}
+            onChange={e => setSearchParams({ ...searchParams, system: e.target.value })}
+            fullWidth
+          >
+            <option value="ALL">전체</option>
+            {SYSTEMS.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </Select>
+        </FilterBar.Field>
+
+        <FilterBar.Field label="출처">
+          <Select
+            value={searchParams.source}
+            onChange={e => setSearchParams({ ...searchParams, source: e.target.value })}
+            fullWidth
+          >
+            <option value="ALL">전체</option>
+            {(Object.keys(SOURCE_META) as SourceCode[]).map(code => (
+              <option key={code} value={code}>{SOURCE_META[code].label}</option>
+            ))}
+          </Select>
+        </FilterBar.Field>
+
+        <FilterBar.Field label="기업명">
           <Input
             type="text"
             placeholder="기업명 입력"
             value={searchParams.enterpriseName}
-            onChange={e => setSearchParams({...searchParams, enterpriseName: e.target.value})}
-            style={{ width: 192 }}
+            onChange={e => setSearchParams({ ...searchParams, enterpriseName: e.target.value })}
+            fullWidth
           />
-        </SearchBar.Field>
-        <SearchBar.Field label="서비스명">
-          <Select
-            value={searchParams.serviceType}
-            onChange={e => setSearchParams({...searchParams, serviceType: e.target.value})}
-            style={{ width: 192 }}
-          >
-            <option value="ALL">전체</option>
-            <option value="실시간 계좌이체">실시간 계좌이체</option>
-            <option value="대량 급여 이체">대량 급여 이체</option>
-            <option value="가상계좌 발급">가상계좌 발급</option>
-            <option value="펌뱅킹 이체">펌뱅킹 이체</option>
-          </Select>
-        </SearchBar.Field>
-        <SearchBar.Field label="거래번호">
-          <Input
-            type="text"
-            placeholder="거래번호 입력"
-            value={searchParams.transactionNo}
-            onChange={e => setSearchParams({...searchParams, transactionNo: e.target.value})}
-            style={{ width: 192 }}
-          />
-        </SearchBar.Field>
-        <SearchBar.Field label="오류코드">
+        </FilterBar.Field>
+
+        <FilterBar.Field label="오류코드">
           <Input
             type="text"
             placeholder="오류코드 입력"
             value={searchParams.errorCode}
-            onChange={e => setSearchParams({...searchParams, errorCode: e.target.value})}
-            style={{ width: 160 }}
+            onChange={e => setSearchParams({ ...searchParams, errorCode: e.target.value })}
+            fullWidth
           />
-        </SearchBar.Field>
-        <SearchBar.Field label="실패 단계">
-          <Select
-            value={searchParams.failureStep}
-            onChange={e => setSearchParams({...searchParams, failureStep: e.target.value})}
-            style={{ width: 192 }}
-          >
-            <option value="ALL">전체</option>
-            <option value="전문 생성 단계">전문 생성 단계</option>
-            <option value="은행 전송 단계">은행 전송 단계</option>
-            <option value="은행 응답 대기">은행 응답 대기</option>
-            <option value="응답 처리 단계">응답 처리 단계</option>
-          </Select>
-        </SearchBar.Field>
-        <SearchBar.Field label="오류메시지">
-          <Input
-            type="text"
-            placeholder="오류메시지 입력 (포함어)"
-            value={searchParams.errorMessage}
-            onChange={e => setSearchParams({...searchParams, errorMessage: e.target.value})}
-            style={{ width: 400 }}
-          />
-        </SearchBar.Field>
-      </SearchBar>
+        </FilterBar.Field>
+      </FilterBar>
 
-      {/* Summary Area */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: '총 조회 건수', value: '452', color: 'text-gray-900' },
-          { label: '실패 건수', value: '124', color: 'text-[#F44336]' },
-          { label: '실패 기업 수', value: '12', color: 'text-gray-900' },
-          { label: '오류코드 Top 5', value: 'E4001, E2010...', isTop: true }
-        ].map((item, idx) => (
-          <div key={idx} className="bg-white border border-[#E5E8EB] p-4 rounded-lg shadow-sm">
-            <p className="text-[12px] text-[#8B95A1] mb-1">{item.label}</p>
-            {item.isTop ? (
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[#4E5968] font-medium">1. E4001</span>
-                  <span className="text-[#8B95A1]">12건</span>
-                </div>
-                <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-[#4E5968] font-medium">2. E2010</span>
-                  <span className="text-[#8B95A1]">8건</span>
-                </div>
-              </div>
-            ) : (
-              <p className={`text-[20px] font-bold ${item.color}`}>
-                {item.value}
-                <span className="text-[12px] font-normal ml-1 text-[#8B95A1]">건</span>
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Toolbar */}
-      <DataTable.Controls total={mockData.length}>
+      {/* ────────── 그리드 컨트롤 ────────── */}
+      <DataTable.Controls total={data.length}>
+        <span className="text-caption text-text-sub mr-3">
+          영향 테넌트 <span className="font-bold text-text-main">{summary.tenants}</span>개 ·
+          영향 기업 <span className="font-bold text-text-main">{summary.enterprises}</span>개
+        </span>
         <Button variant="ghost" size="sm">엑셀 다운로드</Button>
       </DataTable.Controls>
 
-      {/* Grid */}
-      <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
+      {/* ────────── 그리드 ────────── */}
+      <div className="bg-white border-t-2 border-text-main rounded-b-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[1400px]">
+          <table className="w-full text-left border-collapse min-w-[1280px]">
             <thead>
-              <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
-                <th className="h-[52px] px-4 text-center border-r border-[#E5E8EB] w-12">
-                  <input 
-                    type="checkbox" 
-                    className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
-                    onChange={toggleSelectAll}
-                  />
-                </th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-16">No.</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-44">발생일시</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-48">기업명</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-40">서비스명</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-44">거래번호</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-32">실패 단계</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-24">오류코드</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">오류메시지</th>
+              <tr className="bg-bg-muted border-b border-border-gray text-text-main">
+                <th className="h-[52px] px-4 text-body font-bold text-center w-14">No.</th>
+                <th className="h-[52px] px-4 text-body font-bold text-center w-44">발생일시</th>
+                <th className="h-[52px] px-4 text-body font-bold w-40">테넌트</th>
+                <th className="h-[52px] px-4 text-body font-bold w-32">ERP사</th>
+                <th className="h-[52px] px-4 text-body font-bold w-32">시스템</th>
+                <th className="h-[52px] px-4 text-body font-bold text-center w-32">출처</th>
+                <th className="h-[52px] px-4 text-body font-bold w-40">기업명</th>
+                <th className="h-[52px] px-4 text-body font-bold text-center w-24">오류코드</th>
+                <th className="h-[52px] px-4 text-body font-bold">오류메시지</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
-              {mockData.map((item, index) => (
-                  <tr 
-                    key={item.id} 
-                    className={`h-[52px] transition-colors hover:bg-[#F9FAFB] ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}
+              {data.map((item, index) => {
+                const src = SOURCE_META[item.source];
+                return (
+                  <tr
+                    key={item.id}
+                    onClick={() => setSelectedRecord(item)}
+                    className="h-[52px] hover:bg-bg-gray transition-colors cursor-pointer"
                   >
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
-                      checked={selectedIds.includes(item.id)}
-                      onChange={() => toggleSelect(item.id)}
-                    />
-                  </td>
-                  <td className="px-4 text-center text-[13px] text-[#8B95A1] border-r border-[#E5E8EB]">{index + 1}</td>
-                  <td 
-                    onClick={() => openDetail(item)}
-                    className="px-4 text-center text-[13px] text-[#191F28] border-r border-[#E5E8EB] font-mono cursor-pointer hover:text-[#008d75] hover:underline"
-                  >
-                    {item.occurredAt}
-                  </td>
-                  <td 
-                    onClick={() => openDetail(item)}
-                    className="px-4 text-[14px] text-[#191F28] font-medium border-r border-[#E5E8EB] cursor-pointer hover:text-[#008d75] hover:underline"
-                  >
-                    {item.enterpriseName}
-                  </td>
-                  <td 
-                    onClick={() => openDetail(item)}
-                    className="px-4 text-[14px] text-[#191F28] border-r border-[#E5E8EB] cursor-pointer hover:text-[#008d75] hover:underline"
-                  >
-                    {item.serviceName}
-                  </td>
-                  <td 
-                    onClick={() => openDetail(item)}
-                    className="px-4 text-[13px] text-[#4E5968] border-r border-[#E5E8EB] font-mono cursor-pointer hover:text-[#008d75] hover:underline"
-                  >
-                    {item.transactionNo}
-                  </td>
-                  <td className="px-4 text-center text-[13px] text-[#4E5968] border-r border-[#E5E8EB]">{item.failureStep}</td>
-                  <td 
-                    onClick={() => openDetail(item)}
-                    className="px-4 text-center text-[13px] font-bold text-[#4E5968] border-r border-[#E5E8EB] font-mono cursor-pointer hover:text-[#008d75] hover:underline"
-                  >
-                    {item.errorCode}
-                  </td>
-                  <td className="px-4 text-[13px] text-[#4E5968] border-r border-[#E5E8EB] truncate max-w-[200px]">{item.errorMessage}</td>
-                </tr>
-              ))}
+                    <td className="px-4 text-center text-body-sm text-text-sub font-mono">{index + 1}</td>
+                    <td className="px-4 text-center text-body-sm text-text-body font-mono tracking-tight">{item.occurredAt}</td>
+                    <td className="px-4 text-body text-text-main font-medium">{item.tenantName}</td>
+                    <td className="px-4 text-body-sm text-text-body">{item.erpVendor}</td>
+                    <td className="px-4 text-body-sm text-text-body">{item.system}</td>
+                    <td className="px-4 text-center">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-caption font-semibold border ${src.badge}`}>
+                        {src.label}
+                      </span>
+                    </td>
+                    <td className="px-4 text-body text-text-main">{item.enterpriseName}</td>
+                    <td className="px-4 text-center text-body-sm font-bold text-text-main font-mono">{item.errorCode}</td>
+                    <td className="px-4 text-body-sm text-text-body truncate max-w-[420px]">{item.errorMessage}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
 
-    
-
-      {/* Detail Modal */}
+      {/* ────────── 상세 모달 ────────── */}
       <AnimatePresence>
-        {isDetailOpen && selectedRecord && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsDetailOpen(false)}
-              className="absolute inset-0 bg-black/50"
-            />
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        {selectedRecord && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-3xl bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Header */}
-              <div className="h-[64px] px-6 bg-[#191F28] flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                    <AlertCircle className="w-5 h-5 text-red-600" />
-                  </div>
-                  <h3 className="text-[18px] font-bold text-white">펌뱅킹 실패 상세 내역</h3>
-                </div>
-                <button onClick={() => setIsDetailOpen(false)} className="text-white/70 hover:text-white transition-colors">
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-border-gray bg-white shrink-0">
+                <h3 className="text-title-sm font-semibold text-text-main">펌뱅킹 실패 상세</h3>
+                <button
+                  onClick={() => setSelectedRecord(null)}
+                  className="p-1 text-text-sub hover:text-text-main transition-colors"
+                >
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
-              {/* Content */}
-              <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                <div className="space-y-10">
-                  {/* Basic Info */}
-                  <section>
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-1.5 h-4 bg-[#008d75] rounded-full"></div>
-                      <h4 className="text-[16px] font-bold text-[#191F28]">거래 기본 정보</h4>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-6">
-                      <DetailItem label="발생일시" value={selectedRecord.occurredAt} isMono />
-                      <DetailItem label="기업명 (코드)" value={`${selectedRecord.enterpriseName} (${selectedRecord.enterpriseCode})`} />
-                      <DetailItem label="서비스명" value={selectedRecord.serviceName} />
-                      <DetailItem label="실패 단계" value={selectedRecord.failureStep} highlight />
-                      <DetailItem label="거래번호" value={selectedRecord.transactionNo} isMono />
-                      <DetailItem label="요청번호" value={selectedRecord.requestNo} isMono />
-                    </div>
-                  </section>
-
-                  {/* Error Info */}
-                  <section className="bg-red-50/50 p-6 rounded-lg border border-red-100">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-1.5 h-4 bg-red-500 rounded-full"></div>
-                      <h4 className="text-[16px] font-bold text-red-700">오류 상세 정보</h4>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-6">
-                      <DetailItem label="오류코드" value={selectedRecord.errorCode} isMono textStyle="text-red-600 font-bold" />
-                      <div className="col-span-2">
-                        <p className="text-[13px] text-gray-500 mb-1">오류 메시지</p>
-                        <p className="text-[14px] text-red-600 font-medium bg-white p-3 border border-red-100 rounded">
-                          {selectedRecord.errorMessage}
-                        </p>
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto p-6 bg-white space-y-8">
+                {/* 기본 정보 */}
+                <div>
+                  <h4 className="text-body-lg font-bold text-text-main mb-4">기본 정보</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 border-t border-border-gray">
+                    {[
+                      { label: '발생일시', value: selectedRecord.occurredAt, mono: true },
+                      { label: '테넌트', value: selectedRecord.tenantName },
+                      { label: 'ERP사', value: selectedRecord.erpVendor },
+                      { label: '시스템', value: selectedRecord.system },
+                      { label: '기업명', value: selectedRecord.enterpriseName },
+                      { label: '출처', value: SOURCE_META[selectedRecord.source].label, isSource: true },
+                    ].map((info, i) => (
+                      <div key={i} className="flex border-b border-border-gray min-h-[44px]">
+                        <div className="w-28 bg-bg-muted px-4 flex items-center shrink-0">
+                          <span className="text-body-sm font-semibold text-text-body">{info.label}</span>
+                        </div>
+                        <div className="flex-1 px-4 flex items-center">
+                          {info.isSource ? (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-caption font-semibold border ${SOURCE_META[selectedRecord.source].badge}`}>
+                              {info.value}
+                            </span>
+                          ) : (
+                            <span className={`text-body text-text-main ${info.mono ? 'font-mono' : ''}`}>
+                              {info.value}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </section>
+                    ))}
+                  </div>
+                  <p className="text-caption text-text-sub mt-3">
+                    담당팀: <span className="font-semibold text-text-body">{SOURCE_META[selectedRecord.source].team}</span>
+                  </p>
+                </div>
 
-                  {/* Message Info (Simulated Payload) */}
-                  <section>
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-1.5 h-4 bg-gray-400 rounded-full"></div>
-                      <h4 className="text-[16px] font-bold text-[#191F28]">송수신 전문 정보 (JSON/RAW)</h4>
+                {/* 오류 상세 */}
+                <div>
+                  <h4 className="text-body-lg font-bold text-text-main mb-4">오류 상세</h4>
+                  <div className="bg-red-50/50 border border-red-100 rounded-lg p-5 space-y-3">
+                    <div>
+                      <p className="text-caption text-text-sub mb-1">오류코드</p>
+                      <p className="text-title-sm font-bold text-red-600 font-mono">{selectedRecord.errorCode}</p>
                     </div>
-                    <div className="bg-[#F9FAFB] p-4 rounded border border-[#E5E8EB] font-mono text-[12px] text-[#4E5968] overflow-x-auto whitespace-pre leading-relaxed">
-{`{
-  "header": {
-    "biz_type": "FB",
-    "service_code": "TR001",
-    "sender_id": "ENT0001",
-    "timestamp": "20231025143201442"
-  },
-  "data": {
-    "account_no": "123-456-789012",
-    "amount": 150000,
-    "transaction_id": "${selectedRecord.transactionNo}",
-    "fail_reason": "RECEIVER_NAME_MISMATCH"
-  }
-}`}
+                    <div>
+                      <p className="text-caption text-text-sub mb-1">오류메시지</p>
+                      <p className="text-body text-red-700 font-medium bg-white p-3 border border-red-100 rounded">
+                        {selectedRecord.errorMessage}
+                      </p>
                     </div>
-                  </section>
-
-                  {/* Action Info */}
-                  <section>
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
-                      <h4 className="text-[16px] font-bold text-[#191F28]">조치 및 처리 내역</h4>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-6 bg-white p-6 rounded-lg border border-[#E5E8EB]">
-                      <DetailItem label="담당자" value={selectedRecord.manager} />
-                      <DetailItem label="최종 처리일시" value={selectedRecord.finalProcessedAt} isMono />
-                    </div>
-                  </section>
+                  </div>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="h-[72px] px-6 bg-white border-t border-[#E5E8EB] flex items-center justify-end gap-3 shrink-0">
-                <Button variant="secondary" size="md" onClick={() => setIsDetailOpen(false)}>
+              <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border-gray bg-bg-gray shrink-0">
+                <Button variant="primary" size="md" onClick={() => setSelectedRecord(null)}>
                   닫기
-                </Button>
-                <Button variant="primary" size="md">
-                  <Download className="w-4 h-4" />
-                  전문 다운로드
                 </Button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-function DetailItem({ label, value, isMono = false, highlight = false, textStyle = "text-[#191F28]" }: { 
-  label: string, 
-  value: string, 
-  isMono?: boolean, 
-  highlight?: boolean,
-  textStyle?: string
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <p className="text-[13px] text-[#8B95A1] font-medium">{label}</p>
-      <p className={`text-[15px] ${textStyle} ${isMono ? 'font-mono tracking-tight' : 'font-medium'} ${highlight ? 'text-[#008d75]' : ''}`}>
-        {value}
-      </p>
     </div>
   );
 }

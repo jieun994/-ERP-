@@ -12,15 +12,15 @@ const menuGroups: MenuGroup[] = [
     { no:1, id:'login',           label:'로그인' },
     { no:2, id:'otp',             label:'OTP 인증' },
     { no:3, id:'otp_register',    label:'OTP 등록 (Google OTP)' },
-    { no:4, id:'reset_email',     label:'비밀번호 변경 - 이메일 인증' },
+    { no:4, id:'reset_otp',       label:'비밀번호 변경 - OTP 인증' },
     { no:5, id:'reset_password',  label:'비밀번호 변경 - 새 비밀번호 설정' },
   ]},
   { category: '메인', items: [
     { no:6, id:'dashboard', label:'대시보드 (HOME)', route:'/dashboard/main' },
   ]},
   { category: '기업 관리', items: [
-    { no:7,  id:'tenant_list',           label:'테넌트 조회',                               route:'/dashboard/enterprise/tenant_list' },
-    { no:8,  id:'ent_list',              label:'기업 조회',                                 route:'/dashboard/enterprise/ent_list' },
+    { no:7,  id:'tenant_list',           label:'테넌트 관리',                               route:'/dashboard/enterprise/tenant_list' },
+    { no:8,  id:'ent_list',              label:'기업 관리',                                 route:'/dashboard/enterprise/ent_list' },
     { no:9,  id:'ent_edit_modal',        label:'기업 정보 수정 팝업',                       popupId:'ent_edit_modal' },
     { no:10, id:'ent_register_step1',    label:'기업 등록 - 기본 정보 (Step 1)',            route:'/dashboard/enterprise/ent_register' },
     { no:11, id:'ent_register_step2',    label:'기업 등록 - VAN/펌뱅킹 ID 등록 (Step 2)',  route:'/dashboard/enterprise/ent_register' },
@@ -67,15 +67,15 @@ const menuGroups: MenuGroup[] = [
     { no:44, id:'code_unsaved_warning',  label:'코드 미저장 이탈 확인 팝업', popupId:'code_unsaved_warning' },
   ]},
   { category: '로그 관리', items: [
-    { no:47, id:'work_history',       label:'작업 이력 (로그)',      route:'/dashboard/logs/work_history' },
-    { no:48, id:'firmbanking_fail',   label:'펌뱅킹 실패 현황',      route:'/dashboard/logs/firmbanking_fail' },
-    { no:49, id:'firmbanking_detail', label:'펌뱅킹 실패 상세 팝업', popupId:'firmbanking_detail' },
+    { no:45, id:'work_history',       label:'작업 이력 (로그)',      route:'/dashboard/logs/work_history' },
+    { no:46, id:'firmbanking_fail',   label:'펌뱅킹 실패 현황',      route:'/dashboard/logs/firmbanking_fail' },
+    { no:47, id:'firmbanking_detail', label:'펌뱅킹 실패 상세 팝업', popupId:'firmbanking_detail' },
   ]},
   { category: '시스템 모니터링', items: [
-    { no:50, id:'monitoring', label:'시스템 모니터링', route:'/dashboard/monitoring' },
+    { no:48, id:'monitoring', label:'시스템 모니터링', route:'/dashboard/monitoring' },
   ]},
   { category: '통계', items: [
-    { no:51, id:'statistics', label:'통계', route:'/dashboard/statistics' },
+    { no:49, id:'statistics', label:'통계', route:'/dashboard/statistics' },
   ]},
 ];
 
@@ -90,34 +90,34 @@ export default function PublishingStatus() {
   const popups   = allItems.filter(i => !!i.popupId).length;
 
   return (
-    <div className="bg-white rounded-xl border border-[#E5E8EB]">
+    <div className="bg-white rounded-xl border border-border-gray">
 
       {/* 팝업 */}
       {openPopupId && POPUP_MAP[openPopupId]?.(close)}
 
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-[#E5E8EB]">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-border-gray">
         <div>
-          <h2 className="text-[16px] font-bold text-[#191F28]">퍼블리싱 현황</h2>
-          <p className="text-[13px] text-[#8B95A1] mt-0.5">화면명 클릭 시 이동 · 팝업은 열기 버튼으로 미리보기</p>
+          <h2 className="text-title-sm font-bold text-text-main">퍼블리싱 현황</h2>
+          <p className="text-body-sm text-text-sub mt-0.5">화면명 클릭 시 이동 · 팝업은 열기 버튼으로 미리보기</p>
         </div>
-        <div className="flex items-center gap-5 text-[13px] text-[#4E5968]">
-          <span>화면 <strong className="text-[#191F28] ml-1">{screens}</strong></span>
-          <span className="w-px h-3 bg-[#E5E8EB]" />
-          <span>팝업 <strong className="text-[#191F28] ml-1">{popups}</strong></span>
-          <span className="w-px h-3 bg-[#E5E8EB]" />
-          <span>전체 <strong className="text-[#191F28] ml-1">{allItems.length}</strong></span>
+        <div className="flex items-center gap-5 text-body-sm text-text-body">
+          <span>화면 <strong className="text-text-main ml-1">{screens}</strong></span>
+          <span className="w-px h-3 bg-border-gray" />
+          <span>팝업 <strong className="text-text-main ml-1">{popups}</strong></span>
+          <span className="w-px h-3 bg-border-gray" />
+          <span>전체 <strong className="text-text-main ml-1">{allItems.length}</strong></span>
         </div>
       </div>
 
       {/* 테이블 */}
-      <table className="w-full text-[13px] border-collapse">
+      <table className="w-full text-body-sm border-collapse">
         <thead>
-          <tr className="bg-[#F9FAFB] border-b border-[#E5E8EB]">
-            <th className="px-5 py-3 text-left text-[12px] font-semibold text-[#8B95A1] w-[52px]">No.</th>
-            <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#8B95A1] w-[140px]">카테고리</th>
-            <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#8B95A1]">화면 / 팝업명</th>
-            <th className="px-5 py-3 text-center text-[12px] font-semibold text-[#8B95A1] w-[80px]">상태</th>
+          <tr className="bg-bg-gray border-b border-border-gray">
+            <th className="px-5 py-3 text-left text-caption font-semibold text-text-sub w-[52px]">No.</th>
+            <th className="px-4 py-3 text-left text-caption font-semibold text-text-sub w-[140px]">카테고리</th>
+            <th className="px-4 py-3 text-left text-caption font-semibold text-text-sub">화면 / 팝업명</th>
+            <th className="px-5 py-3 text-center text-caption font-semibold text-text-sub w-[80px]">상태</th>
           </tr>
         </thead>
         <tbody>
@@ -127,15 +127,15 @@ export default function PublishingStatus() {
               return (
                 <tr
                   key={item.id}
-                  className="border-b border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors group"
+                  className="border-b border-bg-muted hover:bg-bg-subtle transition-colors group"
                 >
                   {/* No. */}
-                  <td className="px-5 py-3.5 text-[12px] text-[#C5CBD2] font-mono">{item.no}</td>
+                  <td className="px-5 py-3.5 text-caption text-text-disabled font-mono">{item.no}</td>
 
                   {/* 카테고리 — 그룹 첫 행만 표시 */}
                   <td className="px-4 py-3.5">
                     {idx === 0 ? (
-                      <span className="text-[12px] font-medium text-[#4E5968]">{group.category}</span>
+                      <span className="text-caption font-medium text-text-body">{group.category}</span>
                     ) : null}
                   </td>
 
@@ -143,20 +143,20 @@ export default function PublishingStatus() {
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
                       {isPopup && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#8B95A1] bg-[#F2F4F6] rounded px-1.5 py-0.5 shrink-0">
+                        <span className="inline-flex items-center gap-0.5 text-caption font-semibold text-text-sub bg-bg-muted rounded px-1.5 py-0.5 shrink-0">
                           <Layers className="w-2.5 h-2.5" />팝업
                         </span>
                       )}
                       {item.route ? (
                         <button
                           onClick={() => navigate(item.route!)}
-                          className="flex items-center gap-1 text-[13px] text-[#1B64DA] hover:underline underline-offset-2 text-left font-medium"
+                          className="flex items-center gap-1 text-body-sm text-text-info hover:underline underline-offset-2 text-left font-medium"
                         >
                           {item.label}
                           <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity shrink-0" />
                         </button>
                       ) : (
-                        <span className="text-[13px] text-[#191F28]">{item.label}</span>
+                        <span className="text-body-sm text-text-main">{item.label}</span>
                       )}
                     </div>
                   </td>
@@ -166,12 +166,12 @@ export default function PublishingStatus() {
                     {isPopup ? (
                       <button
                         onClick={() => setOpenPopupId(item.popupId!)}
-                        className="inline-flex items-center px-3 py-1.5 text-[12px] font-semibold rounded-lg text-[#008d75] bg-[#008d7510] hover:bg-[#008d7520] transition-colors"
+                        className="inline-flex items-center px-3 py-1.5 text-caption font-semibold rounded-lg text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
                       >
                         열기
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-600">
+                      <span className="inline-flex items-center gap-1 text-caption font-semibold text-emerald-600">
                         <CheckCircle2 className="w-3.5 h-3.5" />완료
                       </span>
                     )}

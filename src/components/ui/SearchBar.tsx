@@ -53,7 +53,7 @@ function SearchBar({ onSearch, onReset, children }: SearchBarProps) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-4">
-      <span className="text-[14px] font-bold text-text-main shrink-0">{label}</span>
+      <span className="text-body font-bold text-text-main shrink-0">{label}</span>
       {children}
     </div>
   );

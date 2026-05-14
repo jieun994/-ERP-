@@ -14,11 +14,11 @@ const PUBLISHING_ITEMS: PublishingItem[] = [
   // 유틸리티 (게이트 화면)
   { no:1,  label:'로그인',                                    view:'login',                         popup:false },
   { no:3,  label:'OTP 등록 (Google OTP)',                     view:'otp_register',                  popup:false },
-  { no:4,  label:'비밀번호 변경 - 이메일 인증',               view:'reset_email',                   popup:false },
+  { no:4,  label:'비밀번호 변경 - OTP 인증',                  view:'reset_otp',                     popup:false },
   { no:5,  label:'비밀번호 변경 - 새 비밀번호 설정',          view:'reset_password',                popup:false },
   // 기업 관리
-  { no:7,  label:'테넌트 조회',                               view:'dashboard_tenant',              popup:false },
-  { no:8,  label:'기업 조회',                                 view:'dashboard_ent_list',            popup:false },
+  { no:7,  label:'테넌트 관리',                               view:'dashboard_tenant',              popup:false },
+  { no:8,  label:'기업 관리',                                 view:'dashboard_ent_list',            popup:false },
   { no:9,  label:'기업 정보 수정 팝업',                       view:'dashboard_ent_list',            popup:true,  popupId:'ent_edit_modal' },
   { no:10, label:'기업 등록 - 기본 정보 (Step 1)',            view:'dashboard_ent_register',        popup:false },
   { no:11, label:'기업 등록 - VAN/펌뱅킹 ID 등록 (Step 2)',  view:'dashboard_ent_register_step2',  popup:false },
@@ -77,7 +77,7 @@ const VIEW_TO_URL: Record<string, string> = {
   'login':                          '/login',
   'otp_verify':                     '/otp-verify',
   'otp_register':                   '/otp-register',
-  'reset_email':                    '/reset-email',
+  'reset_otp':                      '/reset-otp',
   'reset_password':                 '/reset-password',
   'reset_complete':                 '/reset-complete',
   // 대시보드
@@ -92,6 +92,7 @@ const VIEW_TO_URL: Record<string, string> = {
   'dashboard_fund_status':          '/dashboard/enterprise/fund_status',
   'dashboard_exception_management': '/dashboard/enterprise/exception_management',
   'dashboard_admin_list':           '/dashboard/admin',
+  'dashboard_menu':                 '/dashboard/menu_manage',
   'dashboard_notice_list':          '/dashboard/content/notice',
   'dashboard_banner_management':    '/dashboard/content/banner',
   'dashboard_faq_management':       '/dashboard/content/faq',
@@ -110,7 +111,7 @@ const URL_TO_VIEW: Record<string, string> = {
   '/login':           'login',
   '/otp-verify':      'otp_verify',
   '/otp-register':    'otp_register',
-  '/reset-email':     'reset_email',
+  '/reset-otp':       'reset_otp',
   '/reset-password':  'reset_password',
   '/reset-complete':  'reset_complete',
 };
@@ -134,7 +135,7 @@ export default function App() {
     }
   }, [view]);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-  const [keyboardTarget, setKeyboardTarget] = useState<'password' | 'otp' | 'newPassword' | 'confirmPassword' | null>(null);
+  const [keyboardTarget, setKeyboardTarget] = useState<'password' | 'otp' | 'resetOtp' | 'newPassword' | 'confirmPassword' | null>(null);
   const [gatePopupId, setGatePopupId] = useState<string | null>(null);
   
   // Login states
@@ -331,6 +332,9 @@ export default function App() {
     } else if (view === 'dashboard_admin_list') {
       initialMenu = 'admin';
       initialSubMenu = '';
+    } else if (view === 'dashboard_menu') {
+      initialMenu = 'menu_manage';
+      initialSubMenu = '';
     } else if (view === 'dashboard_notice_list') {
       initialMenu = 'content';
       initialSubMenu = 'notice';
@@ -368,7 +372,7 @@ export default function App() {
         <Dashboard onLogout={() => setView('login')} initialMenu={initialMenu} initialSubMenu={initialSubMenu} initialRegisterConfig={initialRegisterConfig} />
         <button
           onClick={() => setView('gate')}
-          className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
+          className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-body font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
         >
           목록으로 이동
         </button>
@@ -392,6 +396,13 @@ export default function App() {
     } else if (keyboardTarget === 'otp') {
       setOtpCode(val);
       setOtpError('');
+    } else if (keyboardTarget === 'resetOtp') {
+      setVerificationCode(val);
+      setVerificationCodeError('');
+      setIsKeyboardOpen(false);
+      setKeyboardTarget(null);
+      setView('reset_password');
+      return;
     } else if (keyboardTarget === 'newPassword') {
       setNewPassword(val);
       setNewPasswordError('');
@@ -402,12 +413,23 @@ export default function App() {
     setIsKeyboardOpen(false);
   };
 
+  const handleAuthenticateOtp = () => {
+    const emailErr = validateEmail(resetEmail);
+    if (emailErr) {
+      setResetEmailError(emailErr);
+      return;
+    }
+    setResetEmailError('');
+    setKeyboardTarget('resetOtp');
+    setIsKeyboardOpen(true);
+  };
+
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center p-4 font-sans pb-20">
+    <div className="min-h-screen bg-bg-gray flex items-center justify-center p-4 font-sans pb-20">
       <motion.div
         className={`${view === 'gate' ? 'max-w-[1200px]' : 'max-w-[460px]'} w-full transition-all duration-500`}
       >
-        <div className="bg-white rounded-xl border border-[#E5E8EB] p-8 lg:p-12 shadow-none relative overflow-hidden">
+        <div className="bg-white rounded-xl border border-border-gray p-8 lg:p-12 shadow-none relative overflow-hidden">
         
           <AnimatePresence mode="wait">
             {view === 'gate' && (
@@ -415,69 +437,69 @@ export default function App() {
                 {/* 헤더 */}
                 <div className="flex items-start justify-between mb-8">
                   <div>
-                    <h2 className="text-[22px] font-bold text-[#191F28]">화면 퍼블리싱 목록</h2>
-                    <p className="text-[13px] text-[#8B95A1] mt-1">화면명 클릭 시 이동 · 팝업 열기 버튼으로 즉시 미리보기</p>
+                    <h2 className="text-display-sm font-bold text-text-main">화면 퍼블리싱 목록</h2>
+                    <p className="text-body-sm text-text-sub mt-1">화면명 클릭 시 이동 · 팝업 열기 버튼으로 즉시 미리보기</p>
                   </div>
-                  <div className="flex gap-5 text-[13px]">
+                  <div className="flex gap-5 text-body-sm">
                     <div className="text-center">
-                      <p className="text-[#8B95A1] mb-0.5">화면</p>
-                      <p className="font-bold text-[16px] text-[#191F28]">{SCREEN_COUNT}</p>
+                      <p className="text-text-sub mb-0.5">화면</p>
+                      <p className="font-bold text-title-sm text-text-main">{SCREEN_COUNT}</p>
                     </div>
-                    <div className="w-px bg-[#E5E8EB]" />
+                    <div className="w-px bg-border-gray" />
                     <div className="text-center">
-                      <p className="text-[#8B95A1] mb-0.5">팝업</p>
-                      <p className="font-bold text-[16px] text-[#191F28]">{POPUP_COUNT}</p>
+                      <p className="text-text-sub mb-0.5">팝업</p>
+                      <p className="font-bold text-title-sm text-text-main">{POPUP_COUNT}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* 목록 테이블 */}
                 <div>
-                  <div className="overflow-x-auto rounded-lg border border-[#E5E8EB]">
-                    <table className="w-full text-[13px] border-collapse">
+                  <div className="overflow-x-auto rounded-lg border border-border-gray">
+                    <table className="w-full text-body-sm border-collapse">
                       <thead>
-                        <tr className="bg-[#F9FAFB] border-b border-[#E5E8EB]">
-                          <th className="px-4 py-3 text-left font-semibold text-[#4E5968] w-[42px]">No.</th>
-                          <th className="px-4 py-3 text-left font-semibold text-[#4E5968] w-[140px]">카테고리</th>
-                          <th className="px-4 py-3 text-left font-semibold text-[#4E5968]">화면 / 팝업명</th>
-                          <th className="px-4 py-3 text-center font-semibold text-[#4E5968] w-[72px]">열기</th>
+                        <tr className="bg-bg-gray border-b border-border-gray">
+                          <th className="px-4 py-3 text-left font-semibold text-text-body w-[42px]">No.</th>
+                          <th className="px-4 py-3 text-left font-semibold text-text-body w-[140px]">카테고리</th>
+                          <th className="px-4 py-3 text-left font-semibold text-text-body">화면 / 팝업명</th>
+                          <th className="px-4 py-3 text-center font-semibold text-text-body w-[72px]">열기</th>
                         </tr>
                       </thead>
                       <tbody>
                         {/* 유틸리티 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">유틸리티 (게이트 화면)</td></tr>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">유틸리티 (게이트 화면)</td></tr>
                         {[
                           { no:1, label:'로그인',                            view:'login',          popup:false },
                           { no:3, label:'OTP 등록 (Google OTP)',             view:'otp_register',   popup:false },
-                          { no:4, label:'비밀번호 변경 - 이메일 인증',       view:'reset_email',    popup:false },
+                          { no:4, label:'비밀번호 변경 - OTP 인증',          view:'reset_otp',      popup:false },
                           { no:5, label:'비밀번호 변경 - 새 비밀번호 설정',  view:'reset_password', popup:false },
                         ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-3 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-3 text-[12px] text-[#8B95A1]">유틸리티</td>
-                            <td className="px-4 py-3"><button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button></td>
-                            <td className="px-4 py-3 text-center"><span className="text-[11px] text-[#C5CBD2]">&#8212;</span></td>
+                          <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                            <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>
+                            <td className="px-4 py-3 text-caption text-text-sub">유틸리티</td>
+                            <td className="px-4 py-3"><button onClick={() => setView(r.view)} className="text-text-link font-medium hover:underline text-left">{r.label}</button></td>
+                            <td className="px-4 py-3 text-center"><span className="text-caption text-text-disabled">&#8212;</span></td>
                           </tr>
                         ))}
-                        <tr className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                          <td className="px-4 py-3 text-[#8B95A1] text-center">2</td>
-                          <td className="px-4 py-3 text-[12px] text-[#8B95A1]">유틸리티</td>
-                          <td className="px-4 py-3 font-medium text-[#191F28]">가상 키보드 (보안 키패드)</td>
-                          <td className="px-4 py-3 text-center"><button onClick={() => { setKeyboardTarget('password'); setIsKeyboardOpen(true); }} className="inline-flex items-center px-3 py-1 text-[11px] font-semibold rounded text-[#008d75] bg-[#008d7510] hover:bg-[#008d7520] transition-colors">열기</button></td>
+                        <tr className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                          <td className="px-4 py-3 text-text-sub text-center">2</td>
+                          <td className="px-4 py-3 text-caption text-text-sub">유틸리티</td>
+                          <td className="px-4 py-3 font-medium text-text-main">가상 키보드 (보안 키패드)</td>
+                          <td className="px-4 py-3 text-center"><button onClick={() => { setKeyboardTarget('password'); setIsKeyboardOpen(true); }} className="inline-flex items-center px-3 py-1 text-caption font-semibold rounded text-primary bg-primary/10 hover:bg-primary/20 transition-colors">열기</button></td>
                         </tr>
                         {/* 메인 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">메인</td></tr>
-                        <tr className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                          <td className="px-4 py-3 text-[#8B95A1] text-center">6</td>
-                          <td className="px-4 py-3 text-[12px] text-[#8B95A1]">메인</td>
-                          <td className="px-4 py-3"><button onClick={() => setView('dashboard')} className="text-[#0070F3] font-medium hover:underline text-left">대시보드 (HOME)</button></td>
-                          <td className="px-4 py-3 text-center"><span className="text-[11px] text-[#C5CBD2]">&#8212;</span></td>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">메인</td></tr>
+                        <tr className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                          <td className="px-4 py-3 text-text-sub text-center">6</td>
+                          <td className="px-4 py-3 text-caption text-text-sub">메인</td>
+                          <td className="px-4 py-3"><button onClick={() => setView('dashboard')} className="text-text-link font-medium hover:underline text-left">대시보드 (HOME)</button></td>
+                          <td className="px-4 py-3 text-center"><span className="text-caption text-text-disabled">&#8212;</span></td>
                         </tr>
                         {/* 기업 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">기업 관리</td></tr>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">기업 관리</td></tr>
                         {[
-                          { no:7,  label:'테넌트 조회',                              view:'dashboard_tenant',              popup:false },
-                          { no:8,  label:'기업 조회',                                view:'dashboard_ent_list',            popup:false },
+                          { no:7,  label:'테넌트 관리',                              view:'dashboard_tenant',              popup:false },
+                          { no:8,  label:'기업 관리',                                view:'dashboard_ent_list',            popup:false },
                           { no:9,  label:'기업 정보 수정 팝업',                      view:'dashboard_ent_list',            popup:true,  popupId:'ent_edit_modal' },
                           { no:10, label:'기업 등록 - 기본 정보 (Step 1)',           view:'dashboard_ent_register',        popup:false },
                           { no:11, label:'기업 등록 - VAN/펌뱅킹 ID 등록 (Step 2)', view:'dashboard_ent_register_step2',  popup:false },
@@ -490,41 +512,41 @@ export default function App() {
                           { no:18, label:'타행계좌 예외 관리',                        view:'dashboard_exception_management',popup:false },
                           { no:19, label:'타행계좌 예외 등록 / 수정 팝업',           view:'dashboard_exception_management',popup:true,  popupId:'exception_register_modal' },
                         ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-3 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-3 text-[12px] text-[#8B95A1]">기업 관리</td>
-                            <td className="px-4 py-3 font-medium text-[#191F28]">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button>}</td>
-                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-[11px] font-semibold rounded text-[#008d75] bg-[#008d7510] hover:bg-[#008d7520] transition-colors">열기</button> : <span className="text-[11px] text-[#C5CBD2]">&#8212;</span>}</td>
+                          <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                            <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>
+                            <td className="px-4 py-3 text-caption text-text-sub">기업 관리</td>
+                            <td className="px-4 py-3 font-medium text-text-main">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-text-link font-medium hover:underline text-left">{r.label}</button>}</td>
+                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-caption font-semibold rounded text-primary bg-primary/10 hover:bg-primary/20 transition-colors">열기</button> : <span className="text-caption text-text-disabled">&#8212;</span>}</td>
                           </tr>
                         ))}
                         {/* 관리자 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">관리자 관리</td></tr>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">관리자 관리</td></tr>
                         {[
                           { no:20, label:'관리자 관리',             view:'dashboard_admin_list', popup:false },
                           { no:21, label:'관리자 등록 / 수정 팝업', view:'dashboard_admin_list', popup:true,  popupId:'admin_register_modal' },
                         ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-3 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-3 text-[12px] text-[#8B95A1]">관리자 관리</td>
-                            <td className="px-4 py-3 font-medium text-[#191F28]">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button>}</td>
-                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-[11px] font-semibold rounded text-[#008d75] bg-[#008d7510] hover:bg-[#008d7520] transition-colors">열기</button> : <span className="text-[11px] text-[#C5CBD2]">&#8212;</span>}</td>
+                          <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                            <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>
+                            <td className="px-4 py-3 text-caption text-text-sub">관리자 관리</td>
+                            <td className="px-4 py-3 font-medium text-text-main">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-text-link font-medium hover:underline text-left">{r.label}</button>}</td>
+                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-caption font-semibold rounded text-primary bg-primary/10 hover:bg-primary/20 transition-colors">열기</button> : <span className="text-caption text-text-disabled">&#8212;</span>}</td>
                           </tr>
                         ))}
                         {/* 메뉴 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">메뉴 관리</td></tr>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">메뉴 관리</td></tr>
                         {[
                           { no:22, label:'메뉴 관리',      view:'dashboard_menu', popup:false },
                           { no:23, label:'메뉴 수정 팝업', view:'dashboard_menu', popup:true,  popupId:'menu_edit_modal' },
                         ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-3 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-3 text-[12px] text-[#8B95A1]">메뉴 관리</td>
-                            <td className="px-4 py-3 font-medium text-[#191F28]">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button>}</td>
-                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-[11px] font-semibold rounded text-[#008d75] bg-[#008d7510] hover:bg-[#008d7520] transition-colors">열기</button> : <span className="text-[11px] text-[#C5CBD2]">&#8212;</span>}</td>
+                          <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                            <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>
+                            <td className="px-4 py-3 text-caption text-text-sub">메뉴 관리</td>
+                            <td className="px-4 py-3 font-medium text-text-main">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-text-link font-medium hover:underline text-left">{r.label}</button>}</td>
+                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-caption font-semibold rounded text-primary bg-primary/10 hover:bg-primary/20 transition-colors">열기</button> : <span className="text-caption text-text-disabled">&#8212;</span>}</td>
                           </tr>
                         ))}
                         {/* 콘텐츠 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">콘텐츠 관리</td></tr>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">콘텐츠 관리</td></tr>
                         {[
                           { no:24, label:'공지사항 관리',                     view:'dashboard_notice_list',       popup:false },
                           { no:25, label:'공지사항 등록 / 수정 팝업',         view:'dashboard_notice_list',       popup:true,  popupId:'notice_modal' },
@@ -545,52 +567,52 @@ export default function App() {
                           { no:40, label:'PUSH 템플릿 등록 / 수정 팝업',      view:'dashboard_push_mgmt',         popup:true,  popupId:'push_modal' },
                           { no:41, label:'PUSH 템플릿 삭제 확인 팝업',        view:'dashboard_push_mgmt',         popup:true,  popupId:'push_delete_warning' },
                         ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-3 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-3 text-[12px] text-[#8B95A1]">콘텐츠 관리</td>
-                            <td className="px-4 py-3 font-medium text-[#191F28]">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button>}</td>
-                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-[11px] font-semibold rounded text-[#008d75] bg-[#008d7510] hover:bg-[#008d7520] transition-colors">열기</button> : <span className="text-[11px] text-[#C5CBD2]">&#8212;</span>}</td>
+                          <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                            <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>
+                            <td className="px-4 py-3 text-caption text-text-sub">콘텐츠 관리</td>
+                            <td className="px-4 py-3 font-medium text-text-main">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-text-link font-medium hover:underline text-left">{r.label}</button>}</td>
+                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-caption font-semibold rounded text-primary bg-primary/10 hover:bg-primary/20 transition-colors">열기</button> : <span className="text-caption text-text-disabled">&#8212;</span>}</td>
                           </tr>
                         ))}
                         {/* 코드 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">코드 관리</td></tr>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">코드 관리</td></tr>
                         {[
                           { no:42, label:'코드 관리',                  view:'dashboard_code', popup:false },
                           { no:43, label:'코드 등록 / 수정 팝업',      view:'dashboard_code', popup:true,  popupId:'code_modal' },
                           { no:44, label:'코드 미저장 이탈 확인 팝업', view:'dashboard_code', popup:true,  popupId:'code_unsaved_warning' },
                         ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-3 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-3 text-[12px] text-[#8B95A1]">코드 관리</td>
-                            <td className="px-4 py-3 font-medium text-[#191F28]">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button>}</td>
-                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-[11px] font-semibold rounded text-[#008d75] bg-[#008d7510] hover:bg-[#008d7520] transition-colors">열기</button> : <span className="text-[11px] text-[#C5CBD2]">&#8212;</span>}</td>
+                          <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                            <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>
+                            <td className="px-4 py-3 text-caption text-text-sub">코드 관리</td>
+                            <td className="px-4 py-3 font-medium text-text-main">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-text-link font-medium hover:underline text-left">{r.label}</button>}</td>
+                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-caption font-semibold rounded text-primary bg-primary/10 hover:bg-primary/20 transition-colors">열기</button> : <span className="text-caption text-text-disabled">&#8212;</span>}</td>
                           </tr>
                         ))}
                         {/* 로그 관리 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">로그 관리</td></tr>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">로그 관리</td></tr>
                         {[
                           { no:47, label:'작업 이력 (로그)',       view:'dashboard_log_history',     popup:false },
                           { no:48, label:'펌뱅킹 실패 현황',       view:'dashboard_firmbanking_fail', popup:false },
                           { no:49, label:'펌뱅킹 실패 상세 팝업',  view:'dashboard_firmbanking_fail', popup:true,  popupId:'firmbanking_detail' },
                         ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-3 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-3 text-[12px] text-[#8B95A1]">로그 관리</td>
-                            <td className="px-4 py-3 font-medium text-[#191F28]">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button>}</td>
-                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-[11px] font-semibold rounded text-[#008d75] bg-[#008d7510] hover:bg-[#008d7520] transition-colors">열기</button> : <span className="text-[11px] text-[#C5CBD2]">&#8212;</span>}</td>
+                          <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                            <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>
+                            <td className="px-4 py-3 text-caption text-text-sub">로그 관리</td>
+                            <td className="px-4 py-3 font-medium text-text-main">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-text-link font-medium hover:underline text-left">{r.label}</button>}</td>
+                            <td className="px-4 py-3 text-center">{r.popup ? <button onClick={() => r.popupId ? setGatePopupId(r.popupId) : setView(r.view)} className="inline-flex items-center px-3 py-1 text-caption font-semibold rounded text-primary bg-primary/10 hover:bg-primary/20 transition-colors">열기</button> : <span className="text-caption text-text-disabled">&#8212;</span>}</td>
                           </tr>
                         ))}
                         {/* 시스템 모니터링 / 통계 */}
-                        <tr className="bg-[#F2F4F6]"><td colSpan={4} className="px-4 py-2 text-[11px] font-bold text-[#4E5968] uppercase tracking-wide">시스템 모니터링 / 통계</td></tr>
+                        <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">시스템 모니터링 / 통계</td></tr>
                         {[
                           { no:50, label:'시스템 모니터링', view:'dashboard_service_status', popup:false },
                           { no:51, label:'통계',            view:'dashboard_statistics',     popup:false },
                         ].map(r => (
-                          <tr key={r.no} className="border-t border-[#F2F4F6] hover:bg-[#FAFBFC] transition-colors">
-                            <td className="px-4 py-3 text-[#8B95A1] text-center">{r.no}</td>
-                            <td className="px-4 py-3 text-[12px] text-[#8B95A1]">시스템/통계</td>
-                            <td className="px-4 py-3 font-medium text-[#191F28]">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-[#0070F3] font-medium hover:underline text-left">{r.label}</button>}</td>
-                            <td className="px-4 py-3 text-center"><span className="text-[11px] text-[#C5CBD2]">&#8212;</span></td>
+                          <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
+                            <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>
+                            <td className="px-4 py-3 text-caption text-text-sub">시스템/통계</td>
+                            <td className="px-4 py-3 font-medium text-text-main">{r.popup ? r.label : <button onClick={() => setView(r.view)} className="text-text-link font-medium hover:underline text-left">{r.label}</button>}</td>
+                            <td className="px-4 py-3 text-center"><span className="text-caption text-text-disabled">&#8212;</span></td>
                           </tr>
                         ))}
                       </tbody>
@@ -604,13 +626,13 @@ export default function App() {
             {view === 'login' && (
               <motion.div key="login" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
                 <div className="text-center mb-10">
-                  <h1 className="text-[28px] font-bold text-[#191F28] tracking-tight mb-3 leading-tight">
+                  <h1 className="text-display-lg font-bold text-text-main tracking-tight mb-3 leading-tight">
                     하나은행 ERP 뱅킹<br />통합 관리 시스템
                   </h1>
-                  <h2 className="text-lg font-medium text-[#4E5968] mb-4">
+                  <h2 className="text-title font-medium text-text-body mb-4">
                     통합 관리시스템 로그인
                   </h2>
-                  <p className="text-[14px] text-[#8B95A1] leading-relaxed max-w-[280px] mx-auto">
+                  <p className="text-body text-text-sub leading-relaxed max-w-[280px] mx-auto">
                     기업 자금 관리, 더 빠르고 간편하게<br/>
                     이체, 집금, 조회 업무를 ERP 뱅킹에서 한 번에 처리해보세요.
                   </p>
@@ -618,7 +640,7 @@ export default function App() {
 
                 <form onSubmit={handleLogin} className="space-y-6" noValidate>
                   <div className="space-y-1.5 relative">
-                    <label htmlFor="adminId" className="block text-[14px] font-semibold text-[#191F28]">
+                    <label htmlFor="adminId" className="block text-body font-semibold text-text-main">
                       이메일 (ID)
                     </label>
                     <input
@@ -633,13 +655,13 @@ export default function App() {
                       onBlur={() => {
                         if (!id) setLoginIdError('이메일을 입력해 주세요.');
                       }}
-                      className={`w-full px-4 h-[44px] rounded-lg border ${loginIdError ? 'border-[#F04452] focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
+                      className={`w-full px-4 h-[44px] rounded-lg border ${loginIdError ? 'border-status-error focus:ring-0' : 'border-border-input focus:border-primary'} transition-all outline-none text-body placeholder-[#8B95A1]`}
                     />
-                    {loginIdError && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{loginIdError}</p>}
+                    {loginIdError && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{loginIdError}</p>}
                   </div>
 
                   <div className="space-y-1.5 relative mt-6">
-                    <label htmlFor="password" className="block text-[14px] font-semibold text-[#191F28]">
+                    <label htmlFor="password" className="block text-body font-semibold text-text-main">
                       비밀번호
                     </label>
                     <div className="relative">
@@ -655,19 +677,19 @@ export default function App() {
                         onBlur={() => {
                           if (!password) setLoginPasswordError('비밀번호를 입력해 주세요.');
                         }}
-                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${loginPasswordError ? 'border-[#F04452] focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
+                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${loginPasswordError ? 'border-status-error focus:ring-0' : 'border-border-input focus:border-primary'} transition-all outline-none text-body placeholder-[#8B95A1]`}
                       />
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => setShowLoginPassword(!showLoginPassword)}
-                          className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none"
+                          className="p-1.5 text-text-sub hover:text-text-body focus:outline-none"
                         >
                           {showLoginPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
                     </div>
-                    {loginPasswordError && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{loginPasswordError}</p>}
+                    {loginPasswordError && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{loginPasswordError}</p>}
                   </div>
 
                   <div className="flex items-center justify-between mt-4">
@@ -675,16 +697,16 @@ export default function App() {
                       <input
                         id="rememberMe"
                         type="checkbox"
-                        className="h-4 w-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
+                        className="h-4 w-4 rounded border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]"
                       />
-                      <label htmlFor="rememberMe" className="ml-2 text-sm text-[#4E5968] cursor-pointer">
+                      <label htmlFor="rememberMe" className="ml-2 text-body text-text-body cursor-pointer">
                         아이디 저장
                       </label>
                     </div>
                     <button
                       type="button"
-                      onClick={() => setView('reset_email')}
-                      className="text-sm text-[#4E5968] hover:text-[#008d75] transition-colors"
+                      onClick={() => setView('reset_otp')}
+                      className="text-body text-text-body hover:text-primary transition-colors"
                     >
                       비밀번호 설정
                     </button>
@@ -692,7 +714,7 @@ export default function App() {
 
                   <button
                     type="submit"
-                    className="w-full mt-2 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] py-4 h-[52px] rounded-lg transition-all duration-200 flex items-center justify-center shadow-sm"
+                    className="w-full mt-2 bg-primary hover:bg-primary-hover text-white font-semibold text-body-lg py-4 h-[52px] rounded-lg transition-all duration-200 flex items-center justify-center shadow-sm"
                   >
                     로그인
                   </button>
@@ -704,25 +726,25 @@ export default function App() {
               <motion.div key="otp_register" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
                 {/* Header */}
                 <div className="text-center mb-6">
-                  <h1 className="text-[20px] font-bold text-[#191F28] mb-1">하나은행 ERP 뱅킹 서비스</h1>
-                  <h2 className="text-[18px] font-semibold text-[#191F28] mb-4">구글 OTP 등록</h2>
-                  <p className="text-[13px] text-[#4E5968] leading-relaxed">
+                  <h1 className="text-title-lg font-bold text-text-main mb-1">하나은행 ERP 뱅킹 서비스</h1>
+                  <h2 className="text-title font-semibold text-text-main mb-4">구글 OTP 등록</h2>
+                  <p className="text-body-sm text-text-body leading-relaxed">
                     현재 계정에 Google OTP가 등록되어 있지 않습니다.<br/>아래 QR 코드 또는 등록키를 이용해 OTP를 등록해 주세요.
                   </p>
                 </div>
 
                 {/* QR Code Area */}
                 <div className="flex justify-center mb-5">
-                  <div className="w-[180px] h-[180px] bg-[#F2F4F6] border border-[#E5E8EB] rounded-lg flex items-center justify-center">
-                    <span className="text-[14px] text-[#8B95A1] font-medium">QR영역</span>
+                  <div className="w-[180px] h-[180px] bg-bg-muted border border-border-gray rounded-lg flex items-center justify-center">
+                    <span className="text-body text-text-sub font-medium">QR영역</span>
                   </div>
                 </div>
 
                 {/* 수동 등록키 */}
                 <div className="mb-5">
-                  <p className="text-[12px] text-[#8B95A1] mb-2">수동 등록키</p>
-                  <div className="flex items-center border border-[#E5E8EB] rounded-lg overflow-hidden">
-                    <span className="flex-1 px-4 py-3 text-[15px] font-mono font-medium text-[#191F28] tracking-wider bg-white">
+                  <p className="text-caption text-text-sub mb-2">수동 등록키</p>
+                  <div className="flex items-center border border-border-gray rounded-lg overflow-hidden">
+                    <span className="flex-1 px-4 py-3 text-body-lg font-mono font-medium text-text-main tracking-wider bg-white">
                       7QMDK2VZ8NTR5BWC
                     </span>
                     <button
@@ -731,7 +753,7 @@ export default function App() {
                         navigator.clipboard.writeText('7QMDK2VZ8NTR5BWC').catch(() => {});
                         showToast('수동 등록키가 복사되었습니다.');
                       }}
-                      className="px-4 py-3 bg-[#008d75] hover:bg-[#007a65] text-white text-[14px] font-medium transition-colors shrink-0"
+                      className="px-4 py-3 bg-primary hover:bg-primary-hover text-white text-body font-medium transition-colors shrink-0"
                     >
                       복사
                     </button>
@@ -739,10 +761,10 @@ export default function App() {
                 </div>
 
                 {/* Instructions */}
-                <div className="border border-[#E5E8EB] rounded-lg p-4 mb-6 space-y-2">
-                  <p className="text-[13px] text-[#4E5968]">1. Google Authenticator 앱을 실행해 주세요.</p>
-                  <p className="text-[13px] text-[#4E5968]">2. QR 코드를 스캔하거나 등록키를 입력해 주세요.</p>
-                  <p className="text-[13px] text-[#4E5968]">3. 생성된 인증번호를 입력해 등록을 완료해 주세요.</p>
+                <div className="border border-border-gray rounded-lg p-4 mb-6 space-y-2">
+                  <p className="text-body-sm text-text-body">1. Google Authenticator 앱을 실행해 주세요.</p>
+                  <p className="text-body-sm text-text-body">2. QR 코드를 스캔하거나 등록키를 입력해 주세요.</p>
+                  <p className="text-body-sm text-text-body">3. 생성된 인증번호를 입력해 등록을 완료해 주세요.</p>
                 </div>
 
                 {/* Buttons */}
@@ -754,7 +776,7 @@ export default function App() {
                       setOtpError('');
                       setOtpCode('');
                     }}
-                    className="flex-1 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-all duration-200"
+                    className="flex-1 bg-white hover:bg-bg-muted text-text-body border border-border-input font-medium text-body-lg h-[52px] rounded-lg transition-all duration-200"
                   >
                     이전
                   </button>
@@ -764,7 +786,7 @@ export default function App() {
                       setKeyboardTarget('otp');
                       setIsKeyboardOpen(true);
                     }}
-                    className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200"
+                    className="flex-1 bg-primary hover:bg-primary-hover text-white font-semibold text-body-lg h-[52px] rounded-lg transition-all duration-200"
                   >
                     인증번호 입력
                   </button>
@@ -775,8 +797,8 @@ export default function App() {
             {view === 'otp_verify' && (
               <motion.div key="otp_verify" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
                 <div className="text-center mb-10">
-                  <h2 className="text-[22px] font-bold text-[#191F28] mb-3">2단계 인증</h2>
-                  <p className="text-[14px] text-[#4E5968] leading-relaxed">
+                  <h2 className="text-display-sm font-bold text-text-main mb-3">2단계 인증</h2>
+                  <p className="text-body text-text-body leading-relaxed">
                     Google 인증 앱을 열고<br/>
                     6자리 코드를 입력해 주세요.
                   </p>
@@ -784,7 +806,7 @@ export default function App() {
 
                 <form onSubmit={handleVerifyOtp} className="space-y-6" noValidate>
                   <div className="space-y-1.5 relative">
-                    <label htmlFor="verifyOtp" className="block text-[14px] font-semibold text-[#191F28] text-center">
+                    <label htmlFor="verifyOtp" className="block text-body font-semibold text-text-main text-center">
                       6자리 인증 코드
                     </label>
                       <div className="flex flex-col items-center justify-center">
@@ -798,7 +820,7 @@ export default function App() {
                             setKeyboardTarget('otp');
                             setIsKeyboardOpen(true);
                           }}
-                          className={`w-full px-4 h-[64px] rounded-lg border cursor-pointer ${otpError ? 'border-[#F04452] focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-2xl placeholder-[#E5E8EB] font-serif tracking-[0.5em] text-center bg-white hover:border-[#008d75]`}
+                          className={`w-full px-4 h-[64px] rounded-lg border cursor-pointer ${otpError ? 'border-status-error focus:ring-0' : 'border-border-input focus:border-primary'} transition-all outline-none text-display placeholder-[#E5E8EB] font-serif tracking-[0.5em] text-center bg-white hover:border-primary`}
                           maxLength={6}
                         />
                         <button 
@@ -807,13 +829,13 @@ export default function App() {
                             setKeyboardTarget('otp');
                             setIsKeyboardOpen(true);
                           }}
-                          className="mt-3 text-[#008d75] text-[13px] font-bold flex items-center gap-1.5 hover:underline"
+                          className="mt-3 text-primary text-body-sm font-bold flex items-center gap-1.5 hover:underline"
                         >
                           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
                           보안 키패드 사용하기
                         </button>
                       </div>
-                    {otpError && <p className="text-[12px] text-[#F04452] flex items-center justify-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{otpError}</p>}
+                    {otpError && <p className="text-caption text-status-error flex items-center justify-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{otpError}</p>}
                   </div>
 
                   <div className="flex space-x-3 pt-2">
@@ -824,13 +846,13 @@ export default function App() {
                         setOtpError('');
                         setOtpCode('');
                       }}
-                      className="w-1/3 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                      className="w-1/3 bg-white hover:bg-bg-muted text-text-body border border-border-input font-medium text-body-lg h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                     >
                       취소
                     </button>
                     <button
                       type="submit"
-                      className="w-2/3 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                      className="w-2/3 bg-primary hover:bg-primary-hover text-white font-semibold text-body-lg h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                     >
                       인증하기
                     </button>
@@ -839,20 +861,20 @@ export default function App() {
               </motion.div>
             )}
 
-            {view === 'reset_email' && (
-              <motion.div key="reset_email" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
+            {view === 'reset_otp' && (
+              <motion.div key="reset_otp" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
                 <div className="text-center mb-10">
-                  <h2 className="text-xl font-bold text-[#191F28] mb-3">비밀번호 재설정</h2>
-                  <p className="text-[13px] text-[#4E5968] leading-relaxed">
+                  <h2 className="text-title-lg font-bold text-text-main mb-3">비밀번호 재설정</h2>
+                  <p className="text-body-sm text-text-body leading-relaxed">
                     비밀번호를 재설정하려면 본인인증이 필요합니다.<br/>
-                    본인인증은 기업에서 공통으로 설정한 인증방법으로 진행됩니다.
+                    본인인증은 구글 OTP 인증으로 진행됩니다.
                   </p>
                 </div>
 
-                <form onSubmit={isCodeSent ? handleVerifyCode : handleSendEmail} className="space-y-6" noValidate>
+                <form onSubmit={(e) => { e.preventDefault(); handleAuthenticateOtp(); }} className="space-y-6" noValidate>
                   <div className="space-y-1.5 relative">
-                    <label htmlFor="resetEmail" className="block text-sm font-semibold text-[#191F28]">
-                      이메일
+                    <label htmlFor="resetEmail" className="block text-body font-semibold text-text-main">
+                      이메일(ID)
                     </label>
                     <input
                       id="resetEmail"
@@ -864,95 +886,34 @@ export default function App() {
                         if (resetEmailError) setResetEmailError('');
                       }}
                       onBlur={() => {
-                        if (!isCodeSent) setResetEmailError(validateEmail(resetEmail));
+                        setResetEmailError(validateEmail(resetEmail));
                       }}
-                      disabled={isCodeSent}
-                      className={`w-full px-4 h-[44px] rounded-lg border ${resetEmailError && !isCodeSent ? 'border-[#F04452] focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1] disabled:bg-[#F2F4F6] disabled:border-[#E5E8EB] disabled:text-[#8B95A1] disabled:shadow-none disabled:cursor-not-allowed`}
+                      className={`w-full px-4 h-[44px] rounded-lg border ${resetEmailError ? 'border-status-error focus:ring-0' : 'border-border-input focus:border-primary'} transition-all outline-none text-body placeholder-[#8B95A1]`}
                     />
-                    {!isCodeSent && resetEmailError && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{resetEmailError}</p>}
+                    {resetEmailError && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{resetEmailError}</p>}
                   </div>
 
-                  {isCodeSent && (
-                    <motion.div initial={{opacity: 0, height: 0}} animate={{opacity: 1, height: 'auto'}} transition={{duration: 0.3}} className={`space-y-6 ${resetEmailError ? 'pt-6' : 'pt-2'}`}>
-                       <div className="space-y-1.5">
-                         <div className="flex justify-between items-end mb-2">
-                           <label htmlFor="verifyCode" className="block text-sm font-semibold text-[#191F28]">
-                             인증번호 입력
-                           </label>
-                           <button type="button" onClick={handleResendCode} className="text-xs font-medium text-[#008d75] hover:text-[#007a65] transition-colors">
-                             재발송
-                           </button>
-                         </div>
-                         <input
-                           id="verifyCode"
-                           type="text"
-                           placeholder="5자리 영숫자 입력"
-                           value={verificationCode}
-                           onChange={(e) => {
-                             setVerificationCode(e.target.value);
-                             if (verificationCodeError) setVerificationCodeError('');
-                           }}
-                           onBlur={() => {
-                             setVerificationCodeError(validateCode(verificationCode));
-                           }}
-                           className={`w-full px-4 h-[44px] rounded-lg border ${verificationCodeError ? 'border-[#F04452] focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1] uppercase tracking-[0.2em] font-medium`}
-                           maxLength={5}
-                           required
-                         />
-                         {verificationCodeError ? (
-                           <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{verificationCodeError}</p>
-                         ) : (
-                           <p className="text-xs text-[#8B95A1] mt-2">
-                             메일로 받은 인증번호를 입력해 주세요. (스팸함 확인)
-                           </p>
-                         )}
-                       </div>
-                    </motion.div>
-                  )}
-
-                  {!isCodeSent ? (
-                    <div className="flex space-x-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setView('login');
-                          setResetEmailError('');
-                          setLoginIdError('');
-                          setLoginPasswordError('');
-                        }}
-                        className="flex-1 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[15px] h-[52px] rounded-lg transition-colors duration-200"
-                      >
-                        취소
-                      </button>
-                      <button
-                        type="submit"
-                        className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
-                      >
-                        이메일 발송
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="pt-4 flex space-x-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsCodeSent(false);
-                          setVerificationCode('');
-                          setResetEmailError('');
-                          setVerificationCodeError('');
-                        }}
-                        className="w-[100px] shrink-0 bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#D1D6DB] font-medium text-[14px] h-[52px] rounded-lg transition-colors duration-200"
-                      >
-                        이전
-                      </button>
-                      <button
-                        type="submit"
-                        className="flex-1 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
-                      >
-                        인증 확인
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex space-x-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setView('login');
+                        setResetEmailError('');
+                        setLoginIdError('');
+                        setLoginPasswordError('');
+                      }}
+                      className="flex-1 bg-white hover:bg-bg-muted text-text-body border border-border-input font-medium text-body-lg h-[52px] rounded-lg transition-colors duration-200"
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAuthenticateOtp}
+                      className="flex-1 bg-primary hover:bg-primary-hover text-white font-semibold text-body-lg h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                    >
+                      인증하기
+                    </button>
+                  </div>
                 </form>
               </motion.div>
             )}
@@ -960,8 +921,8 @@ export default function App() {
             {view === 'reset_password' && (
               <motion.div key="reset_password" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{ duration: 0.3 }}>
                 <div className="text-center mb-10">
-                  <h2 className="text-xl font-bold text-[#191F28] mb-3">새 비밀번호 설정</h2>
-                  <p className="text-[13px] text-[#4E5968] leading-relaxed">
+                  <h2 className="text-title-lg font-bold text-text-main mb-3">새 비밀번호 설정</h2>
+                  <p className="text-body-sm text-text-body leading-relaxed">
                     인증이 완료되었습니다.<br/>
                     로그인에 사용할 새 비밀번호를 입력해 주세요.
                   </p>
@@ -969,7 +930,7 @@ export default function App() {
 
                 <form onSubmit={handleSetNewPassword} className="space-y-6" noValidate>
                   <div className="space-y-1.5 relative">
-                    <label htmlFor="newPassword" className="block text-[14px] font-semibold text-[#191F28]">
+                    <label htmlFor="newPassword" className="block text-body font-semibold text-text-main">
                       비밀번호
                     </label>
                     <div className="relative">
@@ -984,29 +945,29 @@ export default function App() {
                           if (confirmPassword) setConfirmPasswordError(validateConfirmPassword(confirmPassword, e.target.value));
                         }}
                         onBlur={(e) => setNewPasswordError(validateNewPassword(e.target.value))}
-                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${newPasswordError ? 'border-[#F04452] focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
+                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${newPasswordError ? 'border-status-error focus:ring-0' : 'border-border-input focus:border-primary'} transition-all outline-none text-body placeholder-[#8B95A1]`}
                       />
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none"
+                          className="p-1.5 text-text-sub hover:text-text-body focus:outline-none"
                         >
                           {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
                     </div>
                     {newPasswordError ? (
-                      <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{newPasswordError}</p>
+                      <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{newPasswordError}</p>
                     ) : (
-                      <p className="text-[12px] text-[#8B95A1] mt-2">
+                      <p className="text-caption text-text-sub mt-2">
                         * 영문 소문자, 영문 대문자, 숫자, 특수문자 중 3가지 이상을 포함해 주세요.
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1.5 relative mt-6">
-                    <label htmlFor="confirmPassword" className="block text-[14px] font-semibold text-[#191F28]">
+                    <label htmlFor="confirmPassword" className="block text-body font-semibold text-text-main">
                       비밀번호 확인
                     </label>
                     <div className="relative">
@@ -1020,20 +981,20 @@ export default function App() {
                           if (confirmPasswordError) setConfirmPasswordError('');
                         }}
                         onBlur={(e) => setConfirmPasswordError(validateConfirmPassword(e.target.value, newPassword))}
-                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${confirmPasswordError ? 'border-[#F04452] focus:ring-0' : 'border-[#D1D6DB] focus:border-[#008d75]'} transition-all outline-none text-sm placeholder-[#8B95A1]`}
+                        className={`w-full px-4 h-[44px] pr-20 rounded-lg border ${confirmPasswordError ? 'border-status-error focus:ring-0' : 'border-border-input focus:border-primary'} transition-all outline-none text-body placeholder-[#8B95A1]`}
                       />
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="p-1.5 text-[#8B95A1] hover:text-[#4E5968] focus:outline-none"
+                          className="p-1.5 text-text-sub hover:text-text-body focus:outline-none"
                         >
                           {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
                     </div>
                     {confirmPasswordError && (
-                      <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1">
+                      <p className="text-caption text-status-error flex items-center gap-1 mt-1">
                         <AlertCircle className="w-3.5 h-3.5" />{confirmPasswordError}
                       </p>
                     )}
@@ -1041,7 +1002,7 @@ export default function App() {
 
                   <button
                     type="submit"
-                    className="w-full mt-4 bg-[#008d75] hover:bg-[#007a65] text-white font-semibold text-[15px] h-[52px] rounded-lg transition-all duration-200 shadow-sm"
+                    className="w-full mt-4 bg-primary hover:bg-primary-hover text-white font-semibold text-body-lg h-[52px] rounded-lg transition-all duration-200 shadow-sm"
                   >
                     비밀번호 변경
                   </button>
@@ -1058,6 +1019,18 @@ export default function App() {
           />
         </div>
       </motion.div>
+
+      {/* 화면 퍼블리싱 목록 - 팝업 미리보기 렌더링 */}
+      {gatePopupId && POPUP_MAP[gatePopupId]?.(() => setGatePopupId(null))}
+
+      {view !== 'gate' && (
+        <button
+          onClick={() => setView('gate')}
+          className="fixed bottom-6 right-6 bg-gray-800/90 hover:bg-gray-900 text-white px-5 py-2.5 rounded-full text-body font-medium shadow-lg transition-all z-50 backdrop-blur-sm"
+        >
+          목록으로 이동
+        </button>
+      )}
     </div>
   );
 }

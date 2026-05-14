@@ -53,7 +53,7 @@ export default function DataTable<T = Record<string, unknown>>({
 }: DataTableProps<T>) {
   return (
     <div className={`overflow-x-auto rounded-lg border border-border-gray overflow-hidden shadow-sm ${className}`}>
-      <table className="w-full text-[14px] text-text-main border-collapse">
+      <table className="w-full text-body text-text-main border-collapse">
         {/* ── thead ── */}
         <thead>
           <tr className="bg-table-head border-b border-border-gray">
@@ -65,7 +65,7 @@ export default function DataTable<T = Record<string, unknown>>({
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="h-[52px] px-4 font-semibold text-[#4E5968] border-r border-border-gray last:border-r-0"
+                className="h-[52px] px-4 font-semibold text-text-body border-r border-border-gray last:border-r-0"
                 style={{
                   width: col.width,
                   textAlign: col.align ?? 'center',
@@ -83,7 +83,7 @@ export default function DataTable<T = Record<string, unknown>>({
             <tr>
               <td
                 colSpan={columns.length + (selectAll !== undefined ? 1 : 0)}
-                className="py-20 text-center text-text-sub text-[14px]"
+                className="py-20 text-center text-text-sub text-body"
               >
                 {emptyText}
               </td>
@@ -92,7 +92,7 @@ export default function DataTable<T = Record<string, unknown>>({
             data.map((row, index) => (
               <tr
                 key={rowKey(row, index)}
-                className="hover:bg-[#FAFBFC] transition-colors"
+                className="hover:bg-bg-subtle transition-colors"
               >
                 {selectAll !== undefined && (
                   <td className="px-4 py-3 text-center border-r border-border-gray">
@@ -141,10 +141,10 @@ interface TableControlsProps {
 function Controls({ total, children }: TableControlsProps) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <p className="text-[14px]">
-        <span className="text-[#4E5968]">총 </span>
+      <p className="text-body">
+        <span className="text-text-body">총 </span>
         <span className="text-primary font-bold">{total.toLocaleString()}</span>
-        <span className="text-[#4E5968]"> 건</span>
+        <span className="text-text-body"> 건</span>
       </p>
       {children && (
         <div className="flex items-center gap-2">{children}</div>

@@ -1,0 +1,477 @@
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { 
+  Building2, 
+  Users, 
+  ScrollText, 
+  FileText, 
+  Wrench,
+  ChevronDown,
+  ChevronUp,
+  LogOut,
+  Menu,
+  Home,
+  Activity,
+  AlertCircle,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  Code,
+  Monitor,
+  BarChart3,
+  User,
+  ChevronRight
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, AreaChart, Area } from 'recharts';
+import EnterpriseList from './components/EnterpriseList';
+import EnterpriseRegister from './components/EnterpriseRegister';
+import TenantList from './components/TenantList';
+import EnterpriseUsers from './components/EnterpriseUsers';
+import FundStatus from './components/FundStatus';
+import ExceptionManagement from './components/ExceptionManagement';
+import NoticeManagement from './components/NoticeManagement';
+import BannerManagement from './components/BannerManagement';
+import FAQManagement from './components/FAQManagement';
+import EmailTemplateManagement from './components/EmailTemplateManagement';
+import PushNotificationManagement from './components/PushNotificationManagement';
+import CodeManagement from './components/CodeManagement';
+import MessageManagement from './components/MessageManagement';
+import Statistics from './components/Statistics';
+import ServiceStatus from './components/ServiceStatus';
+import LogManagement from './components/LogManagement';
+import FirmBankingFailureStatus from './components/FirmBankingFailureStatus';
+
+import PublishingStatus from './components/PublishingStatus';
+import AdminManagement from './components/AdminManagement';
+import MenuManagement from './components/MenuManagement';
+
+interface DashboardProps {
+  onLogout: () => void;
+  initialMenu?: string;
+  initialSubMenu?: string;
+  initialRegisterConfig?: any;
+}
+
+type MenuConfig = {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  subMenus?: { id: string; label: string }[];
+};
+
+const menus: MenuConfig[] = [
+  {
+    id: 'main',
+    label: 'HOME',
+    icon: <Home className="w-5 h-5" />,
+  },
+  {
+    id: 'enterprise',
+    label: '기업 관리',
+    icon: <Building2 className="w-5 h-5" />,
+    subMenus: [
+      { id: 'tenant_list', label: '테넌트 관리' },
+      { id: 'ent_list', label: '기업 관리' },
+      { id: 'ent_register', label: '기업 등록' },
+      { id: 'ent_users', label: '기업별 사용자 목록' },
+      { id: 'fund_status', label: '자금 현황 조회' },
+      { id: 'exception_management', label: '타행계좌 예외 관리' },
+    ]
+  },
+  {
+    id: 'admin',
+    label: '관리자 관리',
+    icon: <Users className="w-5 h-5" />
+  },
+  {
+    id: 'menu_manage',
+    label: '메뉴 관리',
+    icon: <Menu className="w-5 h-5" />
+  },
+  {
+    id: 'content',
+    label: '콘텐츠 관리',
+    icon: <FileText className="w-5 h-5" />,
+    subMenus: [
+      { id: 'notice', label: '공지사항 관리' },
+      { id: 'banner', label: '배너 관리' },
+      { id: 'faq', label: 'FAQ 관리' },
+      { id: 'email_template', label: '이메일 템플릿 관리' },
+      { id: 'push_mgmt', label: 'PUSH 알림 관리' },
+    ]
+  },
+  {
+    id: 'code',
+    label: '코드 관리',
+    icon: <Code className="w-5 h-5" />,
+    subMenus: [
+      { id: 'code_manage', label: '코드 관리' },
+      { id: 'message_manage', label: '메시지 관리' }
+    ]
+  },
+  {
+    id: 'logs',
+    label: '로그 관리',
+    icon: <ScrollText className="w-5 h-5" />,
+    subMenus: [
+      { id: 'work_history', label: '작업 이력' },
+      { id: 'firmbanking_fail', label: '펌뱅킹 실패 현황' },
+    ]
+  },
+  {
+    id: 'monitoring',
+    label: '시스템 모니터링',
+    icon: <Monitor className="w-5 h-5" />,
+  },
+  {
+    id: 'statistics',
+    label: '통계',
+    icon: <BarChart3 className="w-5 h-5" />,
+  }
+];
+
+export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMenu = '', initialRegisterConfig }: DashboardProps) {
+  const params = useParams<{ menuId?: string; subMenuId?: string }>();
+  
+  useEffect(() => {
+    if (params.menuId) {
+      setActiveMenu(params.menuId);
+      setActiveSubMenu(params.subMenuId || '');
+    }
+  }, [params.menuId, params.subMenuId]);
+  const navigate = useNavigate();
+  const { menu, subMenu } = useParams();
+  
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(menu || initialMenu);
+  const [activeSubMenu, setActiveSubMenu] = useState<string>(subMenu || initialSubMenu);
+  const [activeMenu, setActiveMenu] = useState<string>(menu || initialMenu);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Mock data for Dashboard
+  const chartData = [
+    { name: '10.01', transactions: 4000, activeUsers: 2400 },
+    { name: '10.02', transactions: 3000, activeUsers: 1398 },
+    { name: '10.03', transactions: 2000, activeUsers: 6800 },
+    { name: '10.04', transactions: 2780, activeUsers: 3908 },
+    { name: '10.05', transactions: 5890, activeUsers: 4800 },
+    { name: '10.06', transactions: 2390, activeUsers: 3800 },
+    { name: '10.07', transactions: 6490, activeUsers: 4300 },
+  ];
+
+  const recentEnterprises = [
+    { id: 1, name: '(주)토스페이먼츠', regNo: '120-81-12345', date: '2023-10-07 14:22', status: '활성' },
+    { id: 2, name: '우아한형제들', regNo: '120-81-67890', date: '2023-10-07 11:05', status: '대기' },
+    { id: 3, name: '당근마켓', regNo: '120-81-54321', date: '2023-10-06 16:40', status: '활성' },
+    { id: 4, name: '야놀자', regNo: '120-81-09876', date: '2023-10-06 09:15', status: '중지' },
+  ];
+
+  const handleMenuClick = (menuId: string, hasSubMenus: boolean) => {
+    if (hasSubMenus) {
+      setExpandedMenu(expandedMenu === menuId ? null : menuId);
+    } else {
+      setActiveMenu(menuId);
+      setActiveSubMenu('');
+      setExpandedMenu(null);
+      navigate(`/dashboard/${menuId}`);
+    }
+  };
+
+  const handleSubMenuClick = (subMenuId: string, parentId: string) => {
+    setActiveSubMenu(subMenuId);
+    setActiveMenu(parentId);
+    navigate(`/dashboard/${parentId}/${subMenuId}`);
+  };
+
+  return (
+    <div className="flex flex-col h-screen bg-[#F9FAFB] overflow-hidden font-sans">
+      {/* Top Header */}
+      <header className="h-[64px] bg-white border-b border-[#E5E8EB] flex items-center justify-between px-6 shrink-0 z-30">
+        <div className="flex items-center gap-4">
+          <h1 className="font-bold text-[18px] tracking-tight text-[#191F28]">
+            하나은행 ERP 뱅킹 통합 관리 시스템
+          </h1>
+        </div>
+        
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
+              <User className="w-4 h-4"/>
+            </div>
+            <span className="text-[14px] font-medium text-[#191F28]">홍길동 님</span>
+          </div>
+          <div className="w-px h-4 bg-[#E5E8EB]"></div>
+          <button 
+            onClick={onLogout}
+            className="flex items-center gap-1.5 text-sm font-medium text-[#4E5968] hover:text-[#191F28] transition-colors"
+          >
+            <span>로그아웃</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside className="w-[240px] bg-white border-right border-[#E5E8EB] flex-shrink-0 flex flex-col z-20 overflow-hidden">
+          <div className="flex-1 overflow-y-auto w-full custom-scrollbar py-4 px-3">
+            <nav className="w-full flex flex-col gap-1">
+              {menus.map((menu, index) => {
+                const isActiveParent = activeMenu === menu.id;
+                const isExpanded = expandedMenu === menu.id;
+                
+                return (
+                  <div key={menu.id} className="w-full">
+                    <button
+                      onClick={() => handleMenuClick(menu.id, !!menu.subMenus)}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all whitespace-nowrap group ${
+                        isActiveParent && !menu.subMenus 
+                        ? 'text-[#008d75] bg-[#F2F4F6] font-semibold border-l-2 border-[#008d75] rounded-l-none' 
+                        : (isExpanded ? 'text-[#191F28] font-bold' : 'text-[#4E5968] hover:bg-[#F2F4F6] hover:text-[#191F28]')
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 flex items-center justify-center ${isActiveParent || isExpanded ? 'text-[#008d75]' : 'text-[#8B95A1] group-hover:text-[#4E5968]'}`}>
+                          {React.cloneElement(menu.icon as React.ReactElement, { className: "w-full h-full" })}
+                        </div>
+                        <span className="text-[14px]">{menu.label}</span>
+                      </div>
+                      {menu.subMenus && (
+                        <span className={`${isExpanded ? 'text-[#008d75]' : 'text-[#8B95A1]'}`}>
+                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </span>
+                      )}
+                    </button>
+                    
+                    {menu.subMenus && (
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden w-full"
+                          >
+                            <div className="flex flex-col py-1.5 w-full pl-12 gap-2 mt-2">
+                              {menu.subMenus.map((subMenu) => {
+                                const isActiveSub = activeSubMenu === subMenu.id;
+                                return (
+                                  <button
+                                    key={subMenu.id}
+                                    onClick={() => handleSubMenuClick(subMenu.id, menu.id)}
+                                    className={`w-full text-left py-3.5 px-4 rounded-lg transition-all text-[14px] whitespace-nowrap ${
+                                      isActiveSub 
+                                      ? 'text-[#008d75] bg-[#F2F4F6] font-bold border-l-4 border-[#008d75] rounded-l-none text-[15px]' 
+                                      : 'text-[#4E5968] hover:bg-[#F2F4F6] hover:text-[#191F28]'
+                                    }`}
+                                  >
+                                    {subMenu.label}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
+
+        {/* Dynamic Content */}
+        <main className="flex-1 min-w-0 overflow-auto bg-[#F9FAFB]">
+          <div className="p-8 lg:p-10 max-w-[1600px] mx-auto w-full">
+            {activeMenu !== 'main' && (
+              <div className="mb-8">
+                <div className="flex items-center gap-2 text-[13px] text-[#8B95A1] mb-2">
+                  <Home className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-3 h-3 text-[#D1D6DB]" />
+                  <span className={activeSubMenu ? "" : "text-[#008d75] font-medium"}>
+                    {menus.find(m => m.id === activeMenu)?.label}
+                  </span>
+                  {activeSubMenu && (
+                    <>
+                      <ChevronRight className="w-3 h-3 text-[#D1D6DB]" />
+                      <span className="text-[#008d75] font-medium">
+                        {menus.find(m => m.id === activeMenu)?.subMenus?.find(s => s.id === activeSubMenu)?.label}
+                      </span>
+                    </>
+                  )}
+                </div>
+                <h2 className="text-[24px] font-bold text-[#191F28]">
+                  {activeSubMenu ? menus.find(m => m.id === activeMenu)?.subMenus?.find(s => s.id === activeSubMenu)?.label : menus.find(m => m.id === activeMenu)?.label}
+                </h2>
+              </div>
+            )}
+            {activeMenu === 'main' ? (
+            <div className="w-full space-y-6">
+              {/* Dashboard Header */}
+              <div className="flex items-end justify-between flex-wrap gap-2">
+                <div>
+                  <h2 className="text-[22px] font-bold text-[#191F28]">통합 운영 대시보드</h2>
+                  <p className="text-[13px] text-[#8B95A1] mt-1">로그 · 시스템 모니터링 · 통계 · 기업등록 핵심 지표를 한눈에 확인합니다.</p>
+                </div>
+                <div className="text-[12px] text-[#8B95A1] flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-[#008d75]" />
+                  <span>최종 동기화 2026-05-13 14:30</span>
+                </div>
+              </div>
+
+              {/* 4 Widget Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* ────────── 1. 로그 관리 위젯 ────────── */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-[#008d7510] flex items-center justify-center text-[#008d75]">
+                        <ScrollText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-[16px] font-bold text-gray-900">로그 관리</h3>
+                        <p className="text-[12px] text-[#8B95A1]">금일 작업 이력 · 오류 추이</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => { setActiveMenu('logs'); setActiveSubMenu('work_history'); setExpandedMenu('logs'); navigate('/dashboard/logs/work_history'); }}
+                      className="flex items-center gap-0.5 text-[12px] font-medium text-[#4E5968] hover:text-[#008d75]"
+                    >
+                      전체보기 <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="rounded-lg bg-gray-50 border border-gray-100 px-3 py-2.5">
+                      <p className="text-[11px] text-gray-500">총 로그</p>
+                      <p className="text-[18px] font-bold text-gray-900 mt-0.5">12,847<span className="text-[11px] text-gray-400 font-normal ml-0.5">건</span></p>
+                    </div>
+                    <div className="rounded-lg bg-red-50 border border-red-100 px-3 py-2.5">
+                      <p className="text-[11px] text-red-600">ERROR</p>
+                      <p className="text-[18px] font-bold text-red-600 mt-0.5">38<span className="text-[11px] text-red-400 font-normal ml-0.5">건</span></p>
+                    </div>
+                    <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2.5">
+                      <p className="text-[11px] text-amber-700">WARN</p>
+                      <p className="text-[18px] font-bold text-amber-700 mt-0.5">142<span className="text-[11px] text-amber-500 font-normal ml-0.5">건</span></p>
+                    </div>
+                  </div>
+
+                  <div className="h-[120px] w-full mb-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={[
+                        { t: '08시', error: 2, warn: 8 },
+                        { t: '10시', error: 5, warn: 14 },
+                        { t: '12시', error: 3, warn: 11 },
+                        { t: '14시', error: 9, warn: 22 },
+                        { t: '16시', error: 7, warn: 18 },
+                        { t: '18시', error: 12, warn: 26 },
+                      ]} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <XAxis dataKey="t" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 11 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 11 }} />
+                        <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: 12 }} />
+                        <Area type="monotone" dataKey="warn" stackId="1" stroke="#f59e0b" fill="#fef3c7" name="WARN" />
+                        <Area type="monotone" dataKey="error" stackId="1" stroke="#ef4444" fill="#fee2e2" name="ERROR" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-3 space-y-2">
+                    <p className="text-[11px] font-semibold text-gray-500 mb-1">최근 ERROR 로그</p>
+                    {[
+                      { time: '14:22', code: 'MAIL_SEND_TIMEOUT', resource: 'svc-email-v2' },
+                      { time: '13:55', code: 'API_ACCESS_DENIED', resource: '/api/v1/fund' },
+                      { time: '11:08', code: 'DB_CONN_FAIL', resource: 'erp-int-2' },
+                    ].map((log, i) => (
+                      <div key={i} className="flex items-center justify-between text-[12px]">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-600 border border-red-200">ERROR</span>
+                          <span className="font-mono text-gray-700 truncate">{log.code}</span>
+                        </div>
+                        <span className="text-[11px] text-gray-400 font-mono shrink-0 ml-2">{log.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ────────── 2. 시스템 모니터링 위젯 ────────── */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-[#008d7510] flex items-center justify-center text-[#008d75]">
+                        <Monitor className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-[16px] font-bold text-gray-900">시스템 모니터링</h3>
+                        <p className="text-[12px] text-[#8B95A1]">기업별 연동 상태 · 응답시간</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => { setActiveMenu('monitoring'); setActiveSubMenu(''); setExpandedMenu(null); navigate('/dashboard/monitoring'); }}
+                      className="flex items-center gap-0.5 text-[12px] font-medium text-[#4E5968] hover:text-[#008d75]"
+                    >
+                      전체보기 <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2.5">
+                      <p className="text-[11px] text-emerald-700 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />정상</p>
+                      <p className="text-[18px] font-bold text-emerald-700 mt-0.5">182<span className="text-[11px] text-emerald-500 font-normal ml-0.5">건</span></p>
+                    </div>
+                    <div className="rounded-lg bg-red-50 border border-red-100 px-3 py-2.5">
+                      <p className="text-[11px] text-red-600 flex items-center gap-1"><AlertCircle className="w-3 h-3" />오류</p>
+                      <p className="text-[18px] font-bold text-red-600 mt-0.5">4<span className="text-[11px] text-red-400 font-normal ml-0.5">건</span></p>
+                    </div>
+                    <div className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2.5">
+                      <p className="text-[11px] text-gray-500">단절</p>
+                      <p className="text-[18px] font-bold text-gray-700 mt-0.5">6<span className="text-[11px] text-gray-400 font-normal ml-0.5">건</span></p>
+                    </div>
+                  </div>
+
+                  <div className="h-[120px] w-full mb-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={[
+                        { t: '08시', ms: 145 },
+                        { t: '10시', ms: 162 },
+                        { t: '12시', ms: 188 },
+                        { t: '14시', ms: 156 },
+                        { t: '16시', ms: 172 },
+                        { t: '18시', ms: 158 },
+                      ]} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <XAxis dataKey="t" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 11 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 11 }} />
+                        <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: 12 }} formatter={(v: any) => [`${v}ms`, '평균 응답']} />
+                        <Line type="monotone" dataKey="ms" stroke="#008d75" strokeWidth={2.5} dot={{ r: 3, strokeWidth: 2 }} activeDot={{ r: 5 }} name="평균 응답시간" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-3 space-y-2">
+                    <p className="text-[11px] font-semibold text-gray-500 mb-1">이슈 발생 기업</p>
+                    {[
+                      { name: '(주)한국전자', system: 'Biz-서비스 1', status: '오류', tone: 'red' },
+                      { name: '(주)미래산업', system: 'Biz-서비스 1,2', status: '단절', tone: 'gray' },
+                      { name: '(주)한강건설', system: 'Biz-서비스 2', status: '오류', tone: 'red' },
+                    ].map((row, i) => (
+                      <div key={i} className="flex items-center justify-between text-[12px]">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-medium text-gray-700 truncate">{row.name}</span>
+                          <span className="text-[11px] text-gray-400 truncate">· {row.system}</span>
+                        </div>
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border shrink-0 ml-2 ${
+                          row.tone === 'red' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-gray-50 text-gray-600 border-gray-200'
+                        }`}>{row.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ────────── 3. 통계 위젯 ────────── */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+                  <div className="flex items-start justify-between mb-5">
+   

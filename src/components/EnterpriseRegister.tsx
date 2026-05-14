@@ -1,27 +1,35 @@
 import React, { useState } from 'react';
-import { ChevronRight, Check, X, AlertCircle, FileSpreadsheet, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle, Clock, Pencil } from 'lucide-react';
+import { ChevronRight, Check, X, AlertCircle, FileSpreadsheet, Plus, Trash2, AlertTriangle, Clock, Pencil, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EnterpriseBlock, ExcelRow } from './register/types';
+import { Button, Input, StatusBadge } from './ui';
 
 // Simplified Stepper
-const STEPS = ['기업 기본정보 등록', 'VAN/펌뱅킹 ID 등록', '기업 인터페이스/파라미터 설정'];
+const STEPS = ['기업 기본정보 등록', 'VAN/펌뱅킹 ID 등록', '기업 인터페이스/파라미터 설정', '기타 설정'];
+
+// 사용 ERP사 옵션
+const ERP_VENDORS = ['더존', 'SAP', 'Oracle', '영림원', 'ECOUNT', '자체개발', '기타'];
 
 
 // ... (imports)
 
 import EnterpriseInterfaceSettings from './EnterpriseInterfaceSettings';
+import EnterpriseUsageSettings from './EnterpriseUsageSettings';
+import { MOCK_TENANTS } from './tenant/tenants';
 // ─── VAN/펌뱅킹 데이터 타입 ───────────────────────────────────────────────
+type BankAccount = { bank: string; account: string };
+type ScrapType = 'iron' | 'copper' | 'gold' | 'nonFerrous';
+
 type CompanyVanInfo = {
   van: string;
-  repId: string;        repAccount: string;
-  salaryId: string;     salaryAccount: string;
-  bulkId: string;       bulkAccount: string;
-  foreignId: string;    foreignAccount: string;
-  giroId: string;       giroAccount: string;
-  fxForeignId: string;  fxForeignAccount: string;
-  fxWonId: string;      fxWonAccount: string;
-  steelId: string;      steelAccount: string;
-  subId: string;        subAccount: string;
+  // 펌뱅킹 ID
+  wonId: string;        // 원화
+  foreignId: string;    // 외화
+  giroId: string;       // 지로
+  salaryIds: string[];  // 급여 (여러 개 가능)
+  // 기타계좌
+  scrapAccounts: Record<ScrapType, BankAccount>;
+  subContractAccount: BankAccount; // 하도급
 };
 
 /**
@@ -37,96 +45,149 @@ type StoredStatus = 'waiting' | 'done' | 'skipped';
 
 const EMPTY_VAN_INFO: CompanyVanInfo = {
   van: '',
-  repId: '',       repAccount: '',
-  salaryId: '',    salaryAccount: '',
-  bulkId: '',      bulkAccount: '',
-  foreignId: '',   foreignAccount: '',
-  giroId: '',      giroAccount: '',
-  fxForeignId: '', fxForeignAccount: '',
-  fxWonId: '',     fxWonAccount: '',
-  steelId: '',     steelAccount: '',
-  subId: '',       subAccount: '',
+  wonId: '',
+  foreignId: '',
+  giroId: '',
+  salaryIds: [''],
+  scrapAccounts: {
+    iron:       { bank: '', account: '' },
+    copper:     { bank: '', account: '' },
+    gold:       { bank: '', account: '' },
+    nonFerrous: { bank: '', account: '' },
+  },
+  subContractAccount: { bank: '', account: '' },
 };
 
-type PumbankingSection = {
-  idKey: keyof CompanyVanInfo;
-  accountKey: keyof CompanyVanInfo;
-  label: string;
-};
-
-const PUMBANKING_SECTIONS: PumbankingSection[] = [
-  { idKey: 'repId',       accountKey: 'repAccount',       label: '대표계좌' },
-  { idKey: 'salaryId',    accountKey: 'salaryAccount',    label: '급여계좌' },
-  { idKey: 'bulkId',      accountKey: 'bulkAccount',      label: '대량이체' },
-  { idKey: 'foreignId',   accountKey: 'foreignAccount',   label: '외화 출금' },
-  { idKey: 'giroId',      accountKey: 'giroAccount',      label: '지로' },
-  { idKey: 'fxForeignId', accountKey: 'fxForeignAccount', label: '환전(외화)' },
-  { idKey: 'fxWonId',     accountKey: 'fxWonAccount',     label: '환전(원화)' },
-  { idKey: 'steelId',     accountKey: 'steelAccount',     label: '철스크랩' },
-  { idKey: 'subId',       accountKey: 'subAccount',       label: '하도급' },
+// 펌뱅킹 ID 단일 입력 항목 (급여는 별도 처리 — 다중 입력)
+const PUMBANKING_SINGLE_FIELDS: { key: 'wonId' | 'foreignId' | 'giroId'; label: string }[] = [
+  { key: 'wonId',     label: '원화 펌뱅킹 ID' },
+  { key: 'foreignId', label: '외화 펌뱅킹 ID' },
+  { key: 'giroId',    label: '지로 펌뱅킹 ID' },
 ];
 
-const VAN_FIELD_LABELS: Record<string, string> = {
-  van: 'VAN ID',
-  repId: '대표계좌 펌뱅킹 ID',       repAccount: '대표계좌 계좌번호',
-  salaryId: '급여계좌 펌뱅킹 ID',    salaryAccount: '급여계좌 계좌번호',
-  bulkId: '대량이체 펌뱅킹 ID',      bulkAccount: '대량이체 계좌번호',
-  foreignId: '외화 출금 펌뱅킹 ID',  foreignAccount: '외화 출금 계좌번호',
-  giroId: '지로 펌뱅킹 ID',          giroAccount: '지로 계좌번호',
-  fxForeignId: '환전(외화) 펌뱅킹 ID', fxForeignAccount: '환전(외화) 계좌번호',
-  fxWonId: '환전(원화) 펌뱅킹 ID',   fxWonAccount: '환전(원화) 계좌번호',
-  steelId: '철스크랩 펌뱅킹 ID',     steelAccount: '철스크랩 계좌번호',
-  subId: '하도급 펌뱅킹 ID',         subAccount: '하도급 계좌번호',
-};
+// 스크랩 계좌 구분
+const SCRAP_TYPES: { key: ScrapType; label: string }[] = [
+  { key: 'iron',       label: '철'   },
+  { key: 'copper',     label: '구리' },
+  { key: 'gold',       label: '금'   },
+  { key: 'nonFerrous', label: '비철' },
+];
+
+// 은행 목록
+const BANK_LIST = [
+  '하나은행', 'KB국민은행', '신한은행', '우리은행', 'IBK기업은행',
+  'NH농협은행', 'SC제일은행', '카카오뱅크', '토스뱅크', '케이뱅크',
+  '새마을금고', '우체국', '수협은행',
+];
 
 function hasVanValues(info: CompanyVanInfo) {
-  return Object.values(info).some(v => v.trim() !== '');
+  if (info.van.trim()) return true;
+  if (info.wonId.trim() || info.foreignId.trim() || info.giroId.trim()) return true;
+  if (info.salaryIds.some(s => s.trim())) return true;
+  if (SCRAP_TYPES.some(({ key }) => {
+    const a = info.scrapAccounts[key];
+    return a.bank.trim() || a.account.trim();
+  })) return true;
+  if (info.subContractAccount.bank.trim() || info.subContractAccount.account.trim()) return true;
+  return false;
+}
+
+// 건너뛰기 확인 모달용 요약 — 입력된 값만 표시
+function flattenVanInfoForDisplay(info: CompanyVanInfo): { label: string; value: string }[] {
+  const out: { label: string; value: string }[] = [];
+  if (info.van.trim()) out.push({ label: 'VAN ID', value: info.van });
+  if (info.wonId.trim())     out.push({ label: '원화 펌뱅킹 ID', value: info.wonId });
+  if (info.foreignId.trim()) out.push({ label: '외화 펌뱅킹 ID', value: info.foreignId });
+  if (info.giroId.trim())    out.push({ label: '지로 펌뱅킹 ID', value: info.giroId });
+  const filledSalary = info.salaryIds.filter(s => s.trim());
+  filledSalary.forEach((s, i) => {
+    out.push({ label: filledSalary.length > 1 ? `급여 펌뱅킹 ID ${i + 1}` : '급여 펌뱅킹 ID', value: s });
+  });
+  SCRAP_TYPES.forEach(({ key, label }) => {
+    const a = info.scrapAccounts[key];
+    if (a.bank.trim() || a.account.trim()) {
+      out.push({ label: `스크랩(${label})`, value: `${a.bank || '-'} / ${a.account || '-'}` });
+    }
+  });
+  if (info.subContractAccount.bank.trim() || info.subContractAccount.account.trim()) {
+    const a = info.subContractAccount;
+    out.push({ label: '하도급 계좌', value: `${a.bank || '-'} / ${a.account || '-'}` });
+  }
+  return out;
 }
 
 function EntStatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    waiting:    'bg-gray-50 text-gray-400 border-gray-100',
-    inProgress: 'bg-amber-50 text-amber-700 border-amber-100',
-    done:       'bg-[#008d75]/10 text-[#008d75] border-[#008d75]/20',
-    skipped:    'bg-gray-100 text-gray-400 border-gray-200',
-    editing:    'bg-blue-50 text-blue-700 border-blue-100',
-  };
   const labels: Record<string, string> = {
     waiting: '대기', inProgress: '진행중', done: '완료', skipped: '건너뜀', editing: '수정중',
   };
-  return (
-    <span className={`text-[10px] px-2 py-0.5 rounded-full border whitespace-nowrap flex-shrink-0 ${styles[status] || styles.waiting}`}>
-      {labels[status] || '대기'}
-    </span>
-  );
+  // 프리셋에 없는 상태(건너뜀/수정중)는 colorClass로 지정
+  const overrides: Record<string, string | undefined> = {
+    skipped: 'bg-gray-100 text-gray-500 border border-gray-200',
+    editing: 'bg-blue-50 text-blue-700 border border-blue-200',
+  };
+  const label = labels[status] || '대기';
+  return <StatusBadge status={label} colorClass={overrides[status]} />;
 }
 
 // ─── VAN/펌뱅킹 등록 메인 컴포넌트 ──────────────────────────────────────────
 const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) => {
   const [vanData, setVanData] = useState<Record<string, CompanyVanInfo>>(() => {
     const data: Record<string, CompanyVanInfo> = {};
-    enterprises.forEach(e => { data[e.id] = { ...EMPTY_VAN_INFO }; });
+    enterprises.forEach(e => {
+      data[e.id] = {
+        van: '',
+        wonId: '', foreignId: '', giroId: '',
+        salaryIds: [''],
+        scrapAccounts: {
+          iron:       { bank: '', account: '' },
+          copper:     { bank: '', account: '' },
+          gold:       { bank: '', account: '' },
+          nonFerrous: { bank: '', account: '' },
+        },
+        subContractAccount: { bank: '', account: '' },
+      };
+    });
     return data;
   });
 
   const [selectedEntId, setSelectedEntId] = useState<string>(enterprises[0]?.id || '');
-  const [currentRow, setCurrentRow] = useState<CompanyVanInfo>({ ...EMPTY_VAN_INFO });
+  const [currentRow, setCurrentRow] = useState<CompanyVanInfo>(() => ({
+    ...EMPTY_VAN_INFO,
+    salaryIds: [''],
+    scrapAccounts: { ...EMPTY_VAN_INFO.scrapAccounts },
+    subContractAccount: { ...EMPTY_VAN_INFO.subContractAccount },
+  }));
   const [entStatuses, setEntStatuses] = useState<Record<string, StoredStatus>>(() => {
     const s: Record<string, StoredStatus> = {};
     enterprises.forEach(e => { s[e.id] = 'waiting'; });
     return s;
   });
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['repId']));
-  const [skipConfirm, setSkipConfirm] = useState<{ show: boolean; entId: string }>({ show: false, entId: '' });
+  const [savedFeedback, setSavedFeedback] = useState(false);
 
   if (enterprises.length === 0) {
     return (
-      <div className="py-16 text-center text-gray-400">
-        <p className="text-[14px]">표시할 기업 정보가 없습니다.</p>
-        <p className="text-[12px] mt-1">1단계에서 기업을 먼저 추가해주세요.</p>
+      <div className="py-20 text-center text-text-sub">
+        <p className="text-body">표시할 기업 정보가 없습니다.</p>
+        <p className="text-body-sm mt-1">1단계에서 기업을 먼저 추가해주세요.</p>
       </div>
     );
   }
+
+  // 깊은 복사가 필요한 EMPTY_VAN_INFO 생성기
+  const makeEmptyVanInfo = (): CompanyVanInfo => ({
+    van: '',
+    wonId: '',
+    foreignId: '',
+    giroId: '',
+    salaryIds: [''],
+    scrapAccounts: {
+      iron:       { bank: '', account: '' },
+      copper:     { bank: '', account: '' },
+      gold:       { bank: '', account: '' },
+      nonFerrous: { bank: '', account: '' },
+    },
+    subContractAccount: { bank: '', account: '' },
+  });
 
   // 탭 전환 시 현재 값 자동저장 후 새 기업 로드
   const switchEnterprise = (newId: string) => {
@@ -141,20 +202,63 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
     setEntStatuses(prev => ({ ...prev, [selectedEntId]: newStatus }));
 
     setSelectedEntId(newId);
-    setCurrentRow({ ...(updatedVanData[newId] || EMPTY_VAN_INFO) });
-    setExpandedSections(new Set(['repId']));
+    setCurrentRow({ ...(updatedVanData[newId] || makeEmptyVanInfo()) });
   };
 
-  const handleInputChange = (field: keyof CompanyVanInfo, value: string) => {
+  // 단일 필드(VAN, 원화/외화/지로 ID 등) 변경
+  const setSingleField = (field: 'van' | 'wonId' | 'foreignId' | 'giroId', value: string) => {
     setCurrentRow(prev => ({ ...prev, [field]: value }));
   };
 
-  const toggleSection = (key: string) => {
-    setExpandedSections(prev => {
-      const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
-      return next;
+  // 급여 펌뱅킹 ID (다중) 관련 핸들러
+  const updateSalaryId = (index: number, value: string) => {
+    setCurrentRow(prev => {
+      const arr = [...prev.salaryIds];
+      arr[index] = value;
+      return { ...prev, salaryIds: arr };
     });
+  };
+  const addSalaryId = () => {
+    setCurrentRow(prev => ({ ...prev, salaryIds: [...prev.salaryIds, ''] }));
+  };
+  const removeSalaryId = (index: number) => {
+    setCurrentRow(prev => {
+      const arr = prev.salaryIds.filter((_, i) => i !== index);
+      return { ...prev, salaryIds: arr.length ? arr : [''] };
+    });
+  };
+
+  // 스크랩 계좌 관련 핸들러
+  const updateScrapAccount = (type: ScrapType, field: 'bank' | 'account', value: string) => {
+    setCurrentRow(prev => ({
+      ...prev,
+      scrapAccounts: {
+        ...prev.scrapAccounts,
+        [type]: { ...prev.scrapAccounts[type], [field]: value },
+      },
+    }));
+  };
+
+  // 하도급 계좌 관련 핸들러
+  const updateSubContractAccount = (field: 'bank' | 'account', value: string) => {
+    setCurrentRow(prev => ({
+      ...prev,
+      subContractAccount: { ...prev.subContractAccount, [field]: value },
+    }));
+  };
+
+  // 현재 기업 저장
+  const handleSave = () => {
+    const updatedVanData = { ...vanData, [selectedEntId]: { ...currentRow } };
+    setVanData(updatedVanData);
+    setEntStatuses(prev => ({ ...prev, [selectedEntId]: 'done' }));
+    setSavedFeedback(true);
+    setTimeout(() => setSavedFeedback(false), 2000);
+  };
+
+  // 현재 기업의 입력 값을 모두 비움 (다른 기업 데이터에는 영향 없음)
+  const handleReset = () => {
+    setCurrentRow(makeEmptyVanInfo());
   };
 
   // 건너뛰기: 값이 있으면 확인 팝업, 없으면 바로 처리
@@ -167,10 +271,10 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
   };
 
   const doSkip = (entId: string) => {
-    const updatedVanData = { ...vanData, [entId]: { ...EMPTY_VAN_INFO } };
+    const updatedVanData = { ...vanData, [entId]: makeEmptyVanInfo() };
     setVanData(updatedVanData);
     setEntStatuses(prev => ({ ...prev, [entId]: 'skipped' }));
-    if (entId === selectedEntId) setCurrentRow({ ...EMPTY_VAN_INFO });
+    if (entId === selectedEntId) setCurrentRow(makeEmptyVanInfo());
     setSkipConfirm({ show: false, entId: '' });
 
     // 다음 미완료 기업으로 자동 이동
@@ -185,15 +289,6 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
     return entStatuses[id] || 'waiting';
   };
 
-  const completedCount = enterprises.filter(e => entStatuses[e.id] === 'done').length;
-  const skippedCount  = enterprises.filter(e => entStatuses[e.id] === 'skipped').length;
-  const progressPct   = Math.round(((completedCount + skippedCount) / Math.max(enterprises.length, 1)) * 100);
-
-  const skipConfirmEnt    = enterprises.find(e => e.id === skipConfirm.entId);
-  const skipConfirmValues = skipConfirm.entId === selectedEntId
-    ? currentRow
-    : (vanData[skipConfirm.entId] || EMPTY_VAN_INFO);
-
   const sidebarSubText: Record<string, string> = {
     waiting:    '미진입',
     inProgress: '입력 중',
@@ -205,72 +300,17 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
   return (
     <div className="relative">
 
-      {/* ── 건너뛰기 확인 팝업 ─────────────────────────────────────── */}
-      {skipConfirm.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-xl w-[400px] p-6">
-            <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center mb-4">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
-            </div>
-            <h3 className="text-[15px] font-bold text-gray-900 mb-2">이 기업을 건너뛰시겠습니까?</h3>
-            <p className="text-[13px] text-gray-500 mb-4 leading-relaxed">
-              <span className="font-semibold text-gray-700">{skipConfirmEnt?.name}</span>에 이미 입력된 값이 있습니다.<br />
-              건너뛰면 아래 데이터가 모두 삭제됩니다.
-            </p>
-            <div className="bg-gray-50 rounded-md p-3 mb-4 text-[12px] divide-y divide-gray-100">
-              {Object.entries(skipConfirmValues)
-                .filter(([, v]) => (v as string).trim())
-                .map(([k, v]) => (
-                  <div key={k} className="flex justify-between py-1.5">
-                    <span className="text-gray-500">{VAN_FIELD_LABELS[k]}</span>
-                    <span className="font-medium text-gray-800 font-mono">{v as string}</span>
-                  </div>
-                ))}
-            </div>
-            <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-md px-3 py-2 text-[12px] text-amber-700 mb-5">
-              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-              <span>삭제 후에는 해당 기업을 다시 선택해 재입력해야 합니다.</span>
-            </div>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => setSkipConfirm({ show: false, entId: '' })}
-                className="px-4 py-2 border border-gray-300 rounded-md text-[13px] text-gray-700 hover:bg-gray-50"
-              >
-                취소 (입력 유지)
-              </button>
-              <button
-                onClick={() => doSkip(skipConfirm.entId)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-[13px] font-semibold"
-              >
-                삭제하고 건너뛰기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 진행 현황 바 ───────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 mb-6">
-        <span className="text-[13px] text-gray-500 whitespace-nowrap">
-          {enterprises.length}개 기업 중{' '}
-          <span className="font-semibold text-gray-700">{completedCount}개</span> 완료
-        </span>
-        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-[#008d75] rounded-full transition-all duration-300"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-        <span className="text-[13px] text-gray-400 whitespace-nowrap">{progressPct}%</span>
-      </div>
-
+      {/* ── 건너뛰기 확인 팝업 ───────────────────────────────────────
+        ※ 공용 ConfirmModal은 description이 string만 받으므로,
+          입력값 리스트를 함께 보여줘야 하는 본 케이스는 커스텀 마크업을 유지하되
+          타이포/컬러/버튼은 ConfirmModal 스펙에 맞춰 정렬한다. */}
       {/* ── 본문: 사이드바 + 콘텐츠 ───────────────────────────────── */}
       <div className="flex gap-6" style={{ minHeight: 460 }}>
 
         {/* 사이드바 */}
-        <div className="w-[200px] flex-shrink-0 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-            <span className="text-[13px] font-semibold text-gray-700">등록 기업 목록</span>
+        <div className="w-[200px] flex-shrink-0 bg-white border border-border-gray rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-border-gray bg-bg-gray">
+            <span className="text-body-lg font-semibold text-text-main">등록 기업 목록</span>
           </div>
           <div className="overflow-y-auto">
             {enterprises.map(ent => {
@@ -280,17 +320,17 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
                 <button
                   key={ent.id}
                   onClick={() => switchEnterprise(ent.id)}
-                  className={`w-full text-left px-4 py-3 flex items-center justify-between gap-2 border-l-2 transition-colors border-b border-gray-50 ${
+                  className={`w-full text-left px-4 py-3 flex items-center justify-between gap-2 border-l-2 transition-colors border-b border-bg-muted ${
                     isActive
-                      ? 'bg-[#008d75]/5 border-l-[#008d75]'
-                      : 'border-l-transparent hover:bg-gray-50'
+                      ? 'bg-primary/5 border-l-[#008d75]'
+                      : 'border-l-transparent hover:bg-bg-gray'
                   }`}
                 >
                   <div className="min-w-0">
-                    <div className={`text-[13px] font-semibold truncate ${isActive ? 'text-[#008d75]' : 'text-gray-800'}`}>
+                    <div className={`text-body font-semibold truncate ${isActive ? 'text-primary' : 'text-text-main'}`}>
                       {ent.name}
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-0.5">
+                    <div className="text-body-sm text-text-sub mt-0.5">
                       {sidebarSubText[status]}
                     </div>
                   </div>
@@ -306,117 +346,207 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
 
           {/* 콘텐츠 헤더 */}
           <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
-            <div>
-              <div className="text-[15px] font-bold text-gray-900">
-                {enterprises.find(e => e.id === selectedEntId)?.name}
-              </div>
-              <div className="text-[13px] text-gray-500 mt-0.5">
-                사용하는 항목만 입력하세요. 입력 내용은 최종 단계 완료 시 일괄 등록됩니다.
-              </div>
+            <div className="text-body-lg font-bold text-gray-900">
+              {enterprises.find(e => e.id === selectedEntId)?.name}
             </div>
             <button
-              onClick={handleSkipClick}
-              className="flex-shrink-0 flex items-center gap-1.5 text-[13px] text-gray-500 px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
+              onClick={handleReset}
+              className="flex-shrink-0 flex items-center gap-1.5 text-body-sm text-gray-500 px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
             >
-              ↩ 건너뛰기
+              <RotateCcw className="w-3.5 h-3.5" />
+              초기화
             </button>
           </div>
 
-          <div className="p-6 flex flex-col gap-6 flex-1">
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
 
-            {/* 재수정 배너 */}
-            {entStatuses[selectedEntId] === 'done' && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-[13px] text-blue-700">
-                <Pencil className="w-3.5 h-3.5 flex-shrink-0" />
-                이전에 입력한 내용을 수정하고 있습니다.
-              </div>
-            )}
+          {/* 재수정 배너 */}
+          {entStatuses[selectedEntId] === 'done' && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-body-sm text-blue-700">
+              <Pencil className="w-3.5 h-3.5 flex-shrink-0" />
+              이전에 입력한 내용을 수정하고 있습니다.
+            </div>
+          )}
 
-            {/* VAN ID */}
-            <div>
-              <h3 className="text-[13px] font-semibold text-gray-700 mb-3">VAN 정보</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* VAN 정보 */}
+          <div>
+            <h3 className="text-body-lg font-semibold text-gray-700 mb-1">VAN 정보</h3>
+            <p className="text-body-sm text-gray-500 mb-4">결제 대행에 사용되는 VAN ID를 입력합니다.</p>
+            <div className="max-w-3xl">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">VAN ID</label>
-                  <input
+                  <label className="block text-body font-semibold text-text-main mb-1.5">VAN ID</label>
+                  <Input
                     type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75]"
+                    fullWidth
                     placeholder="VAN ID 입력"
                     value={currentRow.van}
-                    onChange={e => handleInputChange('van', e.target.value)}
+                    onChange={e => setSingleField('van', e.target.value)}
                   />
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* 구분선 */}
-            <div className="border-t border-gray-100" />
+          <div className="border-t border-gray-100" />
 
-            {/* 펌뱅킹 ID */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-[13px] font-semibold text-gray-700">펌뱅킹 ID</h3>
-                <span className="text-[12px] text-gray-400">필요한 항목만 펼쳐 입력하세요</span>
+          {/* 펌뱅킹 ID */}
+          <div>
+            <h3 className="text-body-lg font-semibold text-gray-700 mb-1">펌뱅킹 ID</h3>
+            <p className="text-body-sm text-gray-500 mb-5">업무 유형별 펌뱅킹 ID를 입력합니다. 사용하는 항목만 입력하면 됩니다.</p>
+
+            <div className="max-w-3xl">
+              {/* 원화 / 외화 / 지로 — 3열 그리드 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {PUMBANKING_SINGLE_FIELDS.map(({ key, label }) => (
+                  <div key={key}>
+                    <label className="block text-body font-semibold text-text-main mb-1.5">{label}</label>
+                    <Input
+                      type="text"
+                      fullWidth
+                      placeholder="펌뱅킹 ID 입력"
+                      value={currentRow[key]}
+                      onChange={e => setSingleField(key, e.target.value)}
+                    />
+                  </div>
+                ))}
               </div>
-              <div className="flex flex-col gap-2">
-                {PUMBANKING_SECTIONS.map(({ idKey, accountKey, label }) => {
-                  const isOpen = expandedSections.has(idKey);
-                  const hasVal = !!(currentRow[idKey] || currentRow[accountKey]);
-                  return (
-                    <div key={idKey} className="border border-gray-200 rounded-md overflow-hidden">
-                      <button
-                        onClick={() => toggleSection(idKey)}
-                        className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
-                      >
-                        <span className="flex items-center gap-2 text-[13px] font-semibold text-gray-700">
-                          {label}
-                          {hasVal && (
-                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#008d75]/10 text-[#008d75] border border-[#008d75]/20 font-medium">
-                              입력됨
-                            </span>
-                          )}
-                        </span>
-                        {isOpen
-                          ? <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                          : <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />}
-                      </button>
-                      {isOpen && (
-                        <div className="px-4 py-4 border-t border-gray-100 bg-white">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">펌뱅킹 ID</label>
-                              <input
-                                type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75]"
-                                placeholder="펌뱅킹 ID 입력"
-                                value={currentRow[idKey] as string}
-                                onChange={e => handleInputChange(idKey, e.target.value)}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">계좌번호 <span className="font-normal text-gray-400">(선택)</span></label>
-                              <input
-                                type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75]"
-                                placeholder="숫자 10~14자리"
-                                value={currentRow[accountKey] as string}
-                                onChange={e => handleInputChange(accountKey, e.target.value)}
-                              />
-                            </div>
-                          </div>
+
+              {/* 급여 — 다중 입력 */}
+              <div className="pt-5 border-t border-bg-muted">
+                <div className="flex items-baseline gap-2 mb-2">
+                  <label className="text-body font-semibold text-text-main">급여 펌뱅킹 ID</label>
+                  <span className="text-body-sm text-text-sub">여러 개 등록 가능</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <div className="flex flex-col gap-2">
+                    {currentRow.salaryIds.map((id, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Input
+                            type="text"
+                            fullWidth
+                            placeholder={`펌뱅킹 ID ${i + 1}`}
+                            value={id}
+                            onChange={e => updateSalaryId(i, e.target.value)}
+                          />
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                        <button
+                          type="button"
+                          onClick={() => removeSalaryId(i)}
+                          disabled={currentRow.salaryIds.length === 1 && !id.trim()}
+                          className="flex-shrink-0 w-9 h-9 flex items-center justify-center text-text-sub hover:text-status-error hover:bg-bg-gray disabled:text-border-gray disabled:cursor-not-allowed rounded-md transition-colors"
+                          title="삭제"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addSalaryId}
+                      className="self-start flex items-center gap-1 text-body-sm text-primary hover:text-primary-dark font-semibold mt-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      펌뱅킹 ID 추가
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* 안내 */}
-            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-[13px] text-gray-500 mt-auto">
-              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-              입력 내용은 최종 단계 완료 시 일괄 등록됩니다.
+          <div className="border-t border-gray-100" />
+
+          {/* 기타계좌 */}
+          <div>
+            <h3 className="text-body-lg font-semibold text-gray-700 mb-1">기타계좌</h3>
+            <p className="text-body-sm text-gray-500 mb-5">스크랩 및 하도급 계좌 정보를 입력합니다. 사용하는 항목만 입력하면 됩니다.</p>
+
+            <div className="max-w-3xl">
+              {/* 스크랩 계좌 */}
+              <div className="mb-6">
+                <p className="text-body font-semibold text-text-main mb-2">스크랩 계좌</p>
+                <div className="border border-border-gray rounded-md overflow-hidden">
+                  {/* 컬럼 헤더 */}
+                  <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-2 bg-bg-gray border-b border-border-gray">
+                    <span className="text-body-sm font-semibold text-text-sub">구분</span>
+                    <span className="text-body-sm font-semibold text-text-sub">은행</span>
+                    <span className="text-body-sm font-semibold text-text-sub">계좌번호</span>
+                  </div>
+                  {/* 데이터 행 */}
+                  <div className="divide-y divide-[#E5E8EB]">
+                    {SCRAP_TYPES.map(({ key, label }) => {
+                      const acc = currentRow.scrapAccounts[key];
+                      return (
+                        <div key={key} className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-3 items-center bg-white">
+                          <span className="text-body font-semibold text-text-main">{label}</span>
+                          <select
+                            value={acc.bank}
+                            onChange={e => updateScrapAccount(key, 'bank', e.target.value)}
+                            className="w-full h-[42px] px-3 border border-border-gray rounded-md text-body bg-white text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-[#008d75]"
+                          >
+                            <option value="">은행 선택</option>
+                            {BANK_LIST.map(b => <option key={b} value={b}>{b}</option>)}
+                          </select>
+                          <Input
+                            type="text"
+                            fullWidth
+                            placeholder="계좌번호 입력"
+                            value={acc.account}
+                            onChange={e => updateScrapAccount(key, 'account', e.target.value)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* 하도급 계좌 — 스크랩과 동일한 행 템플릿 */}
+              <div>
+                <p className="text-body font-semibold text-text-main mb-2">하도급 계좌</p>
+                <div className="border border-border-gray rounded-md overflow-hidden">
+                  <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-2 bg-bg-gray border-b border-border-gray">
+                    <span className="text-body-sm font-semibold text-text-sub">구분</span>
+                    <span className="text-body-sm font-semibold text-text-sub">은행</span>
+                    <span className="text-body-sm font-semibold text-text-sub">계좌번호</span>
+                  </div>
+                  <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-3 items-center bg-white">
+                    <span className="text-body font-semibold text-text-main">하도급</span>
+                    <select
+                      value={currentRow.subContractAccount.bank}
+                      onChange={e => updateSubContractAccount('bank', e.target.value)}
+                      className="w-full h-[42px] px-3 border border-border-gray rounded-md text-body bg-white text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-[#008d75]"
+                    >
+                      <option value="">은행 선택</option>
+                      {BANK_LIST.map(b => <option key={b} value={b}>{b}</option>)}
+                    </select>
+                    <Input
+                      type="text"
+                      fullWidth
+                      placeholder="계좌번호 입력"
+                      value={currentRow.subContractAccount.account}
+                      onChange={e => updateSubContractAccount('account', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+
+          {/* 하단: 저장 버튼 + 안내 */}
+          <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-2 text-body-sm text-text-body">
+              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+              {hasVanValues(currentRow)
+                ? '입력 내용은 저장 후 최종 단계 완료 시 일괄 등록됩니다.'
+                : '입력할 값이 없으면 저장 시 건너뛰기로 처리됩니다.'}
+            </div>
+            <Button variant="primary" size="md" onClick={handleSave}>
+              {savedFeedback ? '✓ 저장됨' : '저장'}
+            </Button>
+          </div>
           </div>
         </div>
       </div>
@@ -438,7 +568,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
   const [tenantCode, setTenantCode] = useState('');
   const [tenantStatus, setTenantStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [tenantMessage, setTenantMessage] = useState('');
-  const [formState, setFormState] = useState({ id: '', name: '', bizNumber: '', corpNumber: '' });
+  const [formState, setFormState] = useState({ id: '', name: '', bizNumber: '', corpNumber: '', erpVendor: '', masterEmail: '' });
   const [formErrors, setFormErrors] = useState<any>({});
   const [tenantError, setTenantError] = useState('');
   const [pageError, setPageError] = useState('');
@@ -452,23 +582,16 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
   const [isUploaded, setIsUploaded] = useState(false);
   const [excelError, setExcelError] = useState('');
 
-  // Mock functions for functionality (same as before)
-  const handleCheckTenant = () => {
-    setPageError('');
+  // 테넌트 선택 검증 (셀렉트 박스 변경에 따른 미선택 체크)
+  const validateTenantSelected = () => {
     if (!tenantCode.trim()) {
       setTenantStatus('error');
-      setTenantMessage('테넌트값을 입력해주세요.');
-      return;
+      setTenantMessage('테넌트를 선택해주세요.');
+      return false;
     }
-
-    // Mock redundancy check
-    if (tenantCode === 'fail') {
-      setTenantStatus('error');
-      setTenantMessage('이미 사용 중인 테넌트값입니다.');
-    } else {
-      setTenantStatus('success');
-      setTenantMessage('사용 가능한 테넌트값입니다.');
-    }
+    setTenantStatus('success');
+    setTenantMessage('');
+    return true;
   };
 
   const handleAddOrUpdate = () => {
@@ -478,6 +601,12 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
     if (!formState.name.trim()) errors.name = '기업명을 입력해주세요.';
     if (!formState.bizNumber.trim()) errors.bizNumber = '사업자등록번호를 입력해주세요.';
     else if (formState.bizNumber.length !== 10) errors.bizNumber = '사업자등록번호는 10자리 숫자로 입력해주세요.';
+    if (!formState.erpVendor.trim()) errors.erpVendor = '사용 ERP사를 선택해주세요.';
+    if (!formState.masterEmail.trim()) {
+      errors.masterEmail = '마스터 이메일을 입력해주세요.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.masterEmail)) {
+      errors.masterEmail = '올바른 이메일 형식이 아닙니다.';
+    }
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -490,7 +619,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
     } else {
       setEnterprises([...enterprises, { ...formState, id: Date.now().toString() }]);
     }
-    setFormState({ id: '', name: '', bizNumber: '', corpNumber: '' });
+    setFormState({ id: '', name: '', bizNumber: '', corpNumber: '', erpVendor: '', masterEmail: '' });
     setFormErrors({});
   };
 
@@ -501,7 +630,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
   };
 
   const handleCancelEdit = () => {
-    setFormState({ id: '', name: '', bizNumber: '', corpNumber: '' });
+    setFormState({ id: '', name: '', bizNumber: '', corpNumber: '', erpVendor: '', masterEmail: '' });
     setEditingId(null);
     setFormErrors({});
   };
@@ -553,6 +682,16 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
         }
       }
 
+      // 사용 ERP사 필수
+      if (!row.erpVendor?.trim()) errors.erpVendor = '사용 ERP사를 입력해주세요.';
+
+      // 마스터 이메일 필수 + 형식
+      if (!row.masterEmail?.trim()) {
+        errors.masterEmail = '마스터 이메일을 입력해주세요.';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.masterEmail)) {
+        errors.masterEmail = '올바른 이메일 형식이 아닙니다.';
+      }
+
       return { ...row, errors: Object.keys(errors).length > 0 ? errors : undefined };
     });
   };
@@ -561,10 +700,10 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
     setPageError('');
     // Mock 파일 파싱 결과 — 실제 구현 시 xlsx 라이브러리로 파일 읽기
     const rawRows = [
-      { id: '1', name: '혁신기업(주)', bizNumber: '1234567890', corpNumber: '1234567890123' },
-      { id: '2', name: '미래상사',     bizNumber: '1234567890', corpNumber: '' },
-      { id: '3', name: '테스트컴퍼니', bizNumber: '11122233',   corpNumber: '' },
-      { id: '4', name: '',             bizNumber: '5555555555', corpNumber: '9999999999999' },
+      { id: '1', name: '혁신기업(주)', bizNumber: '1234567890', corpNumber: '1234567890123', erpVendor: '더존',  masterEmail: 'admin@innovation.co.kr' },
+      { id: '2', name: '미래상사',     bizNumber: '1234567890', corpNumber: '',              erpVendor: 'SAP',   masterEmail: 'master@mirae.com' },
+      { id: '3', name: '테스트컴퍼니', bizNumber: '11122233',   corpNumber: '',              erpVendor: '영림원', masterEmail: 'invalid-email' },
+      { id: '4', name: '',             bizNumber: '5555555555', corpNumber: '9999999999999', erpVendor: '',      masterEmail: '' },
     ];
     setIsUploaded(true);
     setExcelData(validateExcelRows(rawRows));
@@ -577,8 +716,8 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
   const handleNextStep = () => {
     setPageError('');
     if (currentStep === 1) {
-      if (tenantStatus !== 'success') {
-        setPageError('테넌트 중복 확인이 완료되지 않았습니다.');
+      if (!validateTenantSelected()) {
+        setPageError('테넌트를 선택해주세요.');
         return;
       }
       if (registerMode === 'manual' && enterprises.length === 0) {
@@ -590,17 +729,17 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
         return;
       }
     }
-    setCurrentStep(Math.min(3, currentStep + 1));
+    setCurrentStep(Math.min(4, currentStep + 1));
   };
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-border-gray p-8">
       {/* 1. Stepper & Instruction */}
       <div className="mb-8">
         <div className="flex gap-4 mb-4">
           {STEPS.map((step, idx) => (
-            <div key={step} className={`flex items-center gap-2 text-[14px] font-bold ${idx + 1 === currentStep ? 'text-[#008d75]' : 'text-gray-400'}`}>
-              <span className={`w-6 h-6 flex items-center justify-center rounded-full ${idx + 1 === currentStep ? 'bg-[#008d75] text-white' : 'bg-gray-100'}`}>{idx + 1}</span>
+            <div key={step} className={`flex items-center gap-2 text-body font-semibold ${idx + 1 === currentStep ? 'text-primary' : 'text-text-sub'}`}>
+              <span className={`w-6 h-6 flex items-center justify-center rounded-full ${idx + 1 === currentStep ? 'bg-primary text-white' : 'bg-bg-muted text-text-sub'}`}>{idx + 1}</span>
               {step}
             </div>
           ))}
@@ -609,45 +748,53 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
       </div>
 
       {/* 2. Registration Content based on Step */}
-      {/* 2. Registration Content based on Step */}
       <div className="pb-6">
         {currentStep === 1 && (
           <>
-            {/* Common Tenant Input */}
+            {/* Common Tenant Select */}
             <div className="mb-8">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="md:col-span-4">
-                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">테넌트 <span className="text-red-500">*</span></label>
-                  <div className="flex items-start gap-2">
-                    <div className="flex flex-col w-full max-w-sm gap-1">
-                      <input
-                        className={`w-full px-3 py-2 border rounded-md text-[14px] ${tenantStatus === 'error' ? 'border-[#F04452]' : 'border-gray-300'}`}
-                        placeholder="테넌트값 입력"
-                        value={tenantCode}
-                        onChange={e => {
-                          setTenantCode(e.target.value);
-                          setTenantStatus('idle');
-                        }}
-                      />
-                      {tenantMessage && (
-                        <p className={`text-[12px] flex items-center gap-1 ${tenantStatus === 'error' ? 'text-[#F04452]' : 'text-[#008d75]'}`}>
-                          {tenantStatus === 'error' && <AlertCircle className="w-3.5 h-3.5" />}
-                          {tenantMessage}
-                        </p>
-                      )}
-                    </div>
-                    <button onClick={handleCheckTenant} className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-md text-[13px] font-semibold">중복 확인</button>
+                  <div className="flex items-baseline gap-2 mb-1.5">
+                    <label className="text-body font-semibold text-text-main">테넌트 <span className="text-status-error">*</span></label>
+                    <span className="text-caption text-text-sub">테넌트 조회에서 등록한 항목 중 선택</span>
+                  </div>
+                  <div className="flex flex-col w-full max-w-sm gap-1">
+                    <select
+                      value={tenantCode}
+                      onChange={e => {
+                        setTenantCode(e.target.value);
+                        setTenantStatus(e.target.value ? 'success' : 'idle');
+                        setTenantMessage('');
+                      }}
+                      className={`w-full h-[42px] px-3 border rounded-md text-body bg-white outline-none focus:ring-1 focus:ring-[#008d75] focus:border-primary ${
+                        tenantStatus === 'error' ? 'border-status-error' : 'border-border-gray'
+                      } ${tenantCode ? 'text-text-main' : 'text-text-sub'}`}
+                    >
+                      <option value="">테넌트 선택</option>
+                      {MOCK_TENANTS.filter(t => t.isUsed).map(t => (
+                        <option key={t.id} value={t.tenantCode}>
+                          {t.tenantName}({t.tenantCode})
+                        </option>
+                      ))}
+                    </select>
+                    {tenantStatus === 'error' && tenantMessage && (
+                      <p className="text-caption flex items-center gap-1 text-status-error">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        {tenantMessage}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-4 border-b border-gray-200 mb-6">
+            <div className="flex gap-4 border-b border-border-gray mb-6">
               {['직접 입력', '엑셀 업로드'].map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setRegisterMode(mode === '직접 입력' ? 'manual' : 'excel')}
-                  className={`pb-3 text-[14px] font-bold ${registerMode.startsWith(mode === '직접 입력' ? 'manual' : 'excel') ? 'text-[#008d75] border-b-2 border-[#008d75]' : 'text-gray-400'}`}
+                  className={`pb-3 text-body font-semibold ${registerMode.startsWith(mode === '직접 입력' ? 'manual' : 'excel') ? 'text-primary border-b-2 border-primary' : 'text-text-sub'}`}
                 >
                   {mode}
                 </button>
@@ -655,17 +802,24 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
             </div>
             {registerMode === 'manual' ? (
               <>
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-6 p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="bg-white border border-border-gray rounded-xl shadow-sm mb-6 p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-x-6 gap-y-5 mb-6">
                     <div>
-                      <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">기업명 <span className="text-[#F04452]">*</span></label>
-                      <input className={`w-full px-3 py-2 border rounded-md text-[14px] ${formErrors.name ? 'border-[#F04452]' : 'border-gray-300'}`} placeholder="기업명 입력" value={formState.name} onChange={e => {setFormState({...formState, name: e.target.value}); setFormErrors({...formErrors, name: ''})}} />
-                      {formErrors.name && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.name}</p>}
+                      <label className="block text-body font-semibold text-text-main mb-1.5">기업명 <span className="text-status-error">*</span></label>
+                      <Input
+                        fullWidth
+                        error={!!formErrors.name}
+                        placeholder="기업명 입력"
+                        value={formState.name}
+                        onChange={e => {setFormState({...formState, name: e.target.value}); setFormErrors({...formErrors, name: ''})}}
+                      />
+                      {formErrors.name && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.name}</p>}
                     </div>
                     <div>
-                      <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">사업자등록번호 <span className="text-[#F04452]">*</span></label>
-                      <input
-                        className={`w-full px-3 py-2 border rounded-md text-[14px] ${formErrors.bizNumber ? 'border-[#F04452]' : 'border-gray-300'}`}
+                      <label className="block text-body font-semibold text-text-main mb-1.5">사업자등록번호 <span className="text-status-error">*</span></label>
+                      <Input
+                        fullWidth
+                        error={!!formErrors.bizNumber}
                         placeholder="10자리 숫자 입력"
                         value={formState.bizNumber}
                         onChange={e => {
@@ -674,28 +828,75 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                           setFormErrors({...formErrors, bizNumber: ''});
                         }}
                       />
-                      {formErrors.bizNumber && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.bizNumber}</p>}
+                      {formErrors.bizNumber && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.bizNumber}</p>}
                     </div>
                     <div>
-                      <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">법인등록번호</label>
-                      <input className="w-full px-3 py-2 border border-gray-300 rounded-md text-[14px]" placeholder="13자리 숫자 입력(선택)" value={formState.corpNumber} onChange={e => setFormState({...formState, corpNumber: e.target.value})} />
+                      <label className="block text-body font-semibold text-text-main mb-1.5">법인등록번호</label>
+                      <Input
+                        fullWidth
+                        placeholder="13자리 숫자 입력(선택)"
+                        value={formState.corpNumber}
+                        onChange={e => setFormState({...formState, corpNumber: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-body font-semibold text-text-main mb-1.5">사용 ERP사 <span className="text-status-error">*</span></label>
+                      <select
+                        value={formState.erpVendor}
+                        onChange={e => {
+                          setFormState({...formState, erpVendor: e.target.value});
+                          setFormErrors({...formErrors, erpVendor: ''});
+                        }}
+                        className={`w-full h-[42px] px-3 border rounded-md text-body bg-white outline-none focus:border-primary focus:ring-1 focus:ring-[#008d75] ${
+                          formErrors.erpVendor ? 'border-status-error' : 'border-border-gray'
+                        } ${formState.erpVendor ? 'text-text-main' : 'text-text-sub'}`}
+                      >
+                        <option value="">선택</option>
+                        {ERP_VENDORS.map(v => (
+                          <option key={v} value={v}>{v}</option>
+                        ))}
+                      </select>
+                      {formErrors.erpVendor && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.erpVendor}</p>}
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-body font-semibold text-text-main mb-1.5">마스터 이메일 <span className="text-status-error">*</span></label>
+                      <Input
+                        fullWidth
+                        type="email"
+                        error={!!formErrors.masterEmail}
+                        placeholder="example@company.com"
+                        value={formState.masterEmail}
+                        onChange={e => {
+                          setFormState({...formState, masterEmail: e.target.value});
+                          setFormErrors({...formErrors, masterEmail: ''});
+                        }}
+                      />
+                      {formErrors.masterEmail && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5" />{formErrors.masterEmail}</p>}
                     </div>
                   </div>
-                  <div className="flex justify-end gap-2 border-t border-gray-100 pt-4 mt-2">
-                    <button onClick={editingId ? handleCancelEdit : () => setFormState({ id: '', name: '', bizNumber: '', corpNumber: '' })} className="px-6 py-2 bg-white border border-[#008d75] rounded-md text-[14px] font-semibold text-[#008d75]">취소</button>
-                    <button onClick={handleAddOrUpdate} className="px-6 py-2 bg-[#008d75] rounded-md text-[14px] font-semibold text-white">{editingId ? '수정' : '등록'}</button>
+                  <div className="flex justify-end gap-2 border-t border-border-gray pt-4 mt-2">
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      onClick={editingId ? handleCancelEdit : () => setFormState({ id: '', name: '', bizNumber: '', corpNumber: '', erpVendor: '', masterEmail: '' })}
+                    >
+                      취소
+                    </Button>
+                    <Button variant="primary" size="md" onClick={handleAddOrUpdate}>
+                      {editingId ? '수정' : '등록'}
+                    </Button>
                   </div>
                 </div>
                 {/* Registered Enterprise List (Manual) */}
                 <div className="bg-white">
                   <div className="flex justify-between items-end mb-4">
                     <div>
-                      <h3 className="text-[16px] font-bold text-gray-900 mb-1">기업 목록</h3>
-                      <p className="text-[13px] text-gray-500">추가한 항목은 아래 목록에서 확인하고 삭제할 수 있습니다.</p>
+                      <h3 className="text-body-lg font-semibold text-text-main mb-1">기업 목록</h3>
+                      <p className="text-body-sm text-text-sub">추가한 항목은 아래 목록에서 확인하고 삭제할 수 있습니다.</p>
                     </div>
-                    <button onClick={handleDeleteSelected} disabled={selectedIds.length === 0} className="px-4 py-2 border border-[#d32f2f] rounded-md text-[12px] font-semibold text-[#d32f2f] disabled:bg-gray-100 disabled:border-gray-300">삭제</button>
+                    <Button variant="danger-outline" size="sm" onClick={handleDeleteSelected} disabled={selectedIds.length === 0}>삭제</Button>
                   </div>
-                  <table className="w-full text-left text-[13px] table-fixed">
+                  <table className="w-full text-left text-body table-fixed">
                     <colgroup>
                       <col style={{ width: '44px' }} />
                       <col style={{ width: '45%' }} />
@@ -731,19 +932,19 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
               <div>
                  {!isUploaded ? (
                     <div className="py-12 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center">
-                      <div className="w-16 h-16 bg-[#008d75]/10 text-[#008d75] rounded-full flex items-center justify-center mb-5"><FileSpreadsheet className="w-8 h-8" /></div>
-                      <h3 className="text-gray-900 font-bold text-[16px] mb-2">엑셀 파일을 업로드하여 일괄 등록하세요</h3>
-                      <button onClick={handleUploadExcel} className="px-6 py-3 bg-[#008d75] rounded-md text-[14px] font-semibold text-white">파일 업로드 (.xlsx, .xls)</button>
+                      <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-5"><FileSpreadsheet className="w-8 h-8" /></div>
+                      <h3 className="text-gray-900 font-bold text-title-sm mb-2">엑셀 파일을 업로드하여 일괄 등록하세요</h3>
+                      <Button variant="primary" size="lg" onClick={handleUploadExcel}>파일 업로드 (.xlsx, .xls)</Button>
                     </div>
                  ) : (
                    <div>
                      {/* 헤더 */}
                      <div className="flex justify-between items-end mb-4">
                        <div>
-                         <h3 className="text-[16px] font-bold text-gray-900 mb-1">기업 목록 (엑셀)</h3>
-                         <div className="flex items-center gap-3 text-[13px]">
+                         <h3 className="text-title-sm font-bold text-gray-900 mb-1">기업 목록 (엑셀)</h3>
+                         <div className="flex items-center gap-3 text-body-sm">
                            <span className="text-gray-500">총 {excelData.length}개</span>
-                           <span className="text-[#008d75] font-semibold">
+                           <span className="text-primary font-semibold">
                              정상 {excelData.filter((d: any) => !d.errors).length}개
                            </span>
                            {excelData.some((d: any) => d.errors) && (
@@ -757,14 +958,14 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                          {excelData.some((d: any) => d.errors) && (
                            <button
                              onClick={handleDeleteErrorRows}
-                             className="px-4 py-2 border border-red-300 rounded-md text-[12px] font-semibold text-red-600 hover:bg-red-50"
+                             className="px-4 py-2 border border-red-300 rounded-md text-caption font-semibold text-red-600 hover:bg-red-50"
                            >
                              오류 행 삭제
                            </button>
                          )}
                          <button
                            onClick={() => setIsUploaded(false)}
-                           className="px-4 py-2 border border-gray-300 rounded-md text-[12px] font-semibold text-gray-600 hover:bg-gray-50"
+                           className="px-4 py-2 border border-gray-300 rounded-md text-caption font-semibold text-gray-600 hover:bg-gray-50"
                          >
                            다른 파일 업로드
                          </button>
@@ -772,7 +973,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                      </div>
 
                      {/* 테이블 */}
-                     <table className="w-full text-left text-[13px] table-fixed">
+                     <table className="w-full text-left text-body-sm table-fixed">
                        <colgroup>
                          <col style={{ width: '38%' }} />
                          <col style={{ width: '27%' }} />
@@ -797,7 +998,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                                    {d.name || '(미입력)'}
                                  </div>
                                  {d.errors?.name && (
-                                   <div className="text-[11px] text-red-500 mt-0.5">{d.errors.name}</div>
+                                   <div className="text-caption text-red-500 mt-0.5">{d.errors.name}</div>
                                  )}
                                </td>
                                <td className="p-3">
@@ -805,7 +1006,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                                    {d.bizNumber || '(미입력)'}
                                  </div>
                                  {d.errors?.bizNumber && (
-                                   <div className="text-[11px] text-red-500 mt-0.5">{d.errors.bizNumber}</div>
+                                   <div className="text-caption text-red-500 mt-0.5">{d.errors.bizNumber}</div>
                                  )}
                                </td>
                                <td className="p-3">
@@ -813,7 +1014,7 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
                                    {d.corpNumber || '-'}
                                  </div>
                                  {d.errors?.corpNumber && (
-                                   <div className="text-[11px] text-red-500 mt-0.5">{d.errors.corpNumber}</div>
+                                   <div className="text-caption text-red-500 mt-0.5">{d.errors.corpNumber}</div>
                                  )}
                                </td>
                                <td className="p-3 text-center">
@@ -844,32 +1045,40 @@ export default function EnterpriseRegister({ initialConfig, onComplete, onClose 
         {currentStep === 3 && (
           <EnterpriseInterfaceSettings enterprises={enterprises} />
         )}
+        {currentStep === 4 && (
+          <EnterpriseUsageSettings enterprises={enterprises} />
+        )}
       </div>
 
       {/* Footer */}
       {pageError && (
-        <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-[13px] font-semibold flex items-center gap-2">
+        <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-body-sm font-semibold flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
           {pageError}
         </div>
       )}
-      <div className="mt-10 pt-6 border-t border-gray-200 flex justify-between">
+      <div className="mt-10 pt-6 border-t border-gray-200 flex justify-between items-center">
         {currentStep > 1 ? (
-          <button
+          <Button
+            variant="secondary"
+            size="md"
             onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-            className="px-6 py-2.5 border border-gray-300 rounded-md text-[14px] font-bold text-gray-700"
           >
             이전 단계
-          </button>
+          </Button>
         ) : (
           <div />
         )}
-        <button
-          onClick={handleNextStep}
-          className="px-10 py-2.5 bg-[#008d75] rounded-md text-[14px] font-bold text-white shadow-sm"
-        >
-          {currentStep === 3 ? '등록 완료' : '다음 단계'}
-        </button>
+        <div className="flex items-center gap-3">
+          {currentStep === 2 && (
+            <Button variant="secondary" size="md" onClick={handleNextStep}>
+              건너뛰기
+            </Button>
+          )}
+          <Button variant="primary" size="md" onClick={handleNextStep}>
+            {currentStep === 4 ? '등록 완료' : '다음 단계'}
+          </Button>
+        </div>
       </div>
     </div>
   );

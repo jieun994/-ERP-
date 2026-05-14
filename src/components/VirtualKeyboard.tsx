@@ -71,10 +71,10 @@ export default function VirtualKeyboard({
             {/* Header */}
             <div className="px-6 py-6 flex items-center justify-between bg-white relative">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#008d7510] rounded-lg flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-[#008d75]" />
+                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="text-[18px] font-bold text-[#191F28]">{title}</h3>
+                <h3 className="text-title font-bold text-text-main">{title}</h3>
               </div>
               <button
                 onClick={onClose}
@@ -93,7 +93,7 @@ export default function VirtualKeyboard({
                     key={i} 
                     className={`w-10 h-14 border-b-4 flex items-center justify-center transition-all duration-200 ${
                       input.length > i 
-                        ? 'border-[#008d75] text-[#008d75]' 
+                        ? 'border-primary text-primary' 
                         : 'border-gray-200 text-gray-300'
                     }`}
                   >
@@ -101,7 +101,7 @@ export default function VirtualKeyboard({
                       <motion.div 
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="text-[24px] font-bold"
+                        className="text-display font-bold"
                       >
                         ●
                       </motion.div>
@@ -120,7 +120,7 @@ export default function VirtualKeyboard({
                     whileHover={{ scale: 1.02, backgroundColor: '#f9fafb' }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleKeyPress(num)}
-                    className="h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-[24px] font-bold text-[#191F28] shadow-sm active:bg-gray-100"
+                    className="h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-display font-bold text-text-main shadow-sm active:bg-gray-100"
                   >
                     {num}
                   </motion.button>
@@ -128,7 +128,7 @@ export default function VirtualKeyboard({
                 
                 <button
                   onClick={handleClear}
-                  className="h-16 flex items-center justify-center text-[15px] font-bold text-[#8B95A1] hover:text-[#191F28] transition-colors"
+                  className="h-16 flex items-center justify-center text-body-lg font-bold text-text-sub hover:text-text-main transition-colors"
                 >
                   전체삭제
                 </button>
@@ -137,14 +137,14 @@ export default function VirtualKeyboard({
                   whileHover={{ scale: 1.02, backgroundColor: '#f9fafb' }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleKeyPress(keys[9])}
-                  className="h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-[24px] font-bold text-[#191F28] shadow-sm active:bg-gray-100"
+                  className="h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-display font-bold text-text-main shadow-sm active:bg-gray-100"
                 >
                   {keys[9]}
                 </motion.button>
 
                 <button
                   onClick={handleDelete}
-                  className="h-16 flex items-center justify-center text-gray-400 hover:text-[#191F28] transition-colors"
+                  className="h-16 flex items-center justify-center text-gray-400 hover:text-text-main transition-colors"
                 >
                   <Delete className="w-7 h-7" />
                 </button>
@@ -156,7 +156,7 @@ export default function VirtualKeyboard({
                 disabled={input.length < length}
                 onClick={handleSubmit}
                 fullWidth
-                className="mt-10 h-16 rounded-2xl text-[18px] font-bold shadow-md active:scale-[0.98]"
+                className="mt-10 h-16 rounded-2xl text-title font-bold shadow-md active:scale-[0.98]"
               >
                 확인
               </Button>

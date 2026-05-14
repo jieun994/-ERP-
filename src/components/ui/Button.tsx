@@ -1,6 +1,6 @@
 import React from 'react';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'danger-outline';
 type Size = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -11,16 +11,17 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<Variant, string> = {
-  primary:   'bg-[#008d75] hover:bg-[#007a65] text-white shadow-sm',
-  secondary: 'bg-white border border-[#D1D6DB] hover:bg-[#F2F4F6] text-[#333333] shadow-sm',
-  ghost:     'bg-white border border-[#D1D6DB] hover:bg-[#F9FAFB] text-[#333333]',
-  danger:    'bg-[#F04452] hover:bg-[#d93a46] text-white shadow-sm',
+  primary:   'bg-primary hover:bg-primary-hover text-white shadow-sm',
+  secondary: 'bg-white border border-border-input hover:bg-bg-muted text-text-main shadow-sm',
+  ghost:     'bg-white border border-border-input hover:bg-bg-gray text-text-main',
+  danger:         'bg-status-error hover:bg-status-error-strong text-white shadow-sm',
+  'danger-outline': 'bg-white border border-status-error hover:bg-red-50 text-status-error shadow-sm',
 };
 
 const sizeStyles: Record<Size, string> = {
-  sm: 'h-[32px] px-3 text-[13px] font-medium rounded-md',
-  md: 'h-[40px] px-4 text-[14px] font-semibold rounded-md',
-  lg: 'h-[48px] px-6 text-[15px] font-bold rounded-md',
+  sm: 'h-[32px] px-3 text-body-sm font-medium rounded-md',
+  md: 'h-[40px] px-4 text-body font-semibold rounded-md',
+  lg: 'h-[48px] px-6 text-body-lg font-bold rounded-md',
 };
 
 /**

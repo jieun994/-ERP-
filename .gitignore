@@ -9,3 +9,32 @@ coverage/
 
 # Cowork backup files
 *.clean
+
+# Office documents (작업용 문서 - git 업로드 제외)
+*.xlsx
+*.xlsm
+*.xls
+*.docx
+*.doc
+*.pptx
+*.ppt
+
+# Office 임시/락 파일
+.~lock.*
+~$*
+
+# 와이어프레임 / 목업 HTML (작업용)
+*wireframe*.html
+*와이어프레임*.html
+*목업*.html
+
+# 한글 작업 문서 (.md) - README.md는 유지
+*.md
+!README.md
+
+# 긴급 백업 폴더
+_emergency_backup_*/
+
+# 기타 임시 파일
+tatus
+

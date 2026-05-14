@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation } from 'react-router-dom';
-import { Button, SearchBar, DataTable, StatusBadge, PageLayout, ConfirmModal, Select, Input, Textarea } from './ui';
+import { Button, FilterBar, DataTable, StatusBadge, PageLayout, ConfirmModal, Select, Input, Textarea } from './ui';
 
 interface Notice {
   id: string;
@@ -228,38 +228,38 @@ export default function NoticeManagement() {
   return (
     <PageLayout>
       {/* Search Area */}
-      <SearchBar onSearch={() => {}} onReset={() => { setKeyword(''); setVisibilityFilter('ALL'); setSearchTopic('title'); }}>
-        <SearchBar.Field label="검색조건">
+      <FilterBar onSearch={() => {}} onReset={() => { setKeyword(''); setVisibilityFilter('ALL'); setSearchTopic('title'); }}>
+        <FilterBar.Field label="검색조건">
           <Select
             value={searchTopic}
             onChange={(e) => setSearchTopic(e.target.value)}
-            style={{ width: 160 }}
+            fullWidth
           >
             <option value="title">제목</option>
             <option value="content">내용</option>
           </Select>
-        </SearchBar.Field>
-        <SearchBar.Field label="검색어">
+        </FilterBar.Field>
+        <FilterBar.Field label="검색어">
           <Input
             type="text"
             placeholder="검색어 입력"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            style={{ width: 300 }}
+            fullWidth
           />
-        </SearchBar.Field>
-        <SearchBar.Field label="노출여부">
+        </FilterBar.Field>
+        <FilterBar.Field label="노출여부">
           <Select
             value={visibilityFilter}
             onChange={(e) => setVisibilityFilter(e.target.value)}
-            style={{ width: 160 }}
+            fullWidth
           >
             <option value="ALL">전체</option>
             <option value="VISIBLE">노출</option>
             <option value="HIDDEN">미노출</option>
           </Select>
-        </SearchBar.Field>
-      </SearchBar>
+        </FilterBar.Field>
+      </FilterBar>
 
       {/* Grid Controls */}
       <DataTable.Controls total={filteredData.length}>
@@ -287,70 +287,70 @@ export default function NoticeManagement() {
       </DataTable.Controls>
 
       {/* Grid */}
-      <div className="bg-white rounded-lg border border-[#E5E8EB] overflow-hidden shadow-sm">
+      <div className="bg-white rounded-lg border border-border-gray overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1200px] whitespace-nowrap">
             <thead>
-              <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB]">
-                <th className="h-[52px] px-4 text-center w-12 border-r border-[#E5E8EB]">
+              <tr className="bg-bg-muted border-b border-border-gray">
+                <th className="h-[52px] px-4 text-center w-12 border-r border-border-gray">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
+                    className="w-4 h-4 rounded border-border-input text-primary focus:ring-0 accent-[#008d75] cursor-pointer"
                     checked={filteredData.length > 0 && selectedIds.length === filteredData.length}
                     onChange={toggleSelectAll}
                   />
                 </th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-16 border-r border-[#E5E8EB]">No.</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] border-r border-[#E5E8EB]">제목</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-32 border-r border-[#E5E8EB]">게시 대상</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-40 border-r border-[#E5E8EB]">노출 기간</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-24 border-r border-[#E5E8EB]">노출 여부</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-24 border-r border-[#E5E8EB]">등록자</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-[#4E5968] text-center w-32">최종수정일시</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-text-body text-center w-16 border-r border-border-gray">No.</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-text-body border-r border-border-gray">제목</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-text-body text-center w-32 border-r border-border-gray">게시 대상</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-text-body text-center w-40 border-r border-border-gray">노출 기간</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-text-body text-center w-24 border-r border-border-gray">노출 여부</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-text-body text-center w-24 border-r border-border-gray">등록자</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-text-body text-center w-32">최종수정일시</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredData.length === 0 ? (
                 <tr>
-                   <td colSpan={8} className="py-20 text-center text-[#8B95A1] text-[14px]">
+                   <td colSpan={8} className="py-20 text-center text-text-sub text-body">
                     조건에 맞는 결과가 없습니다.
                    </td>
                 </tr>
               ) : filteredData.map((item) => (
                 <tr
                   key={item.id}
-                  className={`cursor-pointer h-[52px] hover:bg-[#F9FAFB] transition-colors ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : ''}`}
+                  className={`cursor-pointer h-[52px] hover:bg-bg-gray transition-colors ${selectedIds.includes(item.id) ? 'bg-primary/5' : ''}`}
                   onClick={() => toggleSelect(item.id)}
                   onDoubleClick={() => { setSelectedIds([item.id]); const found = data.find(d => d.id === item.id); if (found) openForm(found); }}
                   >
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
+                  <td className="px-4 text-center border-r border-border-gray">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 accent-[#008d75] cursor-pointer"
+                      className="w-4 h-4 rounded border-border-input text-primary focus:ring-0 accent-[#008d75] cursor-pointer"
                       checked={selectedIds.includes(item.id)}
                       onChange={() => toggleSelect(item.id)}
                       onClick={(e) => e.stopPropagation()}
                     />
                   </td>
-                  <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono border-r border-[#E5E8EB]">{item.no}</td>
-                  <td className="px-4 text-[14px] border-r border-[#E5E8EB]">
+                  <td className="px-4 text-center text-body-sm text-text-sub font-mono border-r border-border-gray">{item.no}</td>
+                  <td className="px-4 text-body border-r border-border-gray">
                     <div className="flex items-center gap-2">
-                        <span className="font-medium text-[#191F28] truncate max-w-[400px]">{item.title}</span>
+                        <span className="font-medium text-text-main truncate max-w-[400px]">{item.title}</span>
                     </div>
                   </td>
-                  <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">
+                  <td className="px-4 text-body text-center text-text-body border-r border-border-gray">
                     {item.targetType === 'ALL' ? '전체' : item.targetType === 'COMPANY' ? '가비아' : '더존'}
                   </td>
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
-                     <span className="text-[13px] text-[#4E5968]">
+                  <td className="px-4 text-center border-r border-border-gray">
+                     <span className="text-body-sm text-text-body">
                        {item.startDate} ~ {item.endDate}
                      </span>
                   </td>
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
+                  <td className="px-4 text-center border-r border-border-gray">
                     <StatusBadge status={item.isVisible ? '노출' : '미노출'} />
                   </td>
-                  <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">{item.author}</td>
-                  <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono tracking-tight">
+                  <td className="px-4 text-body text-center text-text-body border-r border-border-gray">{item.author}</td>
+                  <td className="px-4 text-center text-body-sm text-text-sub font-mono tracking-tight">
                     {item.updatedAt}
                   </td>
                 </tr>
@@ -370,11 +370,11 @@ export default function NoticeManagement() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
             >
-              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
-                <h3 className="text-[16px] font-semibold text-[#191F28]">공지사항 {editItem ? '수정' : '등록'}</h3>
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-border-gray shrink-0 bg-white">
+                <h3 className="text-title-sm font-semibold text-text-main">공지사항 {editItem ? '수정' : '등록'}</h3>
                 <button
                   onClick={closeForm}
-                  className="p-2 text-[#8B95A1] hover:text-[#191F28] transition-colors"
+                  className="p-2 text-text-sub hover:text-text-main transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -385,14 +385,14 @@ export default function NoticeManagement() {
                 {/* 1. 기본 정보 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">기본 정보</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body-lg font-semibold text-text-main">기본 정보</h4>
                   </div>
 
                   <div className="space-y-4">
                     {/* 제목 */}
                     <div className="space-y-1.5">
-                    <label className="block text-[14px] font-semibold text-[#191F28]">제목 <span className="text-[#F04452]">*</span></label>
+                    <label className="block text-body font-semibold text-text-main">제목 <span className="text-status-error">*</span></label>
                     <input
                         type="text"
                         value={title}
@@ -402,14 +402,14 @@ export default function NoticeManagement() {
                             else setErrors(prev => ({...prev, title: ''}));
                         }}
                         placeholder="공지사항 제목을 입력하세요."
-                        className={`w-full h-[40px] px-4 bg-white border ${errors.title ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all`}
+                        className={`w-full h-[40px] px-4 bg-white border ${errors.title ? 'border-status-error' : 'border-border-input'} rounded-md text-body text-text-main outline-none focus:border-primary placeholder-[#8B95A1] transition-all`}
                     />
-                    {errors.title && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.title}</p>}
+                    {errors.title && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.title}</p>}
                     </div>
 
                     {/* 내용 */}
                     <div className="space-y-1.5">
-                    <label className="block text-[14px] font-semibold text-[#191F28]">내용 <span className="text-[#F04452]">*</span></label>
+                    <label className="block text-body font-semibold text-text-main">내용 <span className="text-status-error">*</span></label>
                     <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
@@ -419,9 +419,9 @@ export default function NoticeManagement() {
                         }}
                         placeholder="공지사항 내용을 입력하세요. (첨부파일 미지원)"
                         rows={8}
-                        className={`w-full px-4 py-3 bg-white border ${errors.content ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all resize-none`}
+                        className={`w-full px-4 py-3 bg-white border ${errors.content ? 'border-status-error' : 'border-border-input'} rounded-md text-body text-text-main outline-none focus:border-primary placeholder-[#8B95A1] transition-all resize-none`}
                     />
-                    {errors.content && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.content}</p>}
+                    {errors.content && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.content}</p>}
                     </div>
                   </div>
                 </div>
@@ -429,18 +429,18 @@ export default function NoticeManagement() {
                 {/* 2. 노출 설정 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">게시 설정</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body-lg font-semibold text-text-main">게시 설정</h4>
                   </div>
                   <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-                     <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
+                    <div className="space-y-4 p-4 border border-border-gray rounded-lg bg-bg-gray">
+                     <label className="block text-body font-semibold text-text-main mb-2 text-body">게시 대상 <span className="text-status-error">*</span></label>
                     <div className="flex items-center gap-4">
                       {['ALL', 'ERP', 'COMPANY'].map((type) => (
                           <label key={type} className="flex items-center gap-2 cursor-pointer">
                               <input
                                   type="checkbox"
-                                  className="w-4 h-4 rounded border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
+                                  className="w-4 h-4 rounded border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]"
                                   checked={targetTypes.includes(type as 'ALL' | 'COMPANY' | 'ERP')}
                                   onChange={(e) => {
                                       if (type === 'ALL') {
@@ -461,18 +461,18 @@ export default function NoticeManagement() {
                                       setErrors(prev => ({...prev, targetDetails: ''}));
                                   }}
                               />
-                              <span className="text-[14px] text-[#4E5968]">{type === 'ALL' ? '전체' : type === 'ERP' ? '더존' : '가비아'}</span>
+                              <span className="text-body text-text-body">{type === 'ALL' ? '전체' : type === 'ERP' ? '더존' : '가비아'}</span>
                           </label>
                       ))}
                     </div>
 
                     {false && (
-                        <div className="mt-2 bg-white p-3 border border-[#D1D6DB] rounded-md max-h-40 overflow-y-auto space-y-2 shadow-inner">
+                        <div className="mt-2 bg-white p-3 border border-border-input rounded-md max-h-40 overflow-y-auto space-y-2 shadow-inner">
                              {(targetTypes.includes('COMPANY') ? mockCompanies : []).concat(targetTypes.includes('ERP') ? mockERPs : []).map(item => (
                                  <label key={item} className="flex items-center gap-2 cursor-pointer group">
                                     <input
                                         type="checkbox"
-                                        className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
+                                        className="w-4 h-4 border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]"
                                         checked={targetDetails.includes(item)}
                                         onChange={(e) => {
                                             const newDetails = e.target.checked
@@ -482,25 +482,25 @@ export default function NoticeManagement() {
                                             if (newDetails.length > 0) setErrors(prev => ({...prev, targetDetails: ''}));
                                         }}
                                     />
-                                    <span className="text-[13px] text-[#4E5968] group-hover:text-[#191F28] transition-colors">{item}</span>
+                                    <span className="text-body-sm text-text-body group-hover:text-text-main transition-colors">{item}</span>
                                  </label>
                              ))}
                         </div>
                     )}
-                    {errors.targetDetails && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.targetDetails}</p>}
+                    {errors.targetDetails && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.targetDetails}</p>}
                     </div>
 
                     {/* 노출 여부 */}
-                    <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-                        <span className="text-[14px] font-semibold text-[#191F28] block">노출 여부 <span className="text-[#F04452]">*</span></span>
+                    <div className="space-y-4 p-4 border border-border-gray rounded-lg bg-bg-gray">
+                        <span className="text-body font-semibold text-text-main block">노출 여부 <span className="text-status-error">*</span></span>
                         <div className="flex items-center gap-6">
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="isVisible" checked={isVisible} onChange={() => setIsVisible(true)} className="w-[18px] h-[18px] border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                <span className="text-[14px] text-[#191F28]">노출</span>
+                                <input type="radio" name="isVisible" checked={isVisible} onChange={() => setIsVisible(true)} className="w-[18px] h-[18px] border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]" />
+                                <span className="text-body text-text-main">노출</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-[18px] h-[18px] border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                <span className="text-[14px] text-[#191F28]">미노출</span>
+                                <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-[18px] h-[18px] border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]" />
+                                <span className="text-body text-text-main">미노출</span>
                             </label>
                         </div>
                     </div>
@@ -510,12 +510,12 @@ export default function NoticeManagement() {
                 {/* 3. 노출 기간 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">게시 기간 설정</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body-lg font-semibold text-text-main">게시 기간 설정</h4>
                   </div>
 
-                  <div className="p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] w-full">
-                    <label className="block text-[14px] font-semibold text-[#191F28] mb-3 text-sm">노출 기간 <span className="text-[#F04452]">*</span></label>
+                  <div className="p-4 border border-border-gray rounded-lg bg-bg-gray w-full">
+                    <label className="block text-body font-semibold text-text-main mb-3 text-body">노출 기간 <span className="text-status-error">*</span></label>
                     <div className="flex items-center gap-2">
                         <div className="flex-1">
                             <input
@@ -532,7 +532,7 @@ export default function NoticeManagement() {
                                     setErrors(next);
                                 }
                             }}
-                            className={`w-full h-[36px] px-3 bg-white border ${errors.startDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`}
+                            className={`w-full h-[36px] px-3 bg-white border ${errors.startDate ? 'border-status-error' : 'border-border-input'} rounded text-body outline-none focus:border-primary text-text-main`}
                             />
                         </div>
                         <span className="text-gray-400">~</span>
@@ -551,18 +551,18 @@ export default function NoticeManagement() {
                                     setErrors(next);
                                 }
                             }}
-                            className={`w-full h-[36px] px-3 bg-white border ${errors.endDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`}
+                            className={`w-full h-[36px] px-3 bg-white border ${errors.endDate ? 'border-status-error' : 'border-border-input'} rounded text-body outline-none focus:border-primary text-text-main`}
                             />
                         </div>
                     </div>
-                    {errors.startDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.startDate}</p>}
-                    {!errors.startDate && errors.endDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.endDate}</p>}
+                    {errors.startDate && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.startDate}</p>}
+                    {!errors.startDate && errors.endDate && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.endDate}</p>}
                   </div>
                 </div>
 
               </div>
 
-              <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
+              <div className="flex items-center justify-center h-[72px] px-6 border-t border-border-gray bg-bg-gray shrink-0 gap-3">
                 <Button variant="secondary" size="md" style={{ width: 120 }} onClick={closeForm}>취소</Button>
                 <Button variant="primary" size="md" style={{ width: 120 }} onClick={saveForm}>저장하기</Button>
               </div>

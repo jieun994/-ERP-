@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, AlertCircle, Upload, Image as ImageIcon } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, X, AlertCircle, Upload, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useLocation } from 'react-router-dom';
-import { Button, SearchBar, DataTable, StatusBadge, PageLayout, ConfirmModal, Select, Input } from './ui';
 
 interface Banner {
   id: string;
@@ -67,20 +65,12 @@ const mockERPs = ['더존 iCUBE', '영림원 K-System', 'SAP ERP', '이카운트
 const mockGroups = ['VIP 그룹', 'A 그룹', 'B 그룹', 'C 그룹'];
 
 export default function BannerManagement() {
-  const location = useLocation();
   const [data, setData] = useState<Banner[]>(mockBanners);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
+  
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<Banner | null>(null);
-
-  useEffect(() => {
-    if ((location.state as any)?.openModal) {
-      setEditItem(null);
-      setIsModalOpen(true);
-    }
-  }, []);
 
   // Warning Modals
   const [showCancelWarning, setShowCancelWarning] = useState(false);
@@ -129,13 +119,13 @@ export default function BannerManagement() {
       alert('상태를 변경할 배너를 선택해주세요.');
       return;
     }
-
+    
     const selectedItems = data.filter(item => selectedIds.includes(item.id));
     const allVisible = selectedItems.every(item => item.isVisible);
     const targetVisibility = !allVisible;
 
     if (window.confirm(`선택한 배너를 ${targetVisibility ? '노출' : '숨김'} 상태로 변경하시겠습니까?`)) {
-      setData(prev => prev.map(item =>
+      setData(prev => prev.map(item => 
         selectedIds.includes(item.id) ? { ...item, isVisible: targetVisibility } : item
       ));
       setSelectedIds([]);
@@ -177,7 +167,7 @@ export default function BannerManagement() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!title.trim()) newErrors.title = '배너명을 입력해주세요.';
-
+    
     if (positions.length === 0) {
       newErrors.positions = '노출 위치를 1개 이상 선택해주세요.';
     }
@@ -190,6 +180,8 @@ export default function BannerManagement() {
     }
 
     if (!imageUrl) newErrors.imageUrl = '배너 이미지를 첨부해주세요.';
+
+
 
     if (!startDate) newErrors.startDate = '시작일을 선택해주세요.';
     if (!endDate) newErrors.endDate = '종료일을 선택해주세요.';
@@ -207,7 +199,7 @@ export default function BannerManagement() {
 
   const closeForm = () => {
     // Check if dirty
-    const isDirty = editItem
+    const isDirty = editItem 
       ? title !== editItem.title || targetType !== editItem.targetType || JSON.stringify(targetDetails) !== JSON.stringify(editItem.targetDetails) || JSON.stringify(groupDetails) !== JSON.stringify(editItem.groupDetails) || JSON.stringify(positions) !== JSON.stringify(editItem.positions) || imageUrl !== editItem.imageUrl || linkUrl !== editItem.linkUrl || startDate !== editItem.startDate || endDate !== editItem.endDate || order !== editItem.order || isVisible !== editItem.isVisible
       : title !== '' || targetType !== 'ALL' || targetDetails.length > 0 || groupDetails.length > 0 || positions.length > 0 || imageUrl !== '' || linkUrl !== '' || startDate !== '' || endDate !== '' || order !== '';
 
@@ -245,7 +237,7 @@ export default function BannerManagement() {
     } else {
       setData(prev => [newObj, ...prev]);
     }
-
+    
     setIsModalOpen(false);
   };
 
@@ -267,151 +259,186 @@ export default function BannerManagement() {
     if (keyword) {
       matchesKeyword = item.title.toLowerCase().includes(keyword.toLowerCase());
     }
-
+    
     let matchesVisibility = true;
     if (visibilityFilter === 'VISIBLE') matchesVisibility = item.isVisible;
     else if (visibilityFilter === 'HIDDEN') matchesVisibility = !item.isVisible;
-
+    
     return matchesKeyword && matchesVisibility;
   });
 
   return (
-    <PageLayout>
+    <div className="w-full space-y-0 pb-20">
       {/* Search Area */}
-      <SearchBar
-        onSearch={() => {}}
-        onReset={() => { setKeyword(''); setVisibilityFilter('ALL'); setSearchTopic('title'); }}
-      >
-        <SearchBar.Field label="검색조건">
-          <Select
-            value={searchTopic}
-            onChange={(e) => setSearchTopic(e.target.value)}
-            style={{ width: 128 }}
-          >
-            <option value="title">배너명</option>
-          </Select>
-        </SearchBar.Field>
-        <SearchBar.Field label="검색어">
-          <Input
-            type="text"
-            placeholder="검색어 입력"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            style={{ width: 320 }}
-          />
-        </SearchBar.Field>
-        <SearchBar.Field label="노출여부">
-          <Select
-            value={visibilityFilter}
-            onChange={(e) => setVisibilityFilter(e.target.value as 'ALL' | 'VISIBLE' | 'HIDDEN')}
-            style={{ width: 128 }}
-          >
-            <option value="ALL">전체</option>
-            <option value="VISIBLE">노출</option>
-            <option value="HIDDEN">미노출</option>
-          </Select>
-        </SearchBar.Field>
-      </SearchBar>
+      <div className="flex items-stretch gap-3 mb-8">
+        <div className="flex-1 bg-bg-gray border border-border-gray px-8 py-5 rounded-md flex flex-wrap items-center justify-start gap-x-12 gap-y-4 shadow-sm">
+          <div className="flex items-center gap-4">
+            <span className="text-body font-bold text-gray-800 shrink-0">검색조건</span>
+            <select 
+              value={searchTopic}
+              onChange={(e) => setSearchTopic(e.target.value)}
+              className="w-32 h-[40px] px-3 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary transition-all"
+            >
+              <option value="title">배너명</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-body font-bold text-gray-800 shrink-0">검색어</span>
+            <input 
+              type="text" 
+              placeholder="검색어 입력"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              className="w-80 h-[40px] px-4 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary placeholder-[#8B95A1] transition-all"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-body font-bold text-gray-800 shrink-0">노출여부</span>
+            <select 
+              value={visibilityFilter}
+              onChange={(e) => setVisibilityFilter(e.target.value as 'ALL' | 'VISIBLE' | 'HIDDEN')}
+              className="w-32 h-[40px] px-3 bg-white border border-border-input rounded-md text-body text-text-main outline-none focus:border-primary transition-all"
+            >
+              <option value="ALL">전체</option>
+              <option value="VISIBLE">노출</option>
+              <option value="HIDDEN">미노출</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 shrink-0">
+          <button className="w-[100px] h-[48px] bg-primary hover:bg-primary-hover text-white rounded-md text-body-lg font-bold transition-colors shadow-sm">
+            조회
+          </button>
+          <button className="w-[100px] h-[48px] bg-white border border-border-input hover:bg-bg-muted text-text-main rounded-md text-body-lg font-bold transition-colors shadow-sm">
+            초기화
+          </button>
+        </div>
+      </div>
 
-      {/* Grid Controls */}
-      <DataTable.Controls total={filteredData.length}>
-        <Button variant="primary" size="sm" onClick={() => openForm()}>등록</Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={selectedIds.length !== 1}
-          onClick={() => {
-            if (selectedIds.length !== 1) { alert('수정할 배너를 1개만 선택해 주세요.'); return; }
-            const item = data.find(d => d.id === selectedIds[0]);
-            if (item) openForm(item);
-          }}
-        >수정</Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={selectedIds.length === 0}
-          onClick={() => {
-            if (selectedIds.length === 0) { alert('삭제할 배너를 선택해 주세요.'); return; }
-            setShowDeleteWarning('bulk');
-          }}
-        >삭제</Button>
-        <Button variant="ghost" size="sm" disabled={selectedIds.length === 0} onClick={handleToggleVisibility}>사용여부 변경</Button>
-      </DataTable.Controls>
+
+      {/* Grid Controls (Total count and Buttons) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+        <div className="text-body">
+          <span className="text-text-main">총 </span>
+          <span className="text-primary font-bold">{filteredData.length.toLocaleString()}</span>
+          <span className="text-text-main"> 건</span>
+        </div>
+        <div className="flex items-center gap-2">
+          
+          
+          
+          
+          <button 
+            onClick={handleToggleVisibility}
+            className="h-[36px] border border-border-input px-4 rounded-md text-body font-bold hover:bg-bg-gray bg-white text-text-main transition-colors shadow-sm"
+          >
+            사용여부 변경
+          </button>
+          <button 
+            onClick={() => openForm()}
+            className="h-[36px] bg-primary hover:bg-primary-hover text-white px-5 rounded-md text-body font-bold transition-colors shadow-sm"
+          >
+             등록
+          </button>
+          <button 
+            onClick={() => {
+              if (selectedIds.length !== 1) {
+                alert('수정할 배너를 1개만 선택해 주세요.');
+                return;
+              }
+              const item = data.find(d => d.id === selectedIds[0]);
+              if (item) openForm(item);
+            }}
+            className="h-[36px] border border-border-input px-4 rounded-md text-body font-bold hover:bg-bg-gray bg-white text-text-main transition-colors shadow-sm"
+          >
+            수정
+          </button>
+          <button 
+            onClick={() => {
+              if (selectedIds.length === 0) {
+                alert('삭제할 배너를 선택해 주세요.');
+                return;
+              }
+              setShowDeleteWarning('bulk');
+            }}
+            className="h-[36px] border border-border-input px-4 rounded-md text-body font-bold hover:bg-bg-gray bg-white text-text-main transition-colors shadow-sm"
+          >삭제</button>
+        </div>
+      </div>
 
       {/* Grid */}
-      <div className="bg-white border border-[#E5E8EB] rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-white border border-border-gray rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1200px] whitespace-nowrap">
             <thead>
-              <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#4E5968]">
-                <th className="h-[52px] px-4 text-center w-12 border-r border-[#E5E8EB]">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
+              <tr className="bg-bg-muted border-b border-border-gray text-text-body">
+                <th className="h-[52px] px-4 text-center w-12 border-r border-border-gray">
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]"
                     checked={filteredData.length > 0 && selectedIds.length === filteredData.length}
                     onChange={toggleSelectAll}
                   />
                 </th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-16 border-r border-[#E5E8EB]">No.</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">배너명</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-40 border-r border-[#E5E8EB]">노출 위치</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-32 border-r border-[#E5E8EB]">노출 대상</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-40 border-r border-[#E5E8EB]">노출 기간</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-20 border-r border-[#E5E8EB]">순서</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-20 border-r border-[#E5E8EB]">노출 여부</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-20 border-r border-[#E5E8EB]">등록자</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-28">최종수정일시</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-16 border-r border-border-gray">No.</th>
+                <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray">배너명</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-40 border-r border-border-gray">노출 위치</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-32 border-r border-border-gray">노출 대상</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-40 border-r border-border-gray">노출 기간</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-20 border-r border-border-gray">순서</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-20 border-r border-border-gray">노출 여부</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-20 border-r border-border-gray">등록자</th>
+                <th className="h-[52px] px-4 text-body font-semibold text-center w-28">최종수정일시</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {filteredData.length === 0 ? (
                 <tr>
-                   <td colSpan={10} className="py-20 text-center text-[#8B95A1] text-[14px]">
+                   <td colSpan={10} className="py-20 text-center text-text-sub text-body">
                     조건에 맞는 결과가 없습니다.
                    </td>
                 </tr>
               ) : filteredData.map((item) => (
-                <tr
-                  key={item.id}
-                  className={`cursor-pointer h-[52px] hover:bg-[#F9FAFB] transition-colors ${selectedIds.includes(item.id) ? 'bg-[#008d7508]' : 'bg-white'}`}
-                  onClick={() => toggleSelect(item.id)}
-                  onDoubleClick={() => { setSelectedIds([item.id]); const found = data.find(d => d.id === item.id); if (found) openForm(found); }}
-                  >
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]"
+                <tr 
+                  key={item.id} 
+                  className={`h-[52px] hover:bg-bg-gray transition-colors ${selectedIds.includes(item.id) ? 'bg-primary/5' : 'bg-white'}`}
+                >
+                  <td className="px-4 text-center border-r border-border-gray">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]"
                       checked={selectedIds.includes(item.id)}
                       onChange={() => toggleSelect(item.id)}
-                      onClick={(e) => e.stopPropagation()}
                     />
                   </td>
-                  <td className="px-4 text-center text-[13px] text-[#8B95A1] font-mono border-r border-[#E5E8EB]">{item.no}</td>
-                  <td className="px-4 text-[14px] border-r border-[#E5E8EB]">
-                    <div className="font-medium text-[#191F28] truncate max-w-[200px] xl:max-w-xs flex items-center gap-2">
+                  <td className="px-4 text-center text-body-sm text-text-sub font-mono border-r border-border-gray">{item.no}</td>
+                  <td className="px-4 text-body border-r border-border-gray">
+                    <div className="font-medium text-text-main truncate max-w-[200px] xl:max-w-xs flex items-center gap-2">
                        <span className="truncate">{item.title}</span>
                     </div>
                   </td>
-                  <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">
+                  <td className="px-4 text-body text-center text-text-body border-r border-border-gray">
                      <div className="flex flex-col gap-1 items-center">
                          {item.positions.length > 0 ? item.positions.map((p, i) => <div key={i} className="truncate w-full">{p}</div>) : '-'}
                      </div>
                   </td>
-                  <td className="px-4 text-[14px] text-center text-[#4E5968] border-r border-[#E5E8EB]">
+                  <td className="px-4 text-body text-center text-text-body border-r border-border-gray">
                     <div>{item.targetType === 'ALL' ? '전체기업' : item.targetType === 'COMPANY' ? '기업별' : 'ERP별'}</div>
-                    {item.groupDetails.length > 0 && <div className="text-[12px] text-[#8B95A1] mt-1">({item.groupDetails.length}그룹)</div>}
+                    {item.groupDetails.length > 0 && <div className="text-caption text-text-sub mt-1">({item.groupDetails.length}그룹)</div>}
                   </td>
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
-                     <span className="text-[14px] text-[#4E5968] inline-flex flex-col items-center gap-0.5 font-mono">
-                       <span>{item.startDate} <span className="text-[#8B95A1] mx-0.5">~</span> {item.endDate}</span>
+                  <td className="px-4 text-center border-r border-border-gray">
+                     <span className="text-body text-text-body inline-flex flex-col items-center gap-0.5 font-mono">
+                       <span>{item.startDate} <span className="text-text-sub mx-0.5">~</span> {item.endDate}</span>
                      </span>
                   </td>
-                  <td className="px-4 text-center text-[14px] text-[#4E5968] font-mono border-r border-[#E5E8EB]">{item.order}</td>
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <StatusBadge status={item.isVisible ? '노출' : '미노출'} />
+                  <td className="px-4 text-center text-body text-text-body font-mono border-r border-border-gray">{item.order}</td>
+                  <td className="px-4 text-center border-r border-border-gray">
+                    <span className={`text-body font-semibold ${item.isVisible ? 'text-primary' : 'text-text-sub'}`}>
+                      {item.isVisible ? '노출' : '미노출'}
+                    </span>
                   </td>
-                  <td className="px-4 text-[14px] text-center text-[#4E5968] truncate border-r border-[#E5E8EB]">{item.author}</td>
-                  <td className="px-4 text-center text-[14px] text-[#8B95A1] font-mono tracking-tight">
+                  <td className="px-4 text-body text-center text-text-body truncate border-r border-border-gray">{item.author}</td>
+                  <td className="px-4 text-center text-body text-text-sub font-mono tracking-tight">
                     {item.updatedAt}
                   </td>
                 </tr>
@@ -425,37 +452,37 @@ export default function BannerManagement() {
        <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
             >
-              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] shrink-0 bg-white">
-                <h3 className="text-[16px] font-semibold text-[#191F28]">배너 {editItem ? '수정' : '등록'}</h3>
-                <button
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-border-gray shrink-0 bg-white">
+                <h3 className="text-title-sm font-semibold text-text-main">배너 {editItem ? '수정' : '등록'}</h3>
+                <button 
                   onClick={closeForm}
-                  className="p-2 text-[#8B95A1] hover:text-[#191F28] transition-colors"
+                  className="p-2 text-text-sub hover:text-text-main transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-8 space-y-8">
-
+                
                 {/* 1. 기본 정보 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">기본 정보</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body-lg font-semibold text-text-main">기본 정보</h4>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 배너명 */}
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="block text-[14px] font-semibold text-[#191F28]">배너명 <span className="text-[#F04452]">*</span></label>
-                      <input
-                        type="text"
+                      <label className="block text-body font-semibold text-text-main">배너명 <span className="text-status-error">*</span></label>
+                      <input 
+                        type="text" 
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         onBlur={() => {
@@ -463,9 +490,9 @@ export default function BannerManagement() {
                             else setErrors(prev => ({...prev, title: ''}));
                         }}
                         placeholder="배너명을 입력하세요 (내부 관리용)"
-                        className={`w-full h-[40px] px-4 bg-white border ${errors.title ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded-md text-[14px] text-[#191F28] outline-none focus:border-[#008d75] placeholder-[#8B95A1] transition-all`}
+                        className={`w-full h-[40px] px-4 bg-white border ${errors.title ? 'border-status-error' : 'border-border-input'} rounded-md text-body text-text-main outline-none focus:border-primary placeholder-[#8B95A1] transition-all`}
                       />
-                      {errors.title && <p className="text-[12px] text-[#F04452] flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.title}</p>}
+                      {errors.title && <p className="text-caption text-status-error flex items-center gap-1 mt-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.title}</p>}
                     </div>
                   </div>
                 </div>
@@ -473,57 +500,57 @@ export default function BannerManagement() {
                 {/* 2. 게시 설정 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">게시 설정</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body-lg font-semibold text-text-main">게시 설정</h4>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 gap-6">
                     {/* 게시 대상 */}
-                    <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-                        <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">게시 대상 <span className="text-[#F04452]">*</span></label>
+                    <div className="space-y-2 p-4 border border-border-gray rounded-lg bg-bg-gray">
+                        <label className="block text-body font-semibold text-text-main mb-2 text-body">게시 대상 <span className="text-status-error">*</span></label>
                         <div className="flex items-center gap-4 mb-3">
                             {['전체', '더존', '가비아'].map((label) => (
                                 <label key={label} className="flex items-center gap-2 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
+                                    <input 
+                                        type="checkbox" 
                                         checked={targetDetails.includes(label)}
                                         onChange={(e) => {
-                                            const newDetails = e.target.checked
+                                            const newDetails = e.target.checked 
                                                 ? [...targetDetails, label]
                                                 : targetDetails.filter(d => d !== label);
                                             // Handle special logic for '전체'
                                             if (label === '전체' && e.target.checked) setTargetDetails(['전체']);
                                             else setTargetDetails(newDetails.filter(d => d !== '전체'));
                                         }}
-                                        className="w-4 h-4 border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75] rounded"
+                                        className="w-4 h-4 border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75] rounded"
                                     />
-                                    <span className="text-[14px] text-[#4E5968] group-hover:text-[#191F28] transition-colors font-medium">
+                                    <span className="text-body text-text-body group-hover:text-text-main transition-colors font-medium">
                                         {label}
                                     </span>
                                 </label>
                             ))}
                         </div>
-                        {errors.targetDetails && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.targetDetails}</p>}
+                        {errors.targetDetails && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.targetDetails}</p>}
                     </div>
 
                     {/* 노출 여부 */}
-                    <div className="space-y-4 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB]">
-                        <span className="text-[14px] font-semibold text-[#191F28] block">노출 여부 <span className="text-[#F04452]">*</span></span>
+                    <div className="space-y-4 p-4 border border-border-gray rounded-lg bg-bg-gray">
+                        <span className="text-body font-semibold text-text-main block">노출 여부 <span className="text-status-error">*</span></span>
                         <div className="flex items-center gap-6">
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="isVisible" checked={isVisible} onChange={() => setIsVisible(true)} className="w-[18px] h-[18px] border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                <span className="text-[14px] text-[#191F28]">노출</span>
+                                <input type="radio" name="isVisible" checked={isVisible} onChange={() => setIsVisible(true)} className="w-[18px] h-[18px] border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]" />
+                                <span className="text-body text-text-main">노출</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-[18px] h-[18px] border-[#D1D6DB] text-[#008d75] focus:ring-0 cursor-pointer accent-[#008d75]" />
-                                <span className="text-[14px] text-[#191F28]">미노출</span>
+                                <input type="radio" name="isVisible" checked={!isVisible} onChange={() => setIsVisible(false)} className="w-[18px] h-[18px] border-border-input text-primary focus:ring-0 cursor-pointer accent-[#008d75]" />
+                                <span className="text-body text-text-main">미노출</span>
                             </label>
                         </div>
-                        <div className="space-y-1.5 pt-2 border-t border-[#E5E8EB] mt-4">
-                            <label className="block text-[14px] font-semibold text-[#191F28] text-sm">노출 순서 <span className="text-[#F04452]">*</span></label>
+                        <div className="space-y-1.5 pt-2 border-t border-border-gray mt-4">
+                            <label className="block text-body font-semibold text-text-main text-body">노출 순서 <span className="text-status-error">*</span></label>
                             <div className="flex items-center gap-3">
-                                <input
-                                    type="number"
+                                <input 
+                                    type="number" 
                                     min="1"
                                     value={order}
                                     onChange={(e) => {
@@ -536,12 +563,12 @@ export default function BannerManagement() {
                                             setErrors(next);
                                         }
                                     }}
-                                    placeholder="예: 1"
-                                    className={`w-24 h-[36px] px-3 bg-white border ${errors.order ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-center text-[#191F28] transition-all`}
+                                    placeholder="1"
+                                    className={`w-24 h-[36px] px-3 bg-white border ${errors.order ? 'border-status-error' : 'border-border-input'} rounded text-body outline-none focus:border-primary text-center text-text-main transition-all`}
                                 />
-                                <span className="text-[13px] text-[#8B95A1]">낮은 숫자일수록 상단에 노출됩니다.</span>
+                                <span className="text-body-sm text-text-sub">낮은 숫자일수록 상단에 노출됩니다.</span>
                             </div>
-                            {errors.order && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.order}</p>}
+                            {errors.order && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.order}</p>}
                         </div>
                     </div>
                   </div>
@@ -550,23 +577,23 @@ export default function BannerManagement() {
                 {/* 3. 배너 정보 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">배너 상세</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body-lg font-semibold text-text-main">배너 상세</h4>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 이미지 파일 */}
                     <div className="space-y-1.5 md:col-span-2">
-                        <label className="block text-[14px] font-semibold text-[#191F28]">배너 이미지 <span className="text-[#F04452]">*</span></label>
-                        <div className={`mt-1 flex justify-center px-6 pt-6 pb-6 border-[1.5px] border-dashed rounded-lg ${errors.imageUrl ? 'border-[#F04452] bg-[#F04452]/5' : 'border-[#D1D6DB] bg-[#F9FAFB]'} hover:bg-[#F2F4F6] transition-colors`}>
+                        <label className="block text-body font-semibold text-text-main">배너 이미지 <span className="text-status-error">*</span></label>
+                        <div className={`mt-1 flex justify-center px-6 pt-6 pb-6 border-[1.5px] border-dashed rounded-lg ${errors.imageUrl ? 'border-status-error bg-status-error/5' : 'border-border-input bg-bg-gray'} hover:bg-bg-muted transition-colors`}>
                             <div className="space-y-1 text-center">
                                 {imageUrl ? (
                                     <div className="flex flex-col items-center gap-2">
-                                        <div className="w-16 h-16 bg-[#008d7510] text-[#008d75] flex items-center justify-center rounded-lg mb-2">
+                                        <div className="w-16 h-16 bg-primary/10 text-primary flex items-center justify-center rounded-lg mb-2">
                                             <ImageIcon className="w-8 h-8" />
                                         </div>
-                                        <p className="text-[13px] text-[#191F28] font-medium truncate max-w-[200px]">{imageUrl}</p>
-                                        <label className="cursor-pointer text-[13px] text-[#008d75] font-semibold flex items-center gap-1 hover:underline">
+                                        <p className="text-body-sm text-text-main font-medium truncate max-w-[200px]">{imageUrl}</p>
+                                        <label className="cursor-pointer text-body-sm text-primary font-semibold flex items-center gap-1 hover:underline">
                                            <Upload className="w-3.5 h-3.5" />
                                            <span>변경하기</span>
                                            <input type="file" className="sr-only" onChange={handleImageUpload} accept="image/*" />
@@ -574,19 +601,19 @@ export default function BannerManagement() {
                                     </div>
                                 ) : (
                                     <>
-                                        <Upload className="mx-auto h-10 w-10 text-[#8B95A1]" />
-                                        <div className="flex text-[14px] text-[#4E5968] justify-center mt-2">
-                                            <label className="relative cursor-pointer bg-transparent rounded-md font-medium text-[#008d75] hover:text-[#007a65] focus-within:outline-none">
+                                        <Upload className="mx-auto h-10 w-10 text-text-sub" />
+                                        <div className="flex text-body text-text-body justify-center mt-2">
+                                            <label className="relative cursor-pointer bg-transparent rounded-md font-medium text-primary hover:text-primary-hover focus-within:outline-none">
                                                 <span>이미지 파일 업로드</span>
                                                 <input type="file" className="sr-only" onChange={handleImageUpload} accept="image/*" />
                                             </label>
                                         </div>
-                                        <p className="text-[12px] text-[#8B95A1] mt-1">PNG, JPG (권장 해상도 1200x400)</p>
+                                        <p className="text-caption text-text-sub mt-1">PNG, JPG (권장 해상도 1200x400)</p>
                                     </>
                                 )}
                             </div>
                         </div>
-                        {errors.imageUrl && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.imageUrl}</p>}
+                        {errors.imageUrl && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.imageUrl}</p>}
                     </div>
                   </div>
                 </div>
@@ -594,17 +621,17 @@ export default function BannerManagement() {
                 {/* 4. 운영 설정 */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-[#008d75] rounded-full"></div>
-                    <h4 className="text-[15px] font-semibold text-[#191F28]">게시 기간 설정</h4>
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
+                    <h4 className="text-body-lg font-semibold text-text-main">게시 기간 설정</h4>
                   </div>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 노출 기간 */}
-                    <div className="space-y-2 p-4 border border-[#E5E8EB] rounded-lg bg-[#F9FAFB] md:col-span-2">
-                        <label className="block text-[14px] font-semibold text-[#191F28] mb-2 text-sm">노출 기간 <span className="text-[#F04452]">*</span></label>
+                    <div className="space-y-2 p-4 border border-border-gray rounded-lg bg-bg-gray md:col-span-2">
+                        <label className="block text-body font-semibold text-text-main mb-2 text-body">노출 기간 <span className="text-status-error">*</span></label>
                         <div className="flex flex-row items-center gap-2">
-                            <input
-                              type="date"
+                            <input 
+                              type="date" 
                               value={startDate}
                               onChange={(e) => {
                                   setStartDate(e.target.value);
@@ -617,11 +644,11 @@ export default function BannerManagement() {
                                       setErrors(next);
                                   }
                               }}
-                              className={`flex-1 h-[36px] px-3 bg-white border ${errors.startDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`}
+                              className={`flex-1 h-[36px] px-3 bg-white border ${errors.startDate ? 'border-status-error' : 'border-border-input'} rounded text-body outline-none focus:border-primary text-text-main`} 
                             />
-                            <div className="text-[#8B95A1] text-sm">~</div>
-                            <input
-                                type="date"
+                            <div className="text-text-sub text-body">~</div>
+                            <input 
+                                type="date" 
                                 value={endDate}
                                 onChange={(e) => {
                                     setEndDate(e.target.value);
@@ -634,48 +661,107 @@ export default function BannerManagement() {
                                         setErrors(next);
                                     }
                                 }}
-                                className={`flex-1 h-[36px] px-3 bg-white border ${errors.endDate ? 'border-[#F04452]' : 'border-[#D1D6DB]'} rounded text-[14px] outline-none focus:border-[#008d75] text-[#191F28]`}
+                                className={`flex-1 h-[36px] px-3 bg-white border ${errors.endDate ? 'border-status-error' : 'border-border-input'} rounded text-body outline-none focus:border-primary text-text-main`} 
                             />
                         </div>
-                        {errors.startDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.startDate}</p>}
-                        {!errors.startDate && errors.endDate && <p className="text-[12px] text-[#F04452] mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.endDate}</p>}
+                        {errors.startDate && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.startDate}</p>}
+                        {!errors.startDate && errors.endDate && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {errors.endDate}</p>}
                     </div>
+
+                    {/* 다음 섹션 */}
+
                   </div>
                 </div>
 
               </div>
 
-              <div className="flex items-center justify-center h-[72px] px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 gap-3">
-                <Button variant="secondary" size="md" style={{ width: 120 }} onClick={closeForm}>취소</Button>
-                <Button variant="primary" size="md" style={{ width: 120 }} onClick={saveForm}>저장하기</Button>
+              <div className="flex items-center justify-center h-[72px] px-6 border-t border-border-gray bg-bg-gray shrink-0 gap-3">
+                <button 
+                  onClick={closeForm}
+                  className="w-[120px] h-[40px] border border-border-input rounded-md bg-white text-body font-medium text-text-main hover:bg-bg-muted transition-colors"
+                >
+                  취소
+                </button>
+                <button 
+                  onClick={saveForm}
+                  className="w-[120px] h-[40px] bg-primary hover:bg-primary-hover text-white rounded-md text-body font-semibold transition-colors shadow-sm"
+                >
+                  저장하기
+                </button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        open={!!showDeleteWarning}
-        variant="danger"
-        title="배너를 삭제하시겠습니까?"
-        description="삭제 후 복구할 수 없습니다."
-        confirmLabel="삭제하기"
-        onConfirm={() => executeDelete(showDeleteWarning === 'bulk' ? selectedIds : [showDeleteWarning!])}
-        onCancel={() => setShowDeleteWarning(null)}
-      />
 
-      {/* Cancel Warning Modal */}
-      <ConfirmModal
-        open={showCancelWarning}
-        variant="warning"
-        title="저장되지 않은 변경사항"
-        description="현재 입력한 내용이 저장되지 않습니다. 닫으시겠습니까?"
-        confirmLabel="닫기"
-        cancelLabel="계속 작성"
-        onConfirm={() => { setShowCancelWarning(false); setIsModalOpen(false); }}
-        onCancel={() => setShowCancelWarning(false)}
-      />
-    </PageLayout>
+        {/* Delete Confirmation Modal */}
+        <AnimatePresence>
+            {showDeleteWarning && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                    className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
+                >
+                    <div className="w-12 h-12 bg-status-error/10 text-status-error rounded-full flex items-center justify-center mx-auto mb-6">
+                        <AlertCircle className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-title font-bold text-text-main mb-3">배너를 삭제하시겠습니까?</h3>
+                    <p className="text-body text-text-body mb-10 leading-relaxed">삭제 후 복구할 수 없습니다.</p>
+                    <div className="flex gap-2 justify-center">
+                        <button 
+                            onClick={() => setShowDeleteWarning(null)}
+                            className="flex-1 h-[44px] bg-white border border-border-input text-text-main rounded-md text-body font-semibold hover:bg-bg-gray transition-colors"
+                        >
+                            취소
+                        </button>
+                        <button 
+                            onClick={() => executeDelete(showDeleteWarning === 'bulk' ? selectedIds : [showDeleteWarning])}
+                            className="flex-1 h-[44px] bg-status-error text-white rounded-md text-body font-semibold hover:bg-status-error-strong transition-colors shadow-sm"
+                        >
+                            삭제하기
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
+            )}
+        </AnimatePresence>
+
+
+        {/* Cancel Warning Modal */}
+        <AnimatePresence>
+            {showCancelWarning && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                    className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-8 text-center"
+                >
+                    <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <AlertCircle className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-title font-bold text-text-main mb-3">저장되지 않은 변경사항</h3>
+                    <p className="text-body text-text-body mb-10 leading-relaxed">현재 입력한 내용이 저장되지 않습니다. 닫으시겠습니까?</p>
+                    <div className="flex gap-2 justify-center">
+                        <button 
+                            onClick={() => setShowCancelWarning(false)}
+                            className="flex-1 h-[44px] bg-white border border-border-input text-text-main rounded-md text-body font-semibold hover:bg-bg-gray transition-colors"
+                        >
+                            계속 작성
+                        </button>
+                        <button 
+                            onClick={() => {
+                                setShowCancelWarning(false);
+                                setIsModalOpen(false);
+                            }}
+                                className="flex-1 h-[44px] bg-primary text-white rounded-md text-body font-semibold hover:bg-primary-hover transition-colors shadow-sm"
+                            >
+                                닫기
+                            </button>
+                        </div>
+                </motion.div>
+            </div>
+            )}
+        </AnimatePresence>
+    </div>
   );
 }

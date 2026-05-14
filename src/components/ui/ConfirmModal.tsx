@@ -17,9 +17,9 @@ interface ConfirmModalProps {
 }
 
 const iconStyle: Record<ConfirmVariant, { wrap: string; text: string }> = {
-  danger:  { wrap: 'bg-red-50 text-[#F04452]',   text: '' },
+  danger:  { wrap: 'bg-red-50 text-status-error',   text: '' },
   warning: { wrap: 'bg-amber-50 text-amber-500',  text: '' },
-  primary: { wrap: 'bg-emerald-50 text-[#008d75]',text: '' },
+  primary: { wrap: 'bg-emerald-50 text-primary',text: '' },
 };
 
 /**
@@ -75,10 +75,10 @@ export default function ConfirmModal({
               <AlertCircle className="w-6 h-6" />
             </div>
 
-            <h3 className="text-[18px] font-bold text-[#191F28] mb-3">{title}</h3>
+            <h3 className="text-title font-bold text-text-main mb-3">{title}</h3>
 
             {description && (
-              <p className="text-[14px] text-[#4E5968] mb-10 leading-relaxed">{description}</p>
+              <p className="text-body text-text-body mb-10 leading-relaxed">{description}</p>
             )}
 
             <div className="flex gap-2 justify-center">

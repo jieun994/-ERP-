@@ -1,0 +1,369 @@
+import React, { useState } from 'react';
+import { RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+
+// ─── 타입 정의 ────────────────────────────────────────────────────────────────
+
+type InterfaceMethod = 'REST' | 'OData';
+
+type ParamDef = {
+  name: string;
+};
+
+type InterfaceDef = {
+  id: string;
+  name: string;
+  params: ParamDef[];
+};
+
+type InterfaceConfig = {
+  enabled: boolean;
+  expanded: boolean;
+  paramEndpoints: Record<string, string>;
+};
+
+type CompanyConfig = {
+  method: InterfaceMethod;
+  baseUrl: string;
+  interfaces: Record<string, InterfaceConfig>;
+};
+
+type EntStatus = 'waiting' | 'done';
+
+// ─── 상수 ──────────────────────────────────────────────────────────────────
+
+const INTERFACE_METHODS: { value: InterfaceMethod; label: string }[] = [
+  { value: 'REST',  label: 'REST'  },
+  { value: 'OData', label: 'OData' },
+];
+
+const INTERFACE_DEFS: InterfaceDef[] = [
+  {
+    id: 'employee',
+    name: '사원 정보 조회',
+    params: [
+      { name: 'CompanyCode'  },
+      { name: 'SystemId'     },
+      { name: 'FromDate'     },
+      { name: 'ToDate'       },
+      { name: 'DepartmentId' },
+    ],
+  },
+  {
+    id: 'department',
+    name: '조직/부서 조회',
+    params: [
+      { name: 'CompanyCode' },
+      { name: 'ValidDate'   },
+    ],
+  },
+  {
+    id: 'account',
+    name: '계정과목 조회',
+    params: [
+      { name: 'CompanyCode'     },
+      { name: 'ChartOfAccounts' },
+      { name: 'FromDate'        },
+      { name: 'ToDate'          },
+    ],
+  },
+  {
+    id: 'purchase',
+    name: '구매오더 조회',
+    params: [
+      { name: 'CompanyCode'  },
+      { name: 'Vendor'       },
+      { name: 'DocumentDate' },
+      { name: 'DocumentType' },
+    ],
+  },
+  {
+    id: 'sales',
+    name: '판매오더 조회',
+    params: [
+      { name: 'CompanyCode' },
+      { name: 'Customer'    },
+      { name: 'OrderDate'   },
+    ],
+  },
+  {
+    id: 'inventory',
+    name: '재고 조회',
+    params: [
+      { name: 'CompanyCode'    },
+      { name: 'Plant'          },
+      { name: 'Material'       },
+      { name: 'StorageLocation'},
+    ],
+  },
+];
+
+function makeDefaultInterfaceConfigs(): Record<string, InterfaceConfig> {
+  const configs: Record<string, InterfaceConfig> = {};
+  INTERFACE_DEFS.forEach(def => {
+    const paramEndpoints: Record<string, string> = {};
+    def.params.forEach(p => { paramEndpoints[p.name] = ''; });
+    configs[def.id] = { enabled: false, expanded: true, paramEndpoints };
+  });
+  return configs;
+}
+
+const EMPTY_CONFIG: CompanyConfig = {
+  method: 'REST',
+  baseUrl: '',
+  interfaces: makeDefaultInterfaceConfigs(),
+};
+
+function isComplete(cfg: CompanyConfig): boolean {
+  return !!(cfg.baseUrl.trim()) && Object.values(cfg.interfaces).some(i => i.enabled);
+}
+
+// ─── 컴포넌트 ─────────────────────────────────────────────────────────────────
+
+interface Enterprise { id: string; name: string; }
+
+export default function EnterpriseInterfaceSettings({ enterprises }: { enterprises: Enterprise[] }) {
+
+  const [configMap, setConfigMap] = useState<Record<string, CompanyConfig>>(() => {
+    const m: Record<string, CompanyConfig> = {};
+    enterprises.forEach(e => { m[e.id] = structuredClone(EMPTY_CONFIG); });
+    return m;
+  });
+
+  const [selectedId, setSelectedId] = useState<string>(enterprises[0]?.id ?? '');
+  const [current, setCurrent] = useState<CompanyConfig>(structuredClone(EMPTY_CONFIG));
+
+  if (enterprises.length === 0) {
+    return (
+      <div className="py-16 text-center text-gray-400">
+        <p className="text-[14px]">표시할 기업 정보가 없습니다.</p>
+        <p className="text-[12px] mt-1">1단계에서 기업을 먼저 추가해주세요.</p>
+      </div>
+    );
+  }
+
+  const switchEnterprise = (newId: string) => {
+    if (newId === selectedId) return;
+    setConfigMap(prev => ({ ...prev, [selectedId]: structuredClone(current) }));
+    setSelectedId(newId);
+    setCurrent(structuredClone(configMap[newId] ?? EMPTY_CONFIG));
+  };
+
+  const handleTop = <K extends keyof CompanyConfig>(key: K, val: CompanyConfig[K]) => {
+    setCurrent(prev => ({ ...prev, [key]: val }));
+  };
+
+  const toggleInterface = (id: string) => {
+    setCurrent(prev => ({
+      ...prev,
+      interfaces: {
+        ...prev.interfaces,
+        [id]: { ...prev.interfaces[id], enabled: !prev.interfaces[id].enabled },
+      },
+    }));
+  };
+
+  const toggleExpand = (id: string) => {
+    setCurrent(prev => ({
+      ...prev,
+      interfaces: {
+        ...prev.interfaces,
+        [id]: { ...prev.interfaces[id], expanded: !prev.interfaces[id].expanded },
+      },
+    }));
+  };
+
+  const handleParamEndpoint = (ifaceId: string, paramName: string, val: string) => {
+    setCurrent(prev => ({
+      ...prev,
+      interfaces: {
+        ...prev.interfaces,
+        [ifaceId]: {
+          ...prev.interfaces[ifaceId],
+          paramEndpoints: { ...prev.interfaces[ifaceId].paramEndpoints, [paramName]: val },
+        },
+      },
+    }));
+  };
+
+  const handleReset = () => setCurrent(structuredClone(EMPTY_CONFIG));
+
+  const getStatus = (id: string): EntStatus => {
+    const cfg = id === selectedId ? current : (configMap[id] ?? EMPTY_CONFIG);
+    return isComplete(cfg) ? 'done' : 'waiting';
+  };
+
+  const inputCls = 'w-full px-3 py-2 border border-gray-300 rounded-md text-[13px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75] bg-white';
+  const selectedEnt = enterprises.find(e => e.id === selectedId);
+
+  return (
+    <div className="relative">
+      <div className="flex gap-6" style={{ minHeight: 560 }}>
+
+        {/* 사이드바 */}
+        <div className="w-[200px] flex-shrink-0 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+            <span className="text-[14px] font-semibold text-gray-700">등록 기업 목록</span>
+          </div>
+          <div className="overflow-y-auto">
+            {enterprises.map(ent => {
+              const status = getStatus(ent.id);
+              const isActive = ent.id === selectedId;
+              const activeCls = isActive
+                ? 'bg-[#008d75]/5 border-l-[#008d75]'
+                : 'border-l-transparent hover:bg-gray-50';
+              const nameCls = isActive ? 'text-[#008d75]' : 'text-gray-800';
+              const badgeCls = status === 'done'
+                ? 'bg-[#008d75]/10 text-[#008d75] border-[#008d75]/20'
+                : 'bg-gray-50 text-gray-400 border-gray-100';
+              return (
+                <button
+                  key={ent.id}
+                  onClick={() => switchEnterprise(ent.id)}
+                  className={'w-full text-left px-4 py-3 flex items-center justify-between gap-2 border-l-2 transition-colors border-b border-gray-50 ' + activeCls}
+                >
+                  <div className="min-w-0">
+                    <div className={'text-[14px] font-semibold truncate ' + nameCls}>{ent.name}</div>
+                    <div className="text-[11px] text-gray-400 mt-0.5">
+                      {status === 'done' ? '입력 완료' : '미입력'}
+                    </div>
+                  </div>
+                  <span className={'text-[10px] px-2 py-0.5 rounded-full border whitespace-nowrap flex-shrink-0 ' + badgeCls}>
+                    {status === 'done' ? '완료' : '대기'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 콘텐츠 */}
+        <div className="flex-1 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+
+          {/* 헤더 */}
+          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
+            <div className="text-[15px] font-bold text-gray-900">{selectedEnt?.name}</div>
+            <button
+              onClick={handleReset}
+              className="flex-shrink-0 flex items-center gap-1.5 text-[13px] text-gray-500 px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              초기화
+            </button>
+          </div>
+
+          <div className="p-6 flex flex-col gap-6 flex-1 overflow-y-auto">
+
+            {/* ① Base URL */}
+            <div>
+              <label className="block text-[14px] font-semibold text-gray-700 mb-1.5">
+                Base URL <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className={inputCls}
+                placeholder="https://your-erp-system.com"
+                value={current.baseUrl}
+                onChange={e => handleTop('baseUrl', e.target.value)}
+              />
+            </div>
+
+            {/* ② 인터페이스 방식 */}
+            <div>
+              <label className="block text-[14px] font-semibold text-gray-700 mb-3">
+                인터페이스 방식 <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-6">
+                {INTERFACE_METHODS.map(({ value, label }) => (
+                  <label key={value} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name={'method-' + selectedId}
+                      value={value}
+                      checked={current.method === value}
+                      onChange={() => handleTop('method', value)}
+                      className="w-4 h-4 accent-[#008d75] cursor-pointer"
+                    />
+                    <span className="text-[14px] text-gray-700">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* 구분선 */}
+            <div className="border-t border-gray-100" />
+
+            {/* ③ 인터페이스 목록 */}
+            <div>
+              <h3 className="text-[14px] font-semibold text-gray-700 mb-3">인터페이스 목록</h3>
+
+              <div className="flex flex-col gap-2">
+                {INTERFACE_DEFS.map(def => {
+                  const cfg = current.interfaces[def.id];
+                  const enabled = cfg?.enabled ?? false;
+                  const expanded = cfg?.expanded ?? true;
+                  const borderCls = enabled ? 'border-[#008d75]/30' : 'border-gray-200';
+                  const headerBgCls = enabled ? 'bg-[#008d75]/5' : 'bg-gray-50';
+                  const trackCls = enabled ? 'bg-[#008d75]' : 'bg-gray-300';
+                  const thumbCls = enabled ? 'translate-x-4' : 'translate-x-0.5';
+                  const nameCls2 = enabled ? 'text-gray-800' : 'text-gray-400';
+
+                  return (
+                    <div key={def.id} className={'border rounded-lg overflow-hidden ' + borderCls}>
+
+                      {/* 헤더 행 */}
+                      <div className={'flex items-center gap-3 px-4 py-3 ' + headerBgCls}>
+                        <button
+                          type="button"
+                          onClick={() => toggleInterface(def.id)}
+                          className={'relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0 ' + trackCls}
+                        >
+                          <span className={'inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ' + thumbCls} />
+                        </button>
+
+                        <span className={'text-[14px] font-semibold flex-1 ' + nameCls2}>{def.name}</span>
+
+                        <span className={'text-[11px] px-2 py-0.5 rounded-full border flex-shrink-0 ' + (enabled ? 'bg-[#008d75]/10 text-[#008d75] border-[#008d75]/20' : 'bg-white text-gray-400 border-gray-200')}>
+                          {enabled ? '사용' : '미사용'}
+                        </span>
+
+                        {enabled && (
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(def.id)}
+                            className="text-gray-400 hover:text-gray-600 transition-colors ml-1"
+                          >
+                            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* 파라미터 + Endpoint */}
+                      {enabled && expanded && (
+                        <div className="border-t border-[#008d75]/10 px-4 py-3 flex flex-col gap-2">
+                          {def.params.map(param => (
+                            <div key={param.name} className="flex items-center gap-3">
+                              <span className="w-[148px] flex-shrink-0 text-[12px] font-mono text-gray-400 select-none truncate">
+                                {param.name}
+                              </span>
+                              <input
+                                type="text"
+                                className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded text-[12px] outline-none focus:border-[#008d75] focus:ring-1 focus:ring-[#008d75] bg-white"
+                                placeholder="/api/v1/..."
+                                value={cfg?.paramEndpoints[param.name] ?? ''}
+                                onChange={e => handleParamEndpoint(def.id, param.name, e.target.value)}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

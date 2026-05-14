@@ -1,0 +1,106 @@
+import React, { useMemo, useState } from 'react';
+import { FilterBar, PageLayout, Button, Input, Select } from './ui';
+
+// ════════════════════════════════════════════════════════════════════
+// Types & Constants
+// ════════════════════════════════════════════════════════════════════
+type ItemKey =
+  | 'normal' | 'other' | 'foreign'
+  | 'time_krw' | 'time_foreign' | 'recurring'
+  | 'b2b_sales' | 'b2b_purchase' | 'electronic_bill';
+
+const ITEM_LABELS_SHORT: Record<ItemKey, string> = {
+  normal: '보통예금',
+  other: '기타예금',
+  foreign: '외화예금',
+  time_krw: '정기예금(원)',
+  time_foreign: '정기예금(외)',
+  recurring: '정기적금',
+  b2b_sales: 'B2B매출',
+  b2b_purchase: 'B2B매입',
+  electronic_bill: '전자어음',
+};
+
+const ITEM_LABELS_LONG: Record<ItemKey, string> = {
+  normal: '보통예금',
+  other: '기타예금',
+  foreign: '외화예금',
+  time_krw: '정기예금(원화)',
+  time_foreign: '정기예금(외화)',
+  recurring: '정기적금',
+  b2b_sales: 'B2B매출내역',
+  b2b_purchase: 'B2B매입내역',
+  electronic_bill: '전자어음',
+};
+
+const ITEM_GROUPS: { title: string; items: ItemKey[] }[] = [
+  { title: '일반 예금', items: ['normal', 'other', 'foreign'] },
+  { title: '정기 예/적금', items: ['time_krw', 'time_foreign', 'recurring'] },
+  { title: '기타', items: ['b2b_sales', 'b2b_purchase', 'electronic_bill'] },
+];
+
+const TENANTS = [
+  { code: 'ALL', name: '전체' },
+  { code: 'TOSS', name: '(주)토스페이먼츠' },
+  { code: 'WOOWAHAN', name: '우아한형제들' },
+  { code: 'KAKAO', name: '카카오페이' },
+];
+
+const BANKS = [
+  { code: 'ALL', name: '전체' },
+  { code: 'HANA', name: '하나은행' },
+  { code: 'KB', name: '국민은행' },
+  { code: 'SHINHAN', name: '신한은행' },
+];
+
+const TENANT_NAMES = TENANTS.filter(t => t.code !== 'ALL').map(t => t.name);
+
+// ════════════════════════════════════════════════════════════════════
+// Mock data
+// ════════════════════════════════════════════════════════════════════
+const MOCK = {
+  normal: [
+    { tenant: '(주)토스페이먼츠', bank: '하나은행', group: '모계좌', alias: '사업비계좌', no: '123-456789-01234', deposit: 0, withdraw: 0, balance: 9000, withdrawable: 9000, status: '수금(현금기타)' },
+    { tenant: '우아한형제들', bank: '국민은행', group: '모계좌', alias: '사업비계좌', no: '111-222222-33333', deposit: 0, withdraw: 0, balance: 9000, withdrawable: 9000, status: '수금(현금기타)' },
+    { tenant: '카카오페이', bank: '신한은행', group: '모계좌', alias: '운영계좌', no: '222-333333-44444', deposit: 0, withdraw: 0, balance: 9000, withdrawable: 9000, status: '수금(현금기타)' },
+  ],
+  other: [
+    { tenant: '(주)토스페이먼츠', bank: '하나은행', group: '외화예금', alias: '외화1', no: '123-456789-01234', deposit: 0, withdraw: 0, balance: 9000000, rate: '0.00', status: 'MMDA' },
+    { tenant: '우아한형제들', bank: '국민은행', group: '외화예금', alias: '외화1', no: '111-222222-33333', deposit: 0, withdraw: 0, balance: 9000000, rate: '0.00', status: 'MMDA' },
+  ],
+  foreign: [
+    { tenant: '(주)토스페이먼츠', bank: '하나은행', group: '외화예금', alias: '외화1', no: '123-456789-01234', currency: 'USD', deposit: 0, withdraw: 0, balance: 0, krwBalance: 9000000, exchangeRate: '1,405.6' },
+    { tenant: '우아한형제들', bank: '국민은행', group: '외화예금', alias: '외화1', no: '111-222222-33333', currency: 'USD', deposit: 0, withdraw: 0, balance: 0, krwBalance: 9000000, exchangeRate: '1,405.6' },
+  ],
+  time_krw: [
+    { tenant: '(주)토스페이먼츠', bank: '하나은행', group: '모계좌', alias: '정기1', no: '123-456789-01234', deposit: 0, withdraw: 0, balance: 100000000, rate: '3.50', maturityDate: '2027-05-12', status: '정기' },
+    { tenant: '우아한형제들', bank: '국민은행', group: '모계좌', alias: '정기1', no: '111-222222-33333', deposit: 0, withdraw: 0, balance: 100000000, rate: '3.50', maturityDate: '2027-05-12', status: '정기' },
+  ],
+  time_foreign: [],
+  recurring: [],
+  b2b_sales: [],
+  b2b_purchase: [],
+  electronic_bill: [],
+};
+
+// ════════════════════════════════════════════════════════════════════
+// Component — UI 작업 중 (절단으로 인해 UI 부분 손실됨)
+// 데이터 구조(MOCK, TENANTS, BANKS, ITEM_GROUPS, ITEM_LABELS_*)는 보존됨
+// ════════════════════════════════════════════════════════════════════
+export default function FundStatus() {
+  return (
+    <PageLayout>
+      <div className="w-full p-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <h2 className="text-[18px] font-bold text-gray-900 mb-2">자금 현황 조회</h2>
+          <p className="text-[14px] text-gray-700 mb-2">
+            화면 UI 작업 중입니다. 데이터 구조(<code>MOCK</code>, <code>TENANTS</code>, <code>BANKS</code>, <code>ITEM_GROUPS</code> 등)는 보존되어 있으니 UI를 다시 작성해주세요.
+          </p>
+          <p className="text-[13px] text-gray-500">
+            카테고리 {Object.keys(MOCK).length}개 / 테넌트 {TENANTS.length - 1}개 / 은행 {BANKS.length - 1}개 데이터 준비됨
+          </p>
+        </div>
+      </div>
+    </PageLayout>
+  );
+}

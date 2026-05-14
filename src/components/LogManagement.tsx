@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SearchBar, DataTable, PageLayout, Button, Input, Select } from './ui';
+import { FilterBar, DataTable, PageLayout, Button, Input, Select } from './ui';
 
 interface LogEntry {
   id: string;
@@ -73,12 +73,14 @@ export default function LogManagement() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Search States
-  const [startDate, setStartDate] = useState('2026-05-06');
-  const [endDate, setEndDate] = useState('2026-05-06');
-  const [classificationFilter, setClassificationFilter] = useState('ALL');
-  const [searchUser, setSearchUser] = useState('');
-  const [searchStatus, setSearchStatus] = useState('ALL');
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchParams, setSearchParams] = useState({
+    startDate: '2026-05-06',
+    endDate: '2026-05-06',
+    classificationFilter: 'ALL',
+    searchUser: '',
+    searchStatus: 'ALL',
+    searchKeyword: '',
+  });
 
   const openDetail = (log: LogEntry) => {
     setIsLoading(true);
@@ -101,85 +103,87 @@ export default function LogManagement() {
   };
 
   const handleReset = () => {
-    setStartDate('2026-05-06');
-    setEndDate('2026-05-06');
-    setClassificationFilter('ALL');
-    setSearchUser('');
-    setSearchStatus('ALL');
-    setSearchKeyword('');
+    setSearchParams({
+      startDate: '2026-05-06',
+      endDate: '2026-05-06',
+      classificationFilter: 'ALL',
+      searchUser: '',
+      searchStatus: 'ALL',
+      searchKeyword: '',
+    });
   };
 
   return (
     <PageLayout>
       {/* Search Area */}
-      <SearchBar onSearch={() => {}} onReset={handleReset}>
-        {/* 기간 */}
-        <SearchBar.Field label="기간">
+      <FilterBar onSearch={() => {}} onReset={handleReset}>
+        {/* 조회 기간 */}
+        <FilterBar.Field label="조회 기간">
           <div className="flex items-center gap-1.5">
             <Input
               type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              style={{ width: 150 }}
+              value={searchParams.startDate}
+              onChange={(e) => setSearchParams({ ...searchParams, startDate: e.target.value })}
+              style={{ width: 160 }}
             />
-            <span className="text-[#8B95A1]">~</span>
+            <span className="text-text-sub">~</span>
             <Input
               type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              style={{ width: 150 }}
+              value={searchParams.endDate}
+              onChange={(e) => setSearchParams({ ...searchParams, endDate: e.target.value })}
+              style={{ width: 160 }}
             />
           </div>
-        </SearchBar.Field>
+        </FilterBar.Field>
 
         {/* 로그구분 */}
-        <SearchBar.Field label="로그구분">
+        <FilterBar.Field label="로그구분">
           <Select
-            value={classificationFilter}
-            onChange={(e) => setClassificationFilter(e.target.value)}
-            style={{ width: 144 }}
+            value={searchParams.classificationFilter}
+            onChange={(e) => setSearchParams({ ...searchParams, classificationFilter: e.target.value })}
+            fullWidth
           >
             <option value="ALL">전체</option>
             <option value="AUDIT">AUDIT</option>
             <option value="CLOUD">CLOUD</option>
           </Select>
-        </SearchBar.Field>
+        </FilterBar.Field>
 
         {/* 사용자 */}
-        <SearchBar.Field label="사용자">
+        <FilterBar.Field label="사용자">
           <Input
             type="text"
-            value={searchUser}
-            onChange={(e) => setSearchUser(e.target.value)}
+            value={searchParams.searchUser}
+            onChange={(e) => setSearchParams({ ...searchParams, searchUser: e.target.value })}
             placeholder="사용자명 입력"
-            style={{ width: 192 }}
+            fullWidth
           />
-        </SearchBar.Field>
+        </FilterBar.Field>
 
         {/* 결과 */}
-        <SearchBar.Field label="결과">
+        <FilterBar.Field label="결과">
           <Select
-            value={searchStatus}
-            onChange={(e) => setSearchStatus(e.target.value)}
-            style={{ width: 144 }}
+            value={searchParams.searchStatus}
+            onChange={(e) => setSearchParams({ ...searchParams, searchStatus: e.target.value })}
+            fullWidth
           >
             <option value="ALL">전체</option>
             <option value="SUCCESS">성공</option>
             <option value="FAIL">실패</option>
           </Select>
-        </SearchBar.Field>
+        </FilterBar.Field>
 
         {/* 키워드 */}
-        <SearchBar.Field label="키워드">
+        <FilterBar.Field label="키워드">
           <Input
             type="text"
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
+            value={searchParams.searchKeyword}
+            onChange={(e) => setSearchParams({ ...searchParams, searchKeyword: e.target.value })}
             placeholder="검색어 입력"
-            style={{ minWidth: 200 }}
+            fullWidth
           />
-        </SearchBar.Field>
-      </SearchBar>
+        </FilterBar.Field>
+      </FilterBar>
 
       {/* Grid Controls */}
       <DataTable.Controls total={data.length}>
@@ -189,56 +193,56 @@ export default function LogManagement() {
       </DataTable.Controls>
 
       {/* Grid */}
-      <div className="bg-white border-t-2 border-[#191F28] rounded-b-lg overflow-hidden shadow-sm">
+      <div className="bg-white border-t-2 border-text-main rounded-b-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1200px] whitespace-nowrap">
             <thead>
-              <tr className="bg-[#F2F4F6] border-b border-[#E5E8EB] text-[#191F28]">
-                <th className="h-[52px] px-6 text-[14px] font-bold text-center w-16">No.</th>
-                <th className="h-[52px] px-4 text-[14px] font-bold text-center w-48">발생일시(UTC)</th>
-                <th className="h-[52px] px-4 text-[14px] font-bold text-center w-24">로그구분</th>
-                <th className="h-[52px] px-4 text-[14px] font-bold text-center w-24">레벨</th>
-                <th className="h-[52px] px-4 text-[14px] font-bold">이벤트명(Code)</th>
-                <th className="h-[52px] px-4 text-[14px] font-bold">대상(Resource)</th>
-                <th className="h-[52px] px-4 text-[14px] font-bold">사용자(Identity)</th>
-                <th className="h-[52px] px-4 text-[14px] font-bold text-center w-36">결과(Raw)</th>
+              <tr className="bg-bg-muted border-b border-border-gray text-text-main">
+                <th className="h-[52px] px-6 text-body font-bold text-center w-16">No.</th>
+                <th className="h-[52px] px-4 text-body font-bold text-center w-48">발생일시(UTC)</th>
+                <th className="h-[52px] px-4 text-body font-bold text-center w-24">로그구분</th>
+                <th className="h-[52px] px-4 text-body font-bold text-center w-24">레벨</th>
+                <th className="h-[52px] px-4 text-body font-bold">이벤트명(Code)</th>
+                <th className="h-[52px] px-4 text-body font-bold">대상(Resource)</th>
+                <th className="h-[52px] px-4 text-body font-bold">사용자(Identity)</th>
+                <th className="h-[52px] px-4 text-body font-bold text-center w-36">결과(Raw)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {data.map((item, index) => (
                 <tr 
                   key={item.id} 
-                  className="h-[52px] hover:bg-[#F9FAFB] transition-colors group"
+                  className="h-[52px] hover:bg-bg-gray transition-colors group"
                 >
-                  <td className="px-6 text-[14px] text-center text-[#8B95A1] font-mono">{index + 1}</td>
-                  <td className="px-4 text-[14px] text-center text-[#4E5968] font-mono tracking-tight">{item.timestamp}</td>
+                  <td className="px-6 text-body text-center text-text-sub font-mono">{index + 1}</td>
+                  <td className="px-4 text-body text-center text-text-body font-mono tracking-tight">{item.timestamp}</td>
                   <td className="px-4 text-center">
-                    <span className="text-[14px] font-medium text-[#191F28]">
+                    <span className="text-body font-medium text-text-main">
                       {item.classification}
                     </span>
                   </td>
                   <td className="px-4 text-center">
-                    <span className={`text-[12px] font-bold ${
-                      item.logLevel === 'ERROR' ? 'text-[#F04452]' :
-                      item.logLevel === 'WARN' ? 'text-[#FF9F0A]' :
-                      item.logLevel === 'INFO' ? 'text-[#008d75]' :
-                      'text-[#8B95A1]'
+                    <span className={`text-caption font-bold ${
+                      item.logLevel === 'ERROR' ? 'text-status-error' :
+                      item.logLevel === 'WARN' ? 'text-status-warn' :
+                      item.logLevel === 'INFO' ? 'text-primary' :
+                      'text-text-sub'
                     }`}>
                       {item.logLevel}
                     </span>
                   </td>
-                  <td className="px-4 text-[14px]">
+                  <td className="px-4 text-body">
                     <button 
                       onClick={() => openDetail(item)}
-                      className="text-[#008d75] font-bold hover:underline transition-colors text-left font-mono text-[13px]"
+                      className="text-primary font-bold hover:underline transition-colors text-left font-mono text-body-sm"
                     >
                       {item.eventCode}
                     </button>
                   </td>
-                  <td className="px-4 text-[13px] text-[#4E5968] font-mono">{item.resourceId}</td>
-                  <td className="px-4 text-[13px] text-[#4E5968] font-mono">{item.actorIdentity}</td>
+                  <td className="px-4 text-body-sm text-text-body font-mono">{item.resourceId}</td>
+                  <td className="px-4 text-body-sm text-text-body font-mono">{item.actorIdentity}</td>
                   <td className="px-4 text-center">
-                    <span className={`text-[13px] font-bold font-mono ${item.originalResult === 'authenticated' || item.originalResult === 'success' ? 'text-[#008d75]' : 'text-[#191F28]'}`}>
+                    <span className={`text-body-sm font-bold font-mono ${item.originalResult === 'authenticated' || item.originalResult === 'success' ? 'text-primary' : 'text-text-main'}`}>
                       {item.originalResult || '-'}
                     </span>
                   </td>
@@ -260,11 +264,11 @@ export default function LogManagement() {
               className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Popup Header */}
-              <div className="flex items-center justify-between px-6 h-[56px] border-b border-[#E5E8EB] bg-white shrink-0">
-                <h3 className="text-[16px] font-semibold text-[#191F28]">로그 상세 확인</h3>
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-border-gray bg-white shrink-0">
+                <h3 className="text-title-sm font-semibold text-text-main">로그 상세 확인</h3>
                 <button 
                   onClick={closeDetail}
-                  className="p-1 text-[#8B95A1] hover:text-[#191F28] transition-colors"
+                  className="p-1 text-text-sub hover:text-text-main transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -273,18 +277,18 @@ export default function LogManagement() {
               {/* Popup Body */}
               <div className="flex-1 overflow-y-auto p-6 bg-white">
                 {isLoading ? (
-                  <div className="h-64 flex flex-col items-center justify-center text-[#8B95A1] gap-4">
-                    <div className="w-8 h-8 border-3 border-[#E5E8EB] border-t-[#008d75] rounded-full animate-spin" />
-                    <p className="text-[14px]">데이터를 불러오고 있습니다...</p>
+                  <div className="h-64 flex flex-col items-center justify-center text-text-sub gap-4">
+                    <div className="w-8 h-8 border-3 border-border-gray border-t-[#008d75] rounded-full animate-spin" />
+                    <p className="text-body">데이터를 불러오고 있습니다...</p>
                   </div>
                 ) : (
                   <div className="space-y-8">
                     {/* Basic Info Area */}
                     <div>
-                      <h4 className="text-[15px] font-bold text-[#191F28] mb-4 flex items-center gap-2">
+                      <h4 className="text-body-lg font-bold text-text-main mb-4 flex items-center gap-2">
                         기본 정보
                       </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 border-t border-[#E5E8EB]">
+                      <div className="grid grid-cols-1 md:grid-cols-2 border-t border-border-gray">
                         {[
                           { label: '발생일시', value: selectedLog.timestamp },
                           { label: '로그구분', value: selectedLog.classification },
@@ -293,12 +297,12 @@ export default function LogManagement() {
                           { label: '사용자', value: selectedLog.actorIdentity },
                           { label: '결과', value: selectedLog.originalResult || '-', isResult: true },
                         ].map((info, i) => (
-                          <div key={i} className="flex border-b border-[#E5E8EB] min-h-[44px]">
-                            <div className="w-32 bg-[#F2F4F6] px-4 flex items-center shrink-0">
-                              <span className="text-[14px] font-semibold text-[#4E5968]">{info.label}</span>
+                          <div key={i} className="flex border-b border-border-gray min-h-[44px]">
+                            <div className="w-32 bg-bg-muted px-4 flex items-center shrink-0">
+                              <span className="text-body font-semibold text-text-body">{info.label}</span>
                             </div>
                             <div className="flex-1 px-4 flex items-center">
-                              <span className={`text-[14px] break-all ${info.isResult ? 'font-bold text-[#008d75]' : 'text-[#191F28]'}`}>
+                              <span className={`text-body break-all ${info.isResult ? 'font-bold text-primary' : 'text-text-main'}`}>
                                 {info.value}
                               </span>
                             </div>
@@ -309,17 +313,17 @@ export default function LogManagement() {
 
                     {/* Raw Log Area */}
                     <div>
-                      <h4 className="text-[15px] font-bold text-[#191F28] mb-4 flex items-center gap-2">
+                      <h4 className="text-body-lg font-bold text-text-main mb-4 flex items-center gap-2">
                         원본 전문
                       </h4>
-                      <div className="bg-[#1e1e1e] p-4 rounded-md">
+                      <div className="bg-surface-dark p-4 rounded-md">
                         {selectedLog.payload ? (
-                          <pre className="text-[13px] text-[#d4d4d4] font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap selection:bg-[#008d75]/30">
+                          <pre className="text-body-sm text-surface-dark-text font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap selection:bg-primary/30">
                             {selectedLog.payload}
                           </pre>
                         ) : (
-                          <div className="h-40 flex flex-col items-center justify-center text-[#4E5968] gap-2">
-                             <p className="text-[13px]">원본 로그 데이터가 존재하지 않습니다.</p>
+                          <div className="h-40 flex flex-col items-center justify-center text-text-body gap-2">
+                             <p className="text-body-sm">원본 로그 데이터가 존재하지 않습니다.</p>
                           </div>
                         )}
                       </div>
@@ -329,7 +333,7 @@ export default function LogManagement() {
               </div>
 
               {/* Popup Footer */}
-              <div className="flex items-center justify-center gap-2 px-6 py-4 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0">
+              <div className="flex items-center justify-center gap-2 px-6 py-4 border-t border-border-gray bg-bg-gray shrink-0">
                 <Button variant="secondary" size="md" onClick={handleCopyRawLog}>
                   복사
                 </Button>
