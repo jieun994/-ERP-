@@ -29,7 +29,6 @@ type CompanyVanInfo = {
   salaryIds: string[];  // 급여 (여러 개 가능)
   // 기타계좌
   scrapAccounts: Record<ScrapType, BankAccount>;
-  subContractAccount: BankAccount; // 하도급
 };
 
 /**
@@ -55,7 +54,6 @@ const EMPTY_VAN_INFO: CompanyVanInfo = {
     gold:       { bank: '', account: '' },
     nonFerrous: { bank: '', account: '' },
   },
-  subContractAccount: { bank: '', account: '' },
 };
 
 // 펌뱅킹 ID 단일 입력 항목 (급여는 별도 처리 — 다중 입력)
@@ -88,7 +86,6 @@ function hasVanValues(info: CompanyVanInfo) {
     const a = info.scrapAccounts[key];
     return a.bank.trim() || a.account.trim();
   })) return true;
-  if (info.subContractAccount.bank.trim() || info.subContractAccount.account.trim()) return true;
   return false;
 }
 
@@ -109,10 +106,6 @@ function flattenVanInfoForDisplay(info: CompanyVanInfo): { label: string; value:
       out.push({ label: `스크랩(${label})`, value: `${a.bank || '-'} / ${a.account || '-'}` });
     }
   });
-  if (info.subContractAccount.bank.trim() || info.subContractAccount.account.trim()) {
-    const a = info.subContractAccount;
-    out.push({ label: '하도급 계좌', value: `${a.bank || '-'} / ${a.account || '-'}` });
-  }
   return out;
 }
 
@@ -144,7 +137,6 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
           gold:       { bank: '', account: '' },
           nonFerrous: { bank: '', account: '' },
         },
-        subContractAccount: { bank: '', account: '' },
       };
     });
     return data;
@@ -155,7 +147,6 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
     ...EMPTY_VAN_INFO,
     salaryIds: [''],
     scrapAccounts: { ...EMPTY_VAN_INFO.scrapAccounts },
-    subContractAccount: { ...EMPTY_VAN_INFO.subContractAccount },
   }));
   const [entStatuses, setEntStatuses] = useState<Record<string, StoredStatus>>(() => {
     const s: Record<string, StoredStatus> = {};
@@ -186,7 +177,6 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
       gold:       { bank: '', account: '' },
       nonFerrous: { bank: '', account: '' },
     },
-    subContractAccount: { bank: '', account: '' },
   });
 
   // 탭 전환 시 현재 값 자동저장 후 새 기업 로드
@@ -236,14 +226,6 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
         ...prev.scrapAccounts,
         [type]: { ...prev.scrapAccounts[type], [field]: value },
       },
-    }));
-  };
-
-  // 하도급 계좌 관련 핸들러
-  const updateSubContractAccount = (field: 'bank' | 'account', value: string) => {
-    setCurrentRow(prev => ({
-      ...prev,
-      subContractAccount: { ...prev.subContractAccount, [field]: value },
     }));
   };
 
@@ -461,11 +443,11 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
           {/* 기타계좌 */}
           <div>
             <h3 className="text-body-lg font-semibold text-gray-700 mb-1">기타계좌</h3>
-            <p className="text-body-sm text-gray-500 mb-5">스크랩 및 하도급 계좌 정보를 입력합니다. 사용하는 항목만 입력하면 됩니다.</p>
+            <p className="text-body-sm text-gray-500 mb-5">스크랩 계좌 정보를 입력합니다. 사용하는 항목만 입력하면 됩니다.</p>
 
             <div className="max-w-3xl">
               {/* 스크랩 계좌 */}
-              <div className="mb-6">
+              <div>
                 <p className="text-body font-semibold text-text-main mb-2">스크랩 계좌</p>
                 <div className="border border-border-gray rounded-md overflow-hidden">
                   {/* 컬럼 헤더 */}
@@ -503,35 +485,6 @@ const VanFirmBankingRegistration = ({ enterprises, vanRecords, setVanRecords }) 
                 </div>
               </div>
 
-              {/* 하도급 계좌 — 스크랩과 동일한 행 템플릿 */}
-              <div>
-                <p className="text-body font-semibold text-text-main mb-2">하도급 계좌</p>
-                <div className="border border-border-gray rounded-md overflow-hidden">
-                  <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-2 bg-bg-gray border-b border-border-gray">
-                    <span className="text-body-sm font-semibold text-text-sub">구분</span>
-                    <span className="text-body-sm font-semibold text-text-sub">은행</span>
-                    <span className="text-body-sm font-semibold text-text-sub">계좌번호</span>
-                  </div>
-                  <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-3 items-center bg-white">
-                    <span className="text-body font-semibold text-text-main">하도급</span>
-                    <select
-                      value={currentRow.subContractAccount.bank}
-                      onChange={e => updateSubContractAccount('bank', e.target.value)}
-                      className="w-full h-[42px] px-3 border border-border-gray rounded-md text-body bg-white text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-[#008d75]"
-                    >
-                      <option value="">은행 선택</option>
-                      {BANK_LIST.map(b => <option key={b} value={b}>{b}</option>)}
-                    </select>
-                    <Input
-                      type="text"
-                      fullWidth
-                      placeholder="계좌번호 입력"
-                      value={currentRow.subContractAccount.account}
-                      onChange={e => updateSubContractAccount('account', e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 

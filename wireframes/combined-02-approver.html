@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>WF Combined - 02 결재자 기준 (Case 2)</title>
+<link rel="stylesheet" href="base.css">
+<style>
+body { background: #F0F0F0; padding: 0; }
+.page-label { width: 1920px; padding: 28px 32px 16px; background: #FAFAFA; font-size: 18px; font-weight: 700; color: #424242; border-top: 2px solid #BDBDBD; display: flex; align-items: baseline; gap: 12px; }
+.page-label:first-of-type { border-top: none; }
+.page-label-no { font-size: 13px; color: #757575; font-weight: 500; }
+.page-divider { width: 1920px; height: 16px; background: #E0E0E0; }
+</style>
+</head>
+<body>
+<div class="page-label"><span class="page-label-no">02-01</span> 결재자 · 지급현황 + 원화 자산현황</div>
+<div class="wireframe">
+
+  <!-- ===== Left Sidebar ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-toggle" title="메뉴 토글"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg></div>
+      <div class="sidebar-logo">[ Logo ]</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item"><span class="nav-icon"></span>결재</div>
+      <div class="nav-item"><span class="nav-icon"></span>내역관리/리포트</div>
+      <div class="nav-item"><span class="nav-icon"></span>수기계좌</div>
+      <div class="nav-item"><span class="nav-icon"></span>대금지급</div>
+      <div class="nav-item"><span class="nav-icon"></span>급여이체</div>
+      <div class="nav-item"><span class="nav-icon"></span>외담대 발행</div>
+      <div class="nav-item"><span class="nav-icon"></span>지로</div>
+      <div class="nav-item"><span class="nav-icon"></span>사내이체</div>
+      <div class="nav-item"><span class="nav-icon"></span>외화이체</div>
+      <div class="nav-item"><span class="nav-icon"></span>법인카드</div>
+      <div class="nav-item"><span class="nav-icon"></span>업무관리</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="nav-item"><span class="nav-icon"></span>시스템 관리</div>
+      <div class="company-selector"><span>회사 선택</span><span><span class="chev chev-d"></span></span></div>
+      <div class="support-block">
+        <div class="support-title"><span class="nav-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 11V8a5.5 5.5 0 0 1 11 0v3"/><rect x="2" y="10.5" width="2.5" height="4" rx="0.5"/><rect x="11.5" y="10.5" width="2.5" height="4" rx="0.5"/></svg></span>고객지원</div>
+        <div class="support-line">전화  XXX-XXXX-XXXX</div>
+        <div class="support-line">메일  xxxx@xxxxx.xx</div>
+      </div>
+      <div class="footer-logo">[ Footer Logo ]</div>
+    </div>
+  </aside>
+
+  <!-- ===== Main Area ===== -->
+  <div class="main-area">
+
+    <header class="topbar">
+      <div class="topbar-tab active"><span class="nav-icon" style="width:18px;height:18px;"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2 7l6-5 6 5v6.5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/><path d="M6 14V9h4v5"/></svg></span>Home</div>
+      <div class="topbar-tab">가상계좌수신 <span class="topbar-tab-close"><span class="icon-x"></span></span></div>
+      <div class="topbar-tab">잔액조회 <span class="topbar-tab-close"><span class="icon-x"></span></span></div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-datetime">YYYY.MM.DD HH:MM:SS (KST)</div>
+      <div class="topbar-status"><span class="status-dot"></span>서버연결 정상</div>
+      <div class="topbar-icon" title="사용자"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14v-.5a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v.5"/></svg></div>
+      <div class="topbar-icon" title="알림"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M12 7a4 4 0 1 0-8 0c0 4-1.5 5.5-1.5 5.5h11S12 11 12 7z"/><path d="M9.5 13.5a1.5 1.5 0 0 1-3 0"/></svg></div>
+      <div class="topbar-icon" title="검색"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="14" y1="14" x2="10.5" y2="10.5"/></svg></div>
+      <div class="topbar-icon" title="인쇄"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="6" rx="1"/><rect x="4" y="10" width="8" height="4"/></svg></div>
+    </header>
+
+    <div class="content">
+      <main class="content-main">
+
+        <!-- 결재상태 - 결재자 (6개 스탯) -->
+        <section class="status-section">
+          <div class="status-header">
+            <div class="status-title-group">
+              <h2 class="card-title">결재상태</h2>
+              <span class="card-meta">YYYY.MM.DD HH:MM</span>
+            </div>
+            <div class="icon-btn" title="새로고침"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.3"/><path d="M13.5 2v3.5h-3.5"/></svg></div>
+          </div>
+
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">미결재</div>
+              <div class="stat-row"><div class="stat-icon"></div><div><span class="stat-value">00</span><span class="stat-value-unit">건</span></div></div>
+            </div>
+            <div class="stat-card merged">
+              <div class="stat-label">결재 완료 / 반려</div>
+              <div class="stat-row">
+                <div class="stat-icon"></div>
+                <div class="merged-value">00<span class="stat-value-unit">건</span><span class="sep">/</span><span class="sub">0</span><span class="stat-value-unit">건</span></div>
+              </div>
+            </div>
+            <div class="stat-card dual">
+              <div class="dual-row">
+                <div class="stat-icon"></div>
+                <span class="stat-label">이체 완료</span>
+                <span class="stat-value-wrap">00<span class="stat-value-unit">건</span></span>
+              </div>
+              <div class="dual-row">
+                <div class="stat-icon"></div>
+                <span class="stat-label">오류</span>
+                <span class="stat-value-wrap">0<span class="stat-value-unit">건</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 리스크 알림 바 (결재자) -->
+          <div class="alert-bar warning">
+            <div class="alert-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M8 2l6.5 11h-13z"/><line x1="8" y1="6" x2="8" y2="9.5"/><circle cx="8" cy="11.5" r="0.4" fill="currentColor" stroke="none"/></svg></div>
+            <div class="alert-text"><strong>리스크 알림</strong> - 실행일 임박 00건</div>
+            <span class="alert-chevron"><span class="chev chev-d"></span></span>
+          </div>
+        </section>
+
+        <!-- 지급현황 카드 -->
+        <section class="card">
+          <div class="card-header">
+            <div class="tab-group">
+              <div class="tab active">지급현황</div>
+              <div class="tab">지급예정현황</div>
+              <span class="card-meta" style="margin-left:12px;">기준일자 : YYYY.MM.DD</span>
+            </div>
+          </div>
+
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th rowspan="2">구분</th>
+                <th rowspan="2">총 상신 건수</th>
+                <th colspan="2">지급현황</th>
+                <th rowspan="2">총금액</th>
+              </tr>
+              <tr>
+                <th>이체완료 건수 (금액)</th>
+                <th>오류 건수 (금액)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>대금지급</td><td>0</td><td>0건 (0,000,000원)</td><td>0건 (000,000원)</td><td class="amount">000,000원</td></tr>
+              <tr><td>외화이체</td><td>0</td><td>0건 (약 0,000,000원)</td><td>0건 (약 000,000원)</td><td class="amount">약 000,000원</td></tr>
+              <tr><td>사내이체 (원화)</td><td>0</td><td>0건 (0,000,000원)</td><td>0건 (000,000원)</td><td class="amount">000,000원</td></tr>
+              <tr><td>사내이체 (외화)</td><td>0</td><td>0건 (약 0,000,000원)</td><td>0건</td><td class="amount">약 0,000,000원</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- 원화 자산현황 -->
+        <section class="card">
+          <div class="card-header">
+            <div class="tab-group">
+              <div class="tab active">원화 자산현황</div>
+              <div class="tab">외화 자산현황</div>
+              <span class="card-meta" style="margin-left:12px;">기준일자 : YYYY.MM.DD</span>
+            </div>
+            <div class="icon-btn"><span class="chev chev-r"></span></div>
+          </div>
+
+          <div class="asset-body">
+            <div style="display:flex; flex-direction:column;">
+              <div class="donut"></div>
+              <div class="donut-label">총 000,000,000원</div>
+            </div>
+            <div class="asset-table-wrap">
+              <table class="asset-list-table">
+                <thead><tr><th>계좌그룹</th><th>잔액</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="asset-bullet"></span>보통예금</td><td>00,000,000원</td></tr>
+                  <tr><td><span class="asset-bullet"></span>기타예금</td><td>00,000,000원</td></tr>
+                  <tr><td><span class="asset-bullet"></span>수기계좌</td><td>00,000,000원</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="content-aside">
+        <!-- Promo banner: DC 퇴직연금 (결재자) -->
+        <div class="promo-banner dc">
+          <div class="promo-text">
+            <div class="promo-sub">[ 보조 카피 한 줄 ]</div>
+            <div class="promo-title">[ DC 가입자 추가도<br>서류 없이 간편하게 ]</div>
+          </div>
+          <div class="promo-cta">자세히보기 <span class="chev chev-r"></span></div>
+          <div class="promo-image-placeholder">[ DC Banner Image ]</div>
+          <div class="promo-pagination"><span class="chev chev-l"></span>  0 / 0  <span class="chev chev-r"></span>  <span class="icon-pause"></span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="status-title-group">
+              <h3 class="card-title">환율</h3>
+              <span class="card-meta">YYYY.MM.DD HH:MM</span>
+            </div>
+            <div style="display:flex; gap:8px;"><div class="icon-btn" title="새로고침"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.3"/><path d="M13.5 2v3.5h-3.5"/></svg></div><div class="icon-btn"><span class="chev chev-r"></span></div></div>
+          </div>
+          <table class="exchange-table">
+            <thead><tr><th style="text-align:left;">통화</th><th>보낼 때 (입금)</th><th>받을 때 (출금)</th></tr></thead>
+            <tbody>
+              <tr><td><span class="flag-circle"></span>통화 1</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 2</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 3</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 4</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 5</td><td>0,000.00</td><td>0,000.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">공지사항</h3><div class="icon-btn"><span class="chev chev-r"></span></div></div>
+          <div class="notice-list">
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <div class="cta-button"><span class="cta-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M14 4.5v6A1.5 1.5 0 0 1 12.5 12H7L3.5 14.5V4.5A1.5 1.5 0 0 1 5 3h7.5A1.5 1.5 0 0 1 14 4.5z"/></svg></span>자주하는 질문 FAQ</div>
+          <div class="cta-button"><span class="cta-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 1.5H3.5v13h9V5z"/><path d="M9.5 1.5V5h3"/><line x1="5.5" y1="9" x2="10" y2="9"/><line x1="5.5" y1="11" x2="10" y2="11"/></svg></span>ERP 뱅킹 가이드</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+<div class="page-divider"></div>
+<div class="page-label"><span class="page-label-no">02-02</span> 결재자 · 지급예정현황 + 외화 자산현황</div>
+<div class="wireframe">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-toggle" title="메뉴 토글"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg></div>
+      <div class="sidebar-logo">[ Logo ]</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item"><span class="nav-icon"></span>결재</div>
+      <div class="nav-item"><span class="nav-icon"></span>내역관리/리포트</div>
+      <div class="nav-item"><span class="nav-icon"></span>수기계좌</div>
+      <div class="nav-item"><span class="nav-icon"></span>대금지급</div>
+      <div class="nav-item"><span class="nav-icon"></span>급여이체</div>
+      <div class="nav-item"><span class="nav-icon"></span>외담대 발행</div>
+      <div class="nav-item"><span class="nav-icon"></span>지로</div>
+      <div class="nav-item"><span class="nav-icon"></span>결제</div>
+      <div class="nav-item"><span class="nav-icon"></span>외화이체</div>
+      <div class="nav-item"><span class="nav-icon"></span>법인카드</div>
+      <div class="nav-item"><span class="nav-icon"></span>업무관리</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="nav-item"><span class="nav-icon"></span>시스템 관리</div>
+      <div class="company-selector"><span>회사 선택</span><span><span class="chev chev-d"></span></span></div>
+      <div class="support-block">
+        <div class="support-title"><span class="nav-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 11V8a5.5 5.5 0 0 1 11 0v3"/><rect x="2" y="10.5" width="2.5" height="4" rx="0.5"/><rect x="11.5" y="10.5" width="2.5" height="4" rx="0.5"/></svg></span>고객지원</div>
+        <div class="support-line">전화  XXX-XXXX-XXXX</div>
+        <div class="support-line">메일  xxxx@xxxxx.xx</div>
+      </div>
+      <div class="footer-logo">[ Footer Logo ]</div>
+    </div>
+  </aside>
+
+  <div class="main-area">
+
+    <header class="topbar">
+      <div class="topbar-tab active"><span class="nav-icon" style="width:18px;height:18px;"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2 7l6-5 6 5v6.5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/><path d="M6 14V9h4v5"/></svg></span>Home</div>
+      <div class="topbar-tab">가상계좌수신 <span class="topbar-tab-close"><span class="icon-x"></span></span></div>
+      <div class="topbar-tab">잔액조회 <span class="topbar-tab-close"><span class="icon-x"></span></span></div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-datetime">YYYY.MM.DD HH:MM:SS (KST)</div>
+      <div class="topbar-status"><span class="status-dot"></span>서버연결 정상</div>
+      <div class="topbar-icon" title="사용자"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14v-.5a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v.5"/></svg></div>
+      <div class="topbar-icon" title="알림"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M12 7a4 4 0 1 0-8 0c0 4-1.5 5.5-1.5 5.5h11S12 11 12 7z"/><path d="M9.5 13.5a1.5 1.5 0 0 1-3 0"/></svg></div>
+      <div class="topbar-icon" title="검색"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="14" y1="14" x2="10.5" y2="10.5"/></svg></div>
+      <div class="topbar-icon" title="인쇄"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="6" rx="1"/><rect x="4" y="10" width="8" height="4"/></svg></div>
+    </header>
+
+    <div class="content">
+      <main class="content-main">
+
+        <section class="status-section">
+          <div class="status-header">
+            <div class="status-title-group">
+              <h2 class="card-title">결재상태</h2>
+              <span class="card-meta">YYYY.MM.DD HH:MM</span>
+            </div>
+            <div class="icon-btn" title="새로고침"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.3"/><path d="M13.5 2v3.5h-3.5"/></svg></div>
+          </div>
+
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">미결재</div>
+              <div class="stat-row"><div class="stat-icon"></div><div><span class="stat-value">00</span><span class="stat-value-unit">건</span></div></div>
+            </div>
+            <div class="stat-card merged">
+              <div class="stat-label">결재 완료 / 반려</div>
+              <div class="stat-row">
+                <div class="stat-icon"></div>
+                <div class="merged-value">00<span class="stat-value-unit">건</span><span class="sep">/</span><span class="sub">0</span><span class="stat-value-unit">건</span></div>
+              </div>
+            </div>
+            <div class="stat-card dual">
+              <div class="dual-row">
+                <div class="stat-icon"></div>
+                <span class="stat-label">이체 완료</span>
+                <span class="stat-value-wrap">00<span class="stat-value-unit">건</span></span>
+              </div>
+              <div class="dual-row">
+                <div class="stat-icon"></div>
+                <span class="stat-label">오류</span>
+                <span class="stat-value-wrap">0<span class="stat-value-unit">건</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 리스크 알림 바 (결재자) -->
+          <div class="alert-bar warning">
+            <div class="alert-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M8 2l6.5 11h-13z"/><line x1="8" y1="6" x2="8" y2="9.5"/><circle cx="8" cy="11.5" r="0.4" fill="currentColor" stroke="none"/></svg></div>
+            <div class="alert-text"><strong>리스크 알림</strong> - 실행일 임박 00건</div>
+            <span class="alert-chevron"><span class="chev chev-d"></span></span>
+          </div>
+        </section>
+
+        <!-- 지급예정현황 탭 활성 -->
+        <section class="card">
+          <div class="card-header">
+            <div class="tab-group">
+              <div class="tab">지급현황</div>
+              <div class="tab active">지급예정현황</div>
+              <span class="card-meta" style="margin-left:12px;">기준일자 : YYYY.MM.DD</span>
+            </div>
+          </div>
+
+          <table class="wf-table">
+            <thead>
+              <tr><th>구분</th><th>예정건수</th><th>총금액</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>대금지급</td><td>0건</td><td class="amount">000,000,000원</td></tr>
+              <tr><td>외화이체</td><td>0건</td><td class="amount">약 000,000,000원</td></tr>
+              <tr><td>사내이체 (원화)</td><td>0건</td><td class="amount">000,000,000원</td></tr>
+              <tr><td>사내이체 (외화)</td><td>0건</td><td class="amount">약 0원</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- 외화 자산현황 활성 -->
+        <section class="card">
+          <div class="card-header">
+            <div class="tab-group">
+              <div class="tab">원화 자산현황</div>
+              <div class="tab active">외화 자산현황</div>
+              <span class="card-meta" style="margin-left:12px;">기준일자 : YYYY.MM.DD</span>
+            </div>
+            <div class="icon-btn"><span class="chev chev-r"></span></div>
+          </div>
+
+          <div class="asset-body">
+            <div style="display:flex; flex-direction:column;">
+              <div class="donut"></div>
+              <div class="donut-label">총 000,000,000원</div>
+            </div>
+            <div class="asset-table-wrap">
+              <table class="asset-list-table">
+                <thead><tr><th>통화</th><th>잔액</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="asset-bullet"></span>통화 1</td><td>0,000,000.00</td></tr>
+                  <tr><td><span class="asset-bullet"></span>통화 2</td><td>0,000,000.00</td></tr>
+                  <tr><td><span class="asset-bullet"></span>통화 3</td><td>0,000,000.00</td></tr>
+                  <tr><td><span class="asset-bullet"></span>통화 4</td><td>000,000.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="content-aside">
+        <!-- Promo banner: DC 퇴직연금 (결재자) -->
+        <div class="promo-banner dc">
+          <div class="promo-text">
+            <div class="promo-sub">[ 보조 카피 한 줄 ]</div>
+            <div class="promo-title">[ DC 가입자 추가도<br>서류 없이 간편하게 ]</div>
+          </div>
+          <div class="promo-cta">자세히보기 <span class="chev chev-r"></span></div>
+          <div class="promo-image-placeholder">[ DC Banner Image ]</div>
+          <div class="promo-pagination"><span class="chev chev-l"></span>  0 / 0  <span class="chev chev-r"></span>  <span class="icon-pause"></span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="status-title-group">
+              <h3 class="card-title">환율</h3>
+              <span class="card-meta">YYYY.MM.DD HH:MM</span>
+            </div>
+            <div style="display:flex; gap:8px;"><div class="icon-btn" title="새로고침"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.3"/><path d="M13.5 2v3.5h-3.5"/></svg></div><div class="icon-btn"><span class="chev chev-r"></span></div></div>
+          </div>
+          <table class="exchange-table">
+            <thead><tr><th style="text-align:left;">통화</th><th>보낼 때 (입금)</th><th>받을 때 (출금)</th></tr></thead>
+            <tbody>
+              <tr><td><span class="flag-circle"></span>통화 1</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 2</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 3</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 4</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 5</td><td>0,000.00</td><td>0,000.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">공지사항</h3><div class="icon-btn"><span class="chev chev-r"></span></div></div>
+          <div class="notice-list">
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <div class="cta-button"><span class="cta-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M14 4.5v6A1.5 1.5 0 0 1 12.5 12H7L3.5 14.5V4.5A1.5 1.5 0 0 1 5 3h7.5A1.5 1.5 0 0 1 14 4.5z"/></svg></span>자주하는 질문 FAQ</div>
+          <div class="cta-button"><span class="cta-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 1.5H3.5v13h9V5z"/><path d="M9.5 1.5V5h3"/><line x1="5.5" y1="9" x2="10" y2="9"/><line x1="5.5" y1="11" x2="10" y2="11"/></svg></span>ERP 뱅킹 가이드</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+<div class="page-divider"></div>
+<div class="page-label"><span class="page-label-no">02-03</span> 결재자 · 컴팩트 예비 레이아웃</div>
+<div class="wireframe">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-toggle" title="메뉴 토글"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg></div>
+      <div class="sidebar-logo">[ Logo ]</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item"><span class="nav-icon"></span>결재</div>
+      <div class="nav-item"><span class="nav-icon"></span>내역관리/리포트</div>
+      <div class="nav-item"><span class="nav-icon"></span>수기계좌</div>
+      <div class="nav-item"><span class="nav-icon"></span>대금지급</div>
+      <div class="nav-item"><span class="nav-icon"></span>급여이체</div>
+      <div class="nav-item"><span class="nav-icon"></span>외담대 발행</div>
+      <div class="nav-item"><span class="nav-icon"></span>지로</div>
+      <div class="nav-item"><span class="nav-icon"></span>사내이체</div>
+      <div class="nav-item"><span class="nav-icon"></span>외화이체</div>
+      <div class="nav-item"><span class="nav-icon"></span>법인카드</div>
+      <div class="nav-item"><span class="nav-icon"></span>업무관리</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="nav-item"><span class="nav-icon"></span>시스템 관리</div>
+      <div class="company-selector"><span>회사 선택</span><span><span class="chev chev-d"></span></span></div>
+      <div class="support-block">
+        <div class="support-title"><span class="nav-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 11V8a5.5 5.5 0 0 1 11 0v3"/><rect x="2" y="10.5" width="2.5" height="4" rx="0.5"/><rect x="11.5" y="10.5" width="2.5" height="4" rx="0.5"/></svg></span>고객지원</div>
+        <div class="support-line">전화  XXX-XXXX-XXXX</div>
+        <div class="support-line">메일  xxxx@xxxxx.xx</div>
+      </div>
+      <div class="footer-logo">[ Footer Logo ]</div>
+    </div>
+  </aside>
+
+  <div class="main-area">
+
+    <header class="topbar">
+      <div class="topbar-tab active"><span class="nav-icon" style="width:18px;height:18px;"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2 7l6-5 6 5v6.5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/><path d="M6 14V9h4v5"/></svg></span>Home</div>
+      <div class="topbar-tab">가상계좌수신 <span class="topbar-tab-close"><span class="icon-x"></span></span></div>
+      <div class="topbar-tab">잔액조회 <span class="topbar-tab-close"><span class="icon-x"></span></span></div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-datetime">YYYY.MM.DD HH:MM:SS (KST)</div>
+      <div class="topbar-status"><span class="status-dot"></span>서버연결 정상</div>
+      <div class="topbar-icon" title="사용자"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14v-.5a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v.5"/></svg></div>
+      <div class="topbar-icon" title="알림"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M12 7a4 4 0 1 0-8 0c0 4-1.5 5.5-1.5 5.5h11S12 11 12 7z"/><path d="M9.5 13.5a1.5 1.5 0 0 1-3 0"/></svg></div>
+      <div class="topbar-icon" title="검색"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="14" y1="14" x2="10.5" y2="10.5"/></svg></div>
+      <div class="topbar-icon" title="인쇄"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="6" rx="1"/><rect x="4" y="10" width="8" height="4"/></svg></div>
+    </header>
+
+    <div class="content">
+      <main class="content-main">
+
+        <!-- 결재상태 - 컴팩트 그룹형 (3+3 분할) -->
+        <section class="status-section">
+          <div class="status-header">
+            <div class="status-title-group">
+              <h2 class="card-title">결재상태</h2>
+              <span class="card-meta">YYYY.MM.DD HH:MM</span>
+            </div>
+            <div class="icon-btn" title="새로고침"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.3"/><path d="M13.5 2v3.5h-3.5"/></svg></div>
+          </div>
+
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">미결재</div>
+              <div class="stat-row"><div class="stat-icon"></div><div><span class="stat-value">00</span><span class="stat-value-unit">건</span></div></div>
+            </div>
+            <div class="stat-card merged">
+              <div class="stat-label">결재 완료 / 반려</div>
+              <div class="stat-row">
+                <div class="stat-icon"></div>
+                <div class="merged-value">00<span class="stat-value-unit">건</span><span class="sep">/</span><span class="sub">0</span><span class="stat-value-unit">건</span></div>
+              </div>
+            </div>
+            <div class="stat-card dual">
+              <div class="dual-row">
+                <div class="stat-icon"></div>
+                <span class="stat-label">이체 완료</span>
+                <span class="stat-value-wrap">00<span class="stat-value-unit">건</span></span>
+              </div>
+              <div class="dual-row">
+                <div class="stat-icon"></div>
+                <span class="stat-label">오류</span>
+                <span class="stat-value-wrap">0<span class="stat-value-unit">건</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 리스크 알림 바 (결재자) -->
+          <div class="alert-bar warning">
+            <div class="alert-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M8 2l6.5 11h-13z"/><line x1="8" y1="6" x2="8" y2="9.5"/><circle cx="8" cy="11.5" r="0.4" fill="currentColor" stroke="none"/></svg></div>
+            <div class="alert-text"><strong>리스크 알림</strong> - 실행일 임박 00건</div>
+            <span class="alert-chevron"><span class="chev chev-d"></span></span>
+          </div>
+        </section>
+
+        <!-- 지급예정현황 -->
+        <section class="card">
+          <div class="card-header">
+            <div class="tab-group">
+              <div class="tab">지급현황</div>
+              <div class="tab active">지급예정현황</div>
+              <span class="card-meta" style="margin-left:12px;">기준일자 : YYYY.MM.DD</span>
+            </div>
+          </div>
+          <table class="wf-table">
+            <thead><tr><th>구분</th><th>예정건수</th><th>총금액</th></tr></thead>
+            <tbody>
+              <tr><td>대금지급</td><td>0건</td><td class="amount">000,000,000원</td></tr>
+              <tr><td>외화이체</td><td>0건</td><td class="amount">약 000,000,000원</td></tr>
+              <tr><td>사내이체 (원화)</td><td>0건</td><td class="amount">000,000,000원</td></tr>
+              <tr><td>사내이체 (외화)</td><td>0건</td><td class="amount">약 0원</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- 외화 자산현황 -->
+        <section class="card">
+          <div class="card-header">
+            <div class="tab-group">
+              <div class="tab">원화 자산현황</div>
+              <div class="tab active">외화 자산현황</div>
+              <span class="card-meta" style="margin-left:12px;">기준일자 : YYYY.MM.DD</span>
+            </div>
+            <div class="icon-btn"><span class="chev chev-r"></span></div>
+          </div>
+          <div class="asset-body">
+            <div style="display:flex; flex-direction:column;">
+              <div class="donut"></div>
+              <div class="donut-label">총 000,000,000원</div>
+            </div>
+            <div class="asset-table-wrap">
+              <table class="asset-list-table">
+                <thead><tr><th>통화</th><th>잔액</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="asset-bullet"></span>통화 1</td><td>0,000,000.00</td></tr>
+                  <tr><td><span class="asset-bullet"></span>통화 2</td><td>0,000,000.00</td></tr>
+                  <tr><td><span class="asset-bullet"></span>통화 3</td><td>0,000,000.00</td></tr>
+                  <tr><td><span class="asset-bullet"></span>통화 4</td><td>000,000.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="content-aside">
+        <!-- Promo banner: DC 퇴직연금 (결재자) -->
+        <div class="promo-banner dc">
+          <div class="promo-text">
+            <div class="promo-sub">[ 보조 카피 한 줄 ]</div>
+            <div class="promo-title">[ DC 가입자 추가도<br>서류 없이 간편하게 ]</div>
+          </div>
+          <div class="promo-cta">자세히보기 <span class="chev chev-r"></span></div>
+          <div class="promo-image-placeholder">[ DC Banner Image ]</div>
+          <div class="promo-pagination"><span class="chev chev-l"></span>  0 / 0  <span class="chev chev-r"></span>  <span class="icon-pause"></span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="status-title-group">
+              <h3 class="card-title">환율</h3>
+              <span class="card-meta">YYYY.MM.DD HH:MM</span>
+            </div>
+            <div style="display:flex; gap:8px;"><div class="icon-btn" title="새로고침"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.3"/><path d="M13.5 2v3.5h-3.5"/></svg></div><div class="icon-btn"><span class="chev chev-r"></span></div></div>
+          </div>
+          <table class="exchange-table">
+            <thead><tr><th style="text-align:left;">통화</th><th>보낼 때 (입금)</th><th>받을 때 (출금)</th></tr></thead>
+            <tbody>
+              <tr><td><span class="flag-circle"></span>통화 1</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 2</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 3</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 4</td><td>0,000.00</td><td>0,000.00</td></tr>
+              <tr><td><span class="flag-circle"></span>통화 5</td><td>0,000.00</td><td>0,000.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">공지사항</h3><div class="icon-btn"><span class="chev chev-r"></span></div></div>
+          <div class="notice-list">
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+            <div class="notice-row"><span class="notice-text">공지사항 제목이 들어갑니다 ...</span><span class="notice-date">YYYY.MM.DD</span></div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <div class="cta-button"><span class="cta-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M14 4.5v6A1.5 1.5 0 0 1 12.5 12H7L3.5 14.5V4.5A1.5 1.5 0 0 1 5 3h7.5A1.5 1.5 0 0 1 14 4.5z"/></svg></span>자주하는 질문 FAQ</div>
+          <div class="cta-button"><span class="cta-icon"><svg class="ic-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 1.5H3.5v13h9V5z"/><path d="M9.5 1.5V5h3"/><line x1="5.5" y1="9" x2="10" y2="9"/><line x1="5.5" y1="11" x2="10" y2="11"/></svg></span>ERP 뱅킹 가이드</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</body></html>

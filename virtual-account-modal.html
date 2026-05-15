@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가상계좌 정보 등록</title>
+<style>
+  :root {
+    --primary: #0EA888;
+    --primary-hover: #0C8E73;
+    --border: #E5E7EB;
+    --border-strong: #D1D5DB;
+    --border-input: #D1D5DB;
+    --text: #1F2937;
+    --text-sub: #374151;
+    --text-light: #6B7280;
+    --text-placeholder: #9CA3AF;
+    --required: #EF4444;
+    --bg: #FFFFFF;
+    --bg-page: #F3F4F6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', sans-serif;
+    background: var(--bg-page);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  /* ---------- Modal ---------- */
+  .modal {
+    background: var(--bg);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+  }
+
+  .modal__header {
+    position: relative;
+    padding: 28px 32px 20px;
+  }
+
+  .modal__header::after {
+    content: "";
+    display: block;
+    height: 1px;
+    background: var(--border);
+    margin-top: 20px;
+  }
+
+  .modal__title {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+
+  .modal__close {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    width: 28px;
+    height: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal__close svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ---------- Body ---------- */
+  .modal__body {
+    padding: 28px 32px 8px;
+  }
+
+  .section {
+    margin-bottom: 20px;
+  }
+
+  .section__title {
+    font-size: 16px;
+    font-weight: 700;
+    padding-bottom: 12px;
+    border-bottom: 1.5px solid var(--text);
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  /* ---------- Form ---------- */
+  .form {
+    padding: 4px 0 0;
+  }
+
+  .field {
+    margin-bottom: 18px;
+  }
+
+  .field:last-child {
+    margin-bottom: 0;
+  }
+
+  .field__label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-sub);
+  }
+
+  .field__label--required::before {
+    content: "*";
+    color: var(--required);
+    margin-right: 3px;
+    font-weight: 700;
+  }
+
+  .field__input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--text);
+    background: white;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .field__input::placeholder {
+    color: var(--text-placeholder);
+  }
+
+  .field__input:focus {
+    border-color: var(--primary);
+  }
+
+  /* ---------- Footer ---------- */
+  .modal__footer {
+    padding: 24px 32px 32px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .btn--primary {
+    background: var(--primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 56px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+  }
+
+  .btn--primary:hover {
+    background: var(--primary-hover);
+  }
+</style>
+</head>
+<body>
+  <div class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+    <!-- Header -->
+    <header class="modal__header">
+      <h1 id="modal-title" class="modal__title">가상계좌 정보 등록</h1>
+      <button type="button" class="modal__close" aria-label="닫기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Body -->
+    <div class="modal__body">
+      <section class="section">
+        <h2 class="section__title">가상계좌 정보</h2>
+
+        <div class="form">
+          <div class="field">
+            <label class="field__label field__label--required" for="parent-account">모계좌번호</label>
+            <input id="parent-account" type="text" class="field__input" placeholder="모계좌번호 입력('-' 제외)">
+          </div>
+
+          <div class="field">
+            <label class="field__label field__label--required" for="virtual-account">가상계좌번호</label>
+            <input id="virtual-account" type="text" class="field__input" placeholder="가상계좌번호 입력('-' 제외)">
+          </div>
+
+          <div class="field">
+            <label class="field__label field__label--required" for="account-holder">예금주명</label>
+            <input id="account-holder" type="text" class="field__input" placeholder="예금주명 입력">
+          </div>
+
+          <div class="field">
+            <label class="field__label field__label--required" for="business-number">사업자번호</label>
+            <input id="business-number" type="text" class="field__input" placeholder="사업자번호 입력('-' 제외)">
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="client">거래처</label>
+            <input id="client" type="text" class="field__input" placeholder="거래처 입력">
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="client-code">거래처관리번호</label>
+            <input id="client-code" type="text" class="field__input" placeholder="거래처관리번호 입력">
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="usage">가상계좌용도</label>
+            <input id="usage" type="text" class="field__input" placeholder="가상계좌용도 입력">
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="modal__footer">
+      <button type="button" class="btn--primary">저장</button>
+    </footer>
+  </div>
+</body>
+</html>

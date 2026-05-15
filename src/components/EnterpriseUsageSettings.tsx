@@ -10,7 +10,11 @@ type CompanyUsageInfo = {
   // 기타 설정
   bulkTransferLimit: number;    // 대량이체 건수 한도 (기본 1000)
   largeTransferEnabled: boolean; // 거액이체 사용여부
+  manualTxExcelUploadEnabled: boolean; // 수기거래 엑셀 업로드 사용여부 (수기등록거래 상신이 ON일 때만 허용)
 };
+
+// 수기거래 엑셀 업로드의 선결조건이 되는 메뉴: 수기등록거래 상신
+const MANUAL_TX_SUBMIT_MENU_ID = '49';
 
 /**
  * 기업별 사용 설정 상태
@@ -33,48 +37,267 @@ type MenuNode = {
   children: MenuNode[];
 };
 
+// 출처: 하나은행기업자금관리시스템 메뉴구조도(IA) v0.983 (2026-05-13)
+// MenuManagement 화면의 mock 데이터와 동일한 ID 체계를 사용한다.
 const MENU_TREE: MenuNode[] = [
   {
-    id: '2', name: '결재', isUsed: true,
+    id: '9', name: '결재', isUsed: true,
     children: [
       {
-        id: '3', name: '결재관리', isUsed: true,
+        id: '10', name: '결재관리', isUsed: true,
         children: [
-          { id: '4', name: '결재진행', isUsed: true,  children: [] },
-          { id: '5', name: '결재완료', isUsed: true,  children: [] },
+          { id: '11', name: '결재진행', isUsed: true, children: [] },
+          { id: '12', name: '결재 완료', isUsed: true, children: [] },
         ],
       },
     ],
   },
   {
-    id: '6', name: '내역관리/리포트', isUsed: true,
+    id: '13', name: '내역관리/리포트', isUsed: true,
     children: [
       {
-        id: '7', name: '거래내역관리', isUsed: true,
+        id: '14', name: '거래내역관리', isUsed: true,
         children: [
-          { id: '8',  name: '원화입출금내역',   isUsed: false, children: [] },
-          { id: '9',  name: '외화입출금내역',   isUsed: false, children: [] },
-          { id: '10', name: '가상계좌수신내역', isUsed: true,  children: [] },
-          { id: '11', name: '외담대내역',       isUsed: true,  children: [] },
+          { id: '15', name: '원화입출금내역', isUsed: true, children: [] },
+          { id: '16', name: '외화입출금내역', isUsed: true, children: [] },
+          { id: '17', name: '가상계좌수신내역', isUsed: true, children: [] },
+          { id: '18', name: '외담대수신', isUsed: true, children: [] },
+          { id: '19', name: '전자어음수신', isUsed: true, children: [] },
         ],
       },
       {
-        id: '12', name: '리포트', isUsed: true,
+        id: '20', name: '리포트', isUsed: true,
         children: [
-          { id: '13', name: '자금일보', isUsed: true, children: [] },
+          { id: '21', name: '계좌별 리포트', isUsed: true, children: [] },
+          { id: '22', name: '통합 리포트', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '23', name: '수기계좌 관리', isUsed: true,
+        children: [
+          { id: '24', name: '정기예금계좌', isUsed: true, children: [] },
+          { id: '25', name: '증권계좌', isUsed: true, children: [] },
+          { id: '26', name: '차입금계좌', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '27', name: '수기계좌 내역관리', isUsed: true,
+        children: [
+          { id: '28', name: '정기예금 내역', isUsed: true, children: [] },
+          { id: '29', name: '증권계좌 내역', isUsed: true, children: [] },
+          { id: '30', name: '차입금계좌 내역', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '31', name: '수기계좌 잔액조회', isUsed: true,
+        children: [
+          { id: '32', name: '정기예금 잔액', isUsed: true, children: [] },
+          { id: '33', name: '증권계좌 잔액', isUsed: true, children: [] },
+          { id: '34', name: '차입금계좌 잔액', isUsed: true, children: [] },
         ],
       },
     ],
   },
-  // MenuManagement에 아직 자식이 등록되지 않은 1depth (자식 없음 = leaf 취급)
-  { id: '20', name: '대금지급',     isUsed: true,  children: [] },
-  { id: '21', name: '급여이체',     isUsed: true,  children: [] },
-  { id: '22', name: '외담대 발행',  isUsed: false, children: [] },
-  { id: '23', name: '지로',         isUsed: true,  children: [] },
-  { id: '24', name: '사내자금관리', isUsed: true,  children: [] },
-  { id: '25', name: '외화이체',     isUsed: false, children: [] },
-  { id: '26', name: '법인카드',     isUsed: true,  children: [] },
-  { id: '27', name: '업무 관리',    isUsed: false, children: [] },
+  {
+    id: '35', name: '대금지급', isUsed: true,
+    children: [
+      {
+        id: '36', name: '대금지급 상신/결재', isUsed: true,
+        children: [
+          { id: '37', name: '대금지급 상신', isUsed: true, children: [] },
+          { id: '38', name: '대금지급 결재', isUsed: true, children: [] },
+          { id: '39', name: '대금지급 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '40', name: '철스크랩지급 상신/결재', isUsed: true,
+        children: [
+          { id: '41', name: '철스크랩지급 상신', isUsed: true, children: [] },
+          { id: '42', name: '철스크랩지급 결재', isUsed: true, children: [] },
+          { id: '43', name: '철스크랩지급 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '44', name: '하도급지급 상신/결재', isUsed: true,
+        children: [
+          { id: '45', name: '하도급지급 상신', isUsed: true, children: [] },
+          { id: '46', name: '하도급지급 결재', isUsed: true, children: [] },
+          { id: '47', name: '하도급지급 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '48', name: '수기등록거래 상신/결재', isUsed: true,
+        children: [
+          { id: '49', name: '수기등록거래 상신', isUsed: true, children: [] },
+          { id: '50', name: '수기등록거래 결재', isUsed: true, children: [] },
+          { id: '51', name: '수기등록거래 결과조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '52', name: '급여이체', isUsed: true,
+    children: [
+      {
+        id: '53', name: '급여이체 상신/결재', isUsed: true,
+        children: [
+          { id: '54', name: '급여이체 상신', isUsed: true, children: [] },
+          { id: '55', name: '급여이체 결재', isUsed: true, children: [] },
+          { id: '56', name: '급여이체 결과조회', isUsed: true, children: [] },
+          { id: '57', name: '급여내역 업로드', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '58', name: '외담대 발행', isUsed: true,
+    children: [
+      {
+        id: '59', name: '외담대 발행 상신/결재', isUsed: true,
+        children: [
+          { id: '60', name: '외담대 발행 상신', isUsed: true, children: [] },
+          { id: '61', name: '외담대 발행 결재', isUsed: true, children: [] },
+          { id: '62', name: '외담대 발행 결과조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '63', name: '지로', isUsed: true,
+    children: [
+      {
+        id: '64', name: '국고금', isUsed: true,
+        children: [
+          { id: '65', name: '국고금 상신', isUsed: true, children: [] },
+          { id: '66', name: '국고금 결재', isUsed: true, children: [] },
+          { id: '67', name: '국고금 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '68', name: '지방세', isUsed: true,
+        children: [
+          { id: '69', name: '지방세 상신', isUsed: true, children: [] },
+          { id: '70', name: '지방세 결재', isUsed: true, children: [] },
+          { id: '71', name: '지방세 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '72', name: '사회보험료', isUsed: true,
+        children: [
+          { id: '73', name: '사회보험료 상신', isUsed: true, children: [] },
+          { id: '74', name: '사회보험료 결재', isUsed: true, children: [] },
+          { id: '75', name: '사회보험료 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '76', name: '전기/전화', isUsed: true,
+        children: [
+          { id: '77', name: '전기/전화 상신', isUsed: true, children: [] },
+          { id: '78', name: '전기/전화 결재', isUsed: true, children: [] },
+          { id: '79', name: '전기/전화 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '80', name: '일반지로요금', isUsed: true,
+        children: [
+          { id: '81', name: '일반지로요금 상신', isUsed: true, children: [] },
+          { id: '82', name: '일반지로요금 결재', isUsed: true, children: [] },
+          { id: '83', name: '일반지로요금 결과조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '84', name: '사내이체', isUsed: true,
+    children: [
+      {
+        id: '85', name: '집금', isUsed: true,
+        children: [
+          { id: '86', name: '집금 상신', isUsed: true, children: [] },
+          { id: '87', name: '집금 결재', isUsed: true, children: [] },
+          { id: '88', name: '집금 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '89', name: '계좌간이체(원화)', isUsed: true,
+        children: [
+          { id: '90', name: '계좌간이체(원화) 상신', isUsed: true, children: [] },
+          { id: '91', name: '계좌간이체(원화) 결재', isUsed: true, children: [] },
+          { id: '92', name: '계좌간이체(원화) 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '93', name: '계좌간이체(외화)', isUsed: true,
+        children: [
+          { id: '94', name: '계좌간이체(외화) 상신', isUsed: true, children: [] },
+          { id: '95', name: '계좌간이체(외화) 결재', isUsed: true, children: [] },
+          { id: '96', name: '계좌간이체(외화) 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '97', name: '환전이체', isUsed: true,
+        children: [
+          { id: '98', name: '환전이체 상신', isUsed: true, children: [] },
+          { id: '99', name: '환전이체 결재', isUsed: true, children: [] },
+          { id: '100', name: '환전이체 결과조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '101', name: '외화이체', isUsed: true,
+    children: [
+      {
+        id: '102', name: '외화이체 상신/결재', isUsed: true,
+        children: [
+          { id: '103', name: '외화이체 상신', isUsed: true, children: [] },
+          { id: '104', name: '외화이체 결재', isUsed: true, children: [] },
+          { id: '105', name: '외화이체 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '106', name: '외화수납통지', isUsed: true,
+        children: [
+          { id: '107', name: '타발송금도착통지', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '108', name: '법인카드', isUsed: true,
+    children: [
+      {
+        id: '109', name: '법인카드 조회', isUsed: true,
+        children: [
+          { id: '110', name: '한도내역 조회', isUsed: true, children: [] },
+          { id: '111', name: '승인내역 조회', isUsed: true, children: [] },
+          { id: '112', name: '청구내역 조회', isUsed: true, children: [] },
+          { id: '113', name: '이용내역 조회', isUsed: true, children: [] },
+          { id: '114', name: '신고대상 분류', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '115', name: '업무 관리', isUsed: true,
+    children: [
+      { id: '116', name: '업무개시', isUsed: true, children: [] },
+      {
+        id: '117', name: '결재 관리', isUsed: true,
+        children: [
+          { id: '118', name: '대무자 관리', isUsed: true, children: [] },
+          { id: '119', name: '결재선 관리', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '120', name: '계좌 관리', isUsed: true,
+        children: [
+          { id: '121', name: '은행별 계좌 관리', isUsed: true, children: [] },
+          { id: '122', name: '잔액 조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
 ];
 
 // 트리에서 leaf(자식이 없는 노드)만 수집
@@ -129,6 +352,7 @@ const EMPTY_INFO: CompanyUsageInfo = {
   menus: {},
   bulkTransferLimit: 1000,
   largeTransferEnabled: false,
+  manualTxExcelUploadEnabled: false,
 };
 
 function isComplete(info: CompanyUsageInfo): boolean {
@@ -225,7 +449,13 @@ export default function EnterpriseUsageSettings({ enterprises }: { enterprises: 
     setCurrentRow(prev => {
       const nextMenus = { ...prev.menus };
       for (const id of leaves) nextMenus[id] = nextChecked;
-      return { ...prev, menus: nextMenus };
+      // 수기등록거래 상신이 OFF가 되면 의존 기능(엑셀 업로드)도 자동 OFF
+      const submitOff = leaves.includes(MANUAL_TX_SUBMIT_MENU_ID) && !nextChecked;
+      return {
+        ...prev,
+        menus: nextMenus,
+        manualTxExcelUploadEnabled: submitOff ? false : prev.manualTxExcelUploadEnabled,
+      };
     });
   };
 
@@ -496,6 +726,41 @@ export default function EnterpriseUsageSettings({ enterprises }: { enterprises: 
                   />
                 </button>
               </div>
+
+              {/* 수기거래 엑셀 업로드 사용 여부 — '수기등록거래 상신'이 ON일 때만 활성화 */}
+              {(() => {
+                const submitEnabled = !!currentRow.menus[MANUAL_TX_SUBMIT_MENU_ID];
+                const checked = submitEnabled && currentRow.manualTxExcelUploadEnabled;
+                return (
+                  <div className={`flex items-center justify-between gap-4 px-4 py-3 border rounded-md ${
+                    submitEnabled ? 'bg-gray-50 border-gray-100' : 'bg-gray-100 border-gray-200 opacity-60'
+                  }`}>
+                    <div>
+                      <div className="text-body font-semibold text-gray-700">수기거래 엑셀 업로드 사용 여부</div>
+                      <div className="text-caption text-gray-500 mt-0.5">
+                        {submitEnabled
+                          ? '활성화 시 수기등록거래 상신 화면에서 엑셀 일괄 업로드를 사용할 수 있습니다.'
+                          : '먼저 [대금지급 > 수기등록거래 상신] 메뉴를 사용하도록 설정해야 합니다.'}
+                      </div>
+                    </div>
+                    <button
+                      role="switch"
+                      aria-checked={checked}
+                      disabled={!submitEnabled}
+                      onClick={() => handleChange('manualTxExcelUploadEnabled', !currentRow.manualTxExcelUploadEnabled)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#008d75] focus:ring-offset-2 ${
+                        checked ? 'bg-primary' : 'bg-gray-300'
+                      } ${!submitEnabled ? 'cursor-not-allowed' : ''}`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                          checked ? 'translate-x-5' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                );
+              })()}
 
             </div>
           </div>

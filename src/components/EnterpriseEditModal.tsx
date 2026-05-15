@@ -5,7 +5,6 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronRight,
-  RotateCcw,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, Input } from './ui';
@@ -43,7 +42,6 @@ type VanInfo = {
   giroId: string;
   salaryIds: string[];
   scrapAccounts: Record<ScrapType, BankAccount>;
-  subContractAccount: BankAccount;
 };
 
 type InterfaceMethod = 'REST' | 'OData';
@@ -68,7 +66,11 @@ type UsageInfo = {
   menus: Record<string, boolean>;
   bulkTransferLimit: number;
   largeTransferEnabled: boolean;
+  manualTxExcelUploadEnabled: boolean; // 수기거래 엑셀 업로드 — 수기등록거래 상신(id 49)이 ON일 때만 허용
 };
+
+// 수기거래 엑셀 업로드의 선결조건이 되는 메뉴: 수기등록거래 상신
+const MANUAL_TX_SUBMIT_MENU_ID = '49';
 
 // ─────────────────────────────────────────────────────────────
 // 상수
@@ -161,47 +163,267 @@ const INTERFACE_DEFS: InterfaceDef[] = [
   },
 ];
 
+// 출처: 하나은행기업자금관리시스템 메뉴구조도(IA) v0.983 (2026-05-13)
+// MenuManagement 화면의 mock 데이터와 동일한 ID 체계를 사용한다.
 const MENU_TREE: MenuNode[] = [
   {
-    id: '2', name: '결재', isUsed: true,
+    id: '9', name: '결재', isUsed: true,
     children: [
       {
-        id: '3', name: '결재관리', isUsed: true,
+        id: '10', name: '결재관리', isUsed: true,
         children: [
-          { id: '4', name: '결재진행', isUsed: true, children: [] },
-          { id: '5', name: '결재완료', isUsed: true, children: [] },
+          { id: '11', name: '결재진행', isUsed: true, children: [] },
+          { id: '12', name: '결재 완료', isUsed: true, children: [] },
         ],
       },
     ],
   },
   {
-    id: '6', name: '내역관리/리포트', isUsed: true,
+    id: '13', name: '내역관리/리포트', isUsed: true,
     children: [
       {
-        id: '7', name: '거래내역관리', isUsed: true,
+        id: '14', name: '거래내역관리', isUsed: true,
         children: [
-          { id: '8', name: '원화입출금내역', isUsed: false, children: [] },
-          { id: '9', name: '외화입출금내역', isUsed: false, children: [] },
-          { id: '10', name: '가상계좌수신내역', isUsed: true, children: [] },
-          { id: '11', name: '외담대내역', isUsed: true, children: [] },
+          { id: '15', name: '원화입출금내역', isUsed: true, children: [] },
+          { id: '16', name: '외화입출금내역', isUsed: true, children: [] },
+          { id: '17', name: '가상계좌수신내역', isUsed: true, children: [] },
+          { id: '18', name: '외담대수신', isUsed: true, children: [] },
+          { id: '19', name: '전자어음수신', isUsed: true, children: [] },
         ],
       },
       {
-        id: '12', name: '리포트', isUsed: true,
+        id: '20', name: '리포트', isUsed: true,
         children: [
-          { id: '13', name: '자금일보', isUsed: true, children: [] },
+          { id: '21', name: '계좌별 리포트', isUsed: true, children: [] },
+          { id: '22', name: '통합 리포트', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '23', name: '수기계좌 관리', isUsed: true,
+        children: [
+          { id: '24', name: '정기예금계좌', isUsed: true, children: [] },
+          { id: '25', name: '증권계좌', isUsed: true, children: [] },
+          { id: '26', name: '차입금계좌', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '27', name: '수기계좌 내역관리', isUsed: true,
+        children: [
+          { id: '28', name: '정기예금 내역', isUsed: true, children: [] },
+          { id: '29', name: '증권계좌 내역', isUsed: true, children: [] },
+          { id: '30', name: '차입금계좌 내역', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '31', name: '수기계좌 잔액조회', isUsed: true,
+        children: [
+          { id: '32', name: '정기예금 잔액', isUsed: true, children: [] },
+          { id: '33', name: '증권계좌 잔액', isUsed: true, children: [] },
+          { id: '34', name: '차입금계좌 잔액', isUsed: true, children: [] },
         ],
       },
     ],
   },
-  { id: '20', name: '대금지급', isUsed: true, children: [] },
-  { id: '21', name: '급여이체', isUsed: true, children: [] },
-  { id: '22', name: '외담대 발행', isUsed: false, children: [] },
-  { id: '23', name: '지로', isUsed: true, children: [] },
-  { id: '24', name: '사내자금관리', isUsed: true, children: [] },
-  { id: '25', name: '외화이체', isUsed: false, children: [] },
-  { id: '26', name: '법인카드', isUsed: true, children: [] },
-  { id: '27', name: '업무 관리', isUsed: false, children: [] },
+  {
+    id: '35', name: '대금지급', isUsed: true,
+    children: [
+      {
+        id: '36', name: '대금지급 상신/결재', isUsed: true,
+        children: [
+          { id: '37', name: '대금지급 상신', isUsed: true, children: [] },
+          { id: '38', name: '대금지급 결재', isUsed: true, children: [] },
+          { id: '39', name: '대금지급 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '40', name: '철스크랩지급 상신/결재', isUsed: true,
+        children: [
+          { id: '41', name: '철스크랩지급 상신', isUsed: true, children: [] },
+          { id: '42', name: '철스크랩지급 결재', isUsed: true, children: [] },
+          { id: '43', name: '철스크랩지급 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '44', name: '하도급지급 상신/결재', isUsed: true,
+        children: [
+          { id: '45', name: '하도급지급 상신', isUsed: true, children: [] },
+          { id: '46', name: '하도급지급 결재', isUsed: true, children: [] },
+          { id: '47', name: '하도급지급 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '48', name: '수기등록거래 상신/결재', isUsed: true,
+        children: [
+          { id: '49', name: '수기등록거래 상신', isUsed: true, children: [] },
+          { id: '50', name: '수기등록거래 결재', isUsed: true, children: [] },
+          { id: '51', name: '수기등록거래 결과조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '52', name: '급여이체', isUsed: true,
+    children: [
+      {
+        id: '53', name: '급여이체 상신/결재', isUsed: true,
+        children: [
+          { id: '54', name: '급여이체 상신', isUsed: true, children: [] },
+          { id: '55', name: '급여이체 결재', isUsed: true, children: [] },
+          { id: '56', name: '급여이체 결과조회', isUsed: true, children: [] },
+          { id: '57', name: '급여내역 업로드', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '58', name: '외담대 발행', isUsed: true,
+    children: [
+      {
+        id: '59', name: '외담대 발행 상신/결재', isUsed: true,
+        children: [
+          { id: '60', name: '외담대 발행 상신', isUsed: true, children: [] },
+          { id: '61', name: '외담대 발행 결재', isUsed: true, children: [] },
+          { id: '62', name: '외담대 발행 결과조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '63', name: '지로', isUsed: true,
+    children: [
+      {
+        id: '64', name: '국고금', isUsed: true,
+        children: [
+          { id: '65', name: '국고금 상신', isUsed: true, children: [] },
+          { id: '66', name: '국고금 결재', isUsed: true, children: [] },
+          { id: '67', name: '국고금 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '68', name: '지방세', isUsed: true,
+        children: [
+          { id: '69', name: '지방세 상신', isUsed: true, children: [] },
+          { id: '70', name: '지방세 결재', isUsed: true, children: [] },
+          { id: '71', name: '지방세 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '72', name: '사회보험료', isUsed: true,
+        children: [
+          { id: '73', name: '사회보험료 상신', isUsed: true, children: [] },
+          { id: '74', name: '사회보험료 결재', isUsed: true, children: [] },
+          { id: '75', name: '사회보험료 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '76', name: '전기/전화', isUsed: true,
+        children: [
+          { id: '77', name: '전기/전화 상신', isUsed: true, children: [] },
+          { id: '78', name: '전기/전화 결재', isUsed: true, children: [] },
+          { id: '79', name: '전기/전화 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '80', name: '일반지로요금', isUsed: true,
+        children: [
+          { id: '81', name: '일반지로요금 상신', isUsed: true, children: [] },
+          { id: '82', name: '일반지로요금 결재', isUsed: true, children: [] },
+          { id: '83', name: '일반지로요금 결과조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '84', name: '사내이체', isUsed: true,
+    children: [
+      {
+        id: '85', name: '집금', isUsed: true,
+        children: [
+          { id: '86', name: '집금 상신', isUsed: true, children: [] },
+          { id: '87', name: '집금 결재', isUsed: true, children: [] },
+          { id: '88', name: '집금 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '89', name: '계좌간이체(원화)', isUsed: true,
+        children: [
+          { id: '90', name: '계좌간이체(원화) 상신', isUsed: true, children: [] },
+          { id: '91', name: '계좌간이체(원화) 결재', isUsed: true, children: [] },
+          { id: '92', name: '계좌간이체(원화) 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '93', name: '계좌간이체(외화)', isUsed: true,
+        children: [
+          { id: '94', name: '계좌간이체(외화) 상신', isUsed: true, children: [] },
+          { id: '95', name: '계좌간이체(외화) 결재', isUsed: true, children: [] },
+          { id: '96', name: '계좌간이체(외화) 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '97', name: '환전이체', isUsed: true,
+        children: [
+          { id: '98', name: '환전이체 상신', isUsed: true, children: [] },
+          { id: '99', name: '환전이체 결재', isUsed: true, children: [] },
+          { id: '100', name: '환전이체 결과조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '101', name: '외화이체', isUsed: true,
+    children: [
+      {
+        id: '102', name: '외화이체 상신/결재', isUsed: true,
+        children: [
+          { id: '103', name: '외화이체 상신', isUsed: true, children: [] },
+          { id: '104', name: '외화이체 결재', isUsed: true, children: [] },
+          { id: '105', name: '외화이체 결과조회', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '106', name: '외화수납통지', isUsed: true,
+        children: [
+          { id: '107', name: '타발송금도착통지', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '108', name: '법인카드', isUsed: true,
+    children: [
+      {
+        id: '109', name: '법인카드 조회', isUsed: true,
+        children: [
+          { id: '110', name: '한도내역 조회', isUsed: true, children: [] },
+          { id: '111', name: '승인내역 조회', isUsed: true, children: [] },
+          { id: '112', name: '청구내역 조회', isUsed: true, children: [] },
+          { id: '113', name: '이용내역 조회', isUsed: true, children: [] },
+          { id: '114', name: '신고대상 분류', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    id: '115', name: '업무 관리', isUsed: true,
+    children: [
+      { id: '116', name: '업무개시', isUsed: true, children: [] },
+      {
+        id: '117', name: '결재 관리', isUsed: true,
+        children: [
+          { id: '118', name: '대무자 관리', isUsed: true, children: [] },
+          { id: '119', name: '결재선 관리', isUsed: true, children: [] },
+        ],
+      },
+      {
+        id: '120', name: '계좌 관리', isUsed: true,
+        children: [
+          { id: '121', name: '은행별 계좌 관리', isUsed: true, children: [] },
+          { id: '122', name: '잔액 조회', isUsed: true, children: [] },
+        ],
+      },
+    ],
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -221,7 +443,6 @@ function makeEmptyVan(): VanInfo {
       gold: { bank: '', account: '' },
       nonFerrous: { bank: '', account: '' },
     },
-    subContractAccount: { bank: '', account: '' },
   };
 }
 
@@ -341,8 +562,15 @@ export default function EnterpriseEditModal({
     menus: {},
     bulkTransferLimit: 1000,
     largeTransferEnabled: false,
+    manualTxExcelUploadEnabled: false,
   });
   const [expandedMenuIds, setExpandedMenuIds] = useState<string[]>(DEFAULT_EXPANDED_IDS);
+
+  // ※ 훅은 early return(!isOpen) 이전에 모두 호출되어야 함 — hooks order 위반 방지
+  const renderableMenuRows = useMemo(
+    () => getRenderableMenuRows(expandedMenuIds),
+    [expandedMenuIds]
+  );
 
   // 모달이 새로 열릴 때 / enterprise prop이 바뀔 때 폼 상태 재설정
   useEffect(() => {
@@ -354,7 +582,7 @@ export default function EnterpriseEditModal({
     setBasicErrors({});
     setVan(makeEmptyVan());
     setIfaceCfg(makeDefaultInterfaceCfg());
-    setUsage({ menus: {}, bulkTransferLimit: 1000, largeTransferEnabled: false });
+    setUsage({ menus: {}, bulkTransferLimit: 1000, largeTransferEnabled: false, manualTxExcelUploadEnabled: false });
     setExpandedMenuIds(DEFAULT_EXPANDED_IDS);
   }, [isOpen, enterpriseId, enterprise]);
 
@@ -397,9 +625,6 @@ export default function EnterpriseEditModal({
       scrapAccounts: { ...p.scrapAccounts, [t]: { ...p.scrapAccounts[t], [field]: v } },
     }));
   };
-  const updateSubContract = (field: 'bank' | 'account', v: string) => {
-    setVan(p => ({ ...p, subContractAccount: { ...p.subContractAccount, [field]: v } }));
-  };
 
   // ── 인터페이스 핸들러 ───────────────────────────────────
   const toggleInterface = (id: string) => {
@@ -423,7 +648,6 @@ export default function EnterpriseEditModal({
       },
     }));
   };
-  const resetInterface = () => setIfaceCfg(makeDefaultInterfaceCfg());
 
   // ── 사용 메뉴 핸들러 ────────────────────────────────────
   const handleMenuNodeToggle = (node: MenuNode) => {
@@ -433,7 +657,13 @@ export default function EnterpriseEditModal({
     setUsage(prev => {
       const next = { ...prev.menus };
       for (const id of leaves) next[id] = nextChecked;
-      return { ...prev, menus: next };
+      // 수기등록거래 상신이 OFF가 되면 의존 기능(엑셀 업로드)도 자동 OFF
+      const submitOff = leaves.includes(MANUAL_TX_SUBMIT_MENU_ID) && !nextChecked;
+      return {
+        ...prev,
+        menus: next,
+        manualTxExcelUploadEnabled: submitOff ? false : prev.manualTxExcelUploadEnabled,
+      };
     });
   };
   const handleAllMenusToggle = () => {
@@ -447,9 +677,6 @@ export default function EnterpriseEditModal({
   const toggleMenuExpand = (id: string) => {
     setExpandedMenuIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
-  const resetUsage = () => {
-    setUsage({ menus: {}, bulkTransferLimit: 1000, largeTransferEnabled: false });
-  };
 
   const selectedLeafCount = ALL_LEAF_IDS.filter(id => usage.menus[id]).length;
   const totalLeafCount    = ALL_LEAF_IDS.length;
@@ -457,10 +684,6 @@ export default function EnterpriseEditModal({
     selectedLeafCount === 0 ? 'unchecked'
     : selectedLeafCount === totalLeafCount ? 'checked'
     : 'indeterminate';
-  const renderableMenuRows = useMemo(
-    () => getRenderableMenuRows(expandedMenuIds),
-    [expandedMenuIds]
-  );
 
   return (
     <AnimatePresence>
@@ -509,125 +732,111 @@ export default function EnterpriseEditModal({
           {/* 본문 */}
           <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-bg-gray">
             {activeTab === 'basic' && (
-              <div className="bg-white border border-border-gray rounded-xl shadow-sm p-6 space-y-6">
-                {/* 식별정보 (수정불가) */}
-                <div>
-                  <h3 className="text-body-lg font-semibold text-text-main mb-1">식별정보</h3>
-                  <p className="text-body-sm text-text-sub mb-4">테넌트·기업명·등록번호 정보는 변경할 수 없습니다.</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                    <div>
-                      <label className="block text-body font-semibold text-text-main mb-1.5">테넌트 (상위기업)</label>
-                      <input
-                        readOnly
-                        value={`${seedTenant}(${seedTenantCode})`}
-                        className="w-full h-[40px] px-4 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-body font-semibold text-text-main mb-1.5">기업명 <span className="text-text-sub text-caption">(수정불가)</span></label>
-                      <input
-                        readOnly
-                        value={seedName}
-                        className="w-full h-[40px] px-4 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-body font-semibold text-text-main mb-1.5">사업자등록번호 <span className="text-text-sub text-caption">(수정불가)</span></label>
-                      <input
-                        readOnly
-                        value={seedBizNumber}
-                        className="w-full h-[40px] px-4 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-body font-semibold text-text-main mb-1.5">법인등록번호 <span className="text-text-sub text-caption">(수정불가)</span></label>
-                      <input
-                        readOnly
-                        value={seedCorpNumber || '-'}
-                        className="w-full h-[40px] px-4 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed font-mono"
-                      />
-                    </div>
+              <div className="bg-white border border-border-gray rounded-xl shadow-sm p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  <div>
+                    <label className="block text-body font-semibold text-text-main mb-1.5">테넌트</label>
+                    <input
+                      readOnly
+                      value={`${seedTenant}(${seedTenantCode})`}
+                      className="w-full h-[40px] px-4 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed"
+                    />
                   </div>
-                </div>
-
-                <div className="border-t border-gray-100" />
-
-                {/* 수정 가능 정보 */}
-                <div>
-                  <h3 className="text-body-lg font-semibold text-text-main mb-4">수정 가능 정보</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                    <div>
-                      <label className="block text-body font-semibold text-text-main mb-1.5">
-                        사용 ERP사 <span className="text-status-error">*</span>
+                  <div>
+                    <label className="block text-body font-semibold text-text-main mb-1.5">기업명</label>
+                    <input
+                      readOnly
+                      value={seedName}
+                      className="w-full h-[40px] px-4 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-body font-semibold text-text-main mb-1.5">사업자등록번호</label>
+                    <input
+                      readOnly
+                      value={seedBizNumber}
+                      className="w-full h-[40px] px-4 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-body font-semibold text-text-main mb-1.5">법인등록번호</label>
+                    <input
+                      readOnly
+                      value={seedCorpNumber || '-'}
+                      className="w-full h-[40px] px-4 bg-bg-gray border border-border-gray rounded-md text-body text-text-sub outline-none cursor-not-allowed font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-body font-semibold text-text-main mb-1.5">
+                      사용 ERP사 <span className="text-status-error">*</span>
+                    </label>
+                    <select
+                      value={erpVendor}
+                      onChange={e => {
+                        setErpVendor(e.target.value);
+                        setBasicErrors(p => ({ ...p, erpVendor: '' }));
+                      }}
+                      className={`w-full h-[42px] px-3 border rounded-md text-body bg-white outline-none focus:border-primary focus:ring-1 focus:ring-[#008d75] ${
+                        basicErrors.erpVendor ? 'border-status-error' : 'border-border-gray'
+                      } ${erpVendor ? 'text-text-main' : 'text-text-sub'}`}
+                    >
+                      <option value="">선택</option>
+                      {ERP_VENDORS.map(v => (
+                        <option key={v} value={v}>{v}</option>
+                      ))}
+                    </select>
+                    {basicErrors.erpVendor && (
+                      <p className="text-caption text-status-error flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        {basicErrors.erpVendor}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-body font-semibold text-text-main mb-1.5">
+                      마스터 이메일 <span className="text-status-error">*</span>
+                    </label>
+                    <Input
+                      fullWidth
+                      type="email"
+                      error={!!basicErrors.masterEmail}
+                      placeholder="example@company.com"
+                      value={masterEmail}
+                      onChange={e => {
+                        setMasterEmail(e.target.value);
+                        setBasicErrors(p => ({ ...p, masterEmail: '' }));
+                      }}
+                    />
+                    {basicErrors.masterEmail && (
+                      <p className="text-caption text-status-error flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        {basicErrors.masterEmail}
+                      </p>
+                    )}
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-body font-semibold text-text-main mb-1.5">사용여부</label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="isUsed"
+                          checked={isUsed}
+                          onChange={() => setIsUsed(true)}
+                          className="w-4 h-4 accent-[#008d75]"
+                        />
+                        <span className="text-body text-text-main">사용</span>
                       </label>
-                      <select
-                        value={erpVendor}
-                        onChange={e => {
-                          setErpVendor(e.target.value);
-                          setBasicErrors(p => ({ ...p, erpVendor: '' }));
-                        }}
-                        className={`w-full h-[42px] px-3 border rounded-md text-body bg-white outline-none focus:border-primary focus:ring-1 focus:ring-[#008d75] ${
-                          basicErrors.erpVendor ? 'border-status-error' : 'border-border-gray'
-                        } ${erpVendor ? 'text-text-main' : 'text-text-sub'}`}
-                      >
-                        <option value="">선택</option>
-                        {ERP_VENDORS.map(v => (
-                          <option key={v} value={v}>{v}</option>
-                        ))}
-                      </select>
-                      {basicErrors.erpVendor && (
-                        <p className="text-caption text-status-error flex items-center gap-1 mt-1">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          {basicErrors.erpVendor}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-body font-semibold text-text-main mb-1.5">
-                        마스터 이메일 <span className="text-status-error">*</span>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="isUsed"
+                          checked={!isUsed}
+                          onChange={() => setIsUsed(false)}
+                          className="w-4 h-4 accent-[#008d75]"
+                        />
+                        <span className="text-body text-text-main">미사용</span>
                       </label>
-                      <Input
-                        fullWidth
-                        type="email"
-                        error={!!basicErrors.masterEmail}
-                        placeholder="example@company.com"
-                        value={masterEmail}
-                        onChange={e => {
-                          setMasterEmail(e.target.value);
-                          setBasicErrors(p => ({ ...p, masterEmail: '' }));
-                        }}
-                      />
-                      {basicErrors.masterEmail && (
-                        <p className="text-caption text-status-error flex items-center gap-1 mt-1">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          {basicErrors.masterEmail}
-                        </p>
-                      )}
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-body font-semibold text-text-main mb-1.5">사용여부</label>
-                      <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="isUsed"
-                            checked={isUsed}
-                            onChange={() => setIsUsed(true)}
-                            className="w-4 h-4 accent-[#008d75]"
-                          />
-                          <span className="text-body text-text-main">사용</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="isUsed"
-                            checked={!isUsed}
-                            onChange={() => setIsUsed(false)}
-                            className="w-4 h-4 accent-[#008d75]"
-                          />
-                          <span className="text-body text-text-main">미사용</span>
-                        </label>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -728,11 +937,11 @@ export default function EnterpriseEditModal({
                 {/* 기타계좌 */}
                 <div>
                   <h3 className="text-body-lg font-semibold text-gray-700 mb-1">기타계좌</h3>
-                  <p className="text-body-sm text-gray-500 mb-5">스크랩 및 하도급 계좌 정보를 입력합니다. 사용하는 항목만 입력하면 됩니다.</p>
+                  <p className="text-body-sm text-gray-500 mb-5">스크랩 계좌 정보를 입력합니다. 사용하는 항목만 입력하면 됩니다.</p>
 
                   <div className="max-w-3xl">
                     {/* 스크랩 */}
-                    <div className="mb-6">
+                    <div>
                       <p className="text-body font-semibold text-text-main mb-2">스크랩 계좌</p>
                       <div className="border border-border-gray rounded-md overflow-hidden">
                         <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-2 bg-bg-gray border-b border-border-gray">
@@ -767,36 +976,6 @@ export default function EnterpriseEditModal({
                         </div>
                       </div>
                     </div>
-
-                    {/* 하도급 */}
-                    <div>
-                      <p className="text-body font-semibold text-text-main mb-2">하도급 계좌</p>
-                      <div className="border border-border-gray rounded-md overflow-hidden">
-                        <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-2 bg-bg-gray border-b border-border-gray">
-                          <span className="text-body-sm font-semibold text-text-sub">구분</span>
-                          <span className="text-body-sm font-semibold text-text-sub">은행</span>
-                          <span className="text-body-sm font-semibold text-text-sub">계좌번호</span>
-                        </div>
-                        <div className="grid grid-cols-[80px_1fr_1fr] gap-3 px-4 py-3 items-center bg-white">
-                          <span className="text-body font-semibold text-text-main">하도급</span>
-                          <select
-                            value={van.subContractAccount.bank}
-                            onChange={e => updateSubContract('bank', e.target.value)}
-                            className="w-full h-[42px] px-3 border border-border-gray rounded-md text-body bg-white text-text-main outline-none focus:border-primary focus:ring-1 focus:ring-[#008d75]"
-                          >
-                            <option value="">은행 선택</option>
-                            {BANK_LIST.map(b => <option key={b} value={b}>{b}</option>)}
-                          </select>
-                          <Input
-                            type="text"
-                            fullWidth
-                            placeholder="계좌번호 입력"
-                            value={van.subContractAccount.account}
-                            onChange={e => updateSubContract('account', e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -804,20 +983,6 @@ export default function EnterpriseEditModal({
 
             {activeTab === 'interface' && (
               <div className="bg-white border border-border-gray rounded-xl shadow-sm p-6 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-body-lg font-semibold text-gray-700">인터페이스/파라미터 설정</h3>
-                    <p className="text-body-sm text-gray-500 mt-0.5">ERP 연동을 위한 통신 방식과 파라미터를 설정합니다.</p>
-                  </div>
-                  <button
-                    onClick={resetInterface}
-                    className="flex-shrink-0 flex items-center gap-1.5 text-body-sm text-gray-500 px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    초기화
-                  </button>
-                </div>
-
                 {/* Base URL */}
                 <div>
                   <label className="block text-body font-semibold text-gray-700 mb-1.5">
@@ -910,20 +1075,6 @@ export default function EnterpriseEditModal({
 
             {activeTab === 'usage' && (
               <div className="bg-white border border-border-gray rounded-xl shadow-sm p-6 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-body-lg font-semibold text-gray-700">기타 설정</h3>
-                    <p className="text-body-sm text-gray-500 mt-0.5">사용할 메뉴와 이체 관련 부가 설정을 구성합니다.</p>
-                  </div>
-                  <button
-                    onClick={resetUsage}
-                    className="flex-shrink-0 flex items-center gap-1.5 text-body-sm text-gray-500 px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    초기화
-                  </button>
-                </div>
-
                 {/* 사용 메뉴 */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
@@ -1074,6 +1225,41 @@ export default function EnterpriseEditModal({
                         />
                       </button>
                     </div>
+
+                    {/* 수기거래 엑셀 업로드 — 수기등록거래 상신이 ON일 때만 활성화 */}
+                    {(() => {
+                      const submitEnabled = !!usage.menus[MANUAL_TX_SUBMIT_MENU_ID];
+                      const checked = submitEnabled && usage.manualTxExcelUploadEnabled;
+                      return (
+                        <div className={`flex items-center justify-between gap-4 px-4 py-3 border rounded-md ${
+                          submitEnabled ? 'bg-gray-50 border-gray-100' : 'bg-gray-100 border-gray-200 opacity-60'
+                        }`}>
+                          <div>
+                            <div className="text-body font-semibold text-gray-700">수기거래 엑셀 업로드 사용 여부</div>
+                            <div className="text-caption text-gray-500 mt-0.5">
+                              {submitEnabled
+                                ? '활성화 시 수기등록거래 상신 화면에서 엑셀 일괄 업로드를 사용할 수 있습니다.'
+                                : '먼저 [대금지급 > 수기등록거래 상신] 메뉴를 사용하도록 설정해야 합니다.'}
+                            </div>
+                          </div>
+                          <button
+                            role="switch"
+                            aria-checked={checked}
+                            disabled={!submitEnabled}
+                            onClick={() => setUsage(p => ({ ...p, manualTxExcelUploadEnabled: !p.manualTxExcelUploadEnabled }))}
+                            className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#008d75] focus:ring-offset-2 ${
+                              checked ? 'bg-primary' : 'bg-gray-300'
+                            } ${!submitEnabled ? 'cursor-not-allowed' : ''}`}
+                          >
+                            <span
+                              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                                checked ? 'translate-x-5' : 'translate-x-0.5'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
