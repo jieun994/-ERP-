@@ -17,8 +17,6 @@ git rm -r --cached --ignore-unmatch ".~lock.*" "~$*" >nul 2>&1
 git rm -r --cached --ignore-unmatch "*wireframe*.html" >nul 2>&1
 git rm -r --cached --ignore-unmatch "_emergency_backup_*" >nul 2>&1
 git rm --cached --ignore-unmatch "tatus" >nul 2>&1
-
-REM Untrack all .md except README.md
 for /f "delims=" %%f in ('git ls-files "*.md" 2^>nul') do (
     if /I not "%%f"=="README.md" git rm --cached --ignore-unmatch "%%f" >nul 2>&1
 )

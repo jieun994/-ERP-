@@ -12,8 +12,7 @@ if exist ".git\index.lock" (
     del /f /q ".git\index.lock"
     if exist ".git\index.lock" (
         echo    [FAIL] Could not delete index.lock.
-        echo    Please delete .git\index.lock manually from Explorer
-        echo    (enable "Show hidden items" to see the .git folder).
+        echo    Please delete .git\index.lock manually from Explorer.
         pause
         exit /b 1
     ) else (
@@ -27,7 +26,7 @@ REM ====== 2) Show branch and remote ======
 echo.
 echo [2/6] Current branch and remote:
 git branch --show-current
-git remote -v | findstr "(push)"
+git remote -v
 echo.
 
 REM ====== 3) Untrack files matching .gitignore ======
@@ -37,8 +36,6 @@ git rm -r --cached --ignore-unmatch ".~lock.*" "~$*" >nul 2>&1
 git rm -r --cached --ignore-unmatch "*wireframe*.html" >nul 2>&1
 git rm -r --cached --ignore-unmatch "_emergency_backup_*" >nul 2>&1
 git rm --cached --ignore-unmatch "tatus" >nul 2>&1
-
-REM Untrack all .md except README.md
 for /f "delims=" %%f in ('git ls-files "*.md" 2^>nul') do (
     if /I not "%%f"=="README.md" git rm --cached --ignore-unmatch "%%f" >nul 2>&1
 )
@@ -69,18 +66,11 @@ git push origin HEAD:main
 if errorlevel 1 (
     echo.
     echo    [FAIL] Push failed!
-    echo    Possible causes:
-    echo      - Remote main is ahead of local (someone else pushed)
-    echo      - GitHub authentication issue
-    echo      - Repository access permission issue
-    echo.
     echo    Fetching remote to check status...
     git fetch origin
     echo.
     echo    Commits on remote/main that are NOT in HEAD:
     git log --oneline HEAD..origin/main
-    echo.
-    echo    If remote has new commits, pull/merge first, then push again.
 ) else (
     echo    [OK] Push succeeded!
 )
