@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { Button, FilterBar, DataTable, StatusBadge, PageLayout, ConfirmModal, Input, Select } from './ui';
 
 type NotifyType = '결재' | '업무' | '공지사항' | '일정' | '시스템' | '메시지';
-type SendChannel = 'web' | 'inbox' | 'both';
+type SendChannel = 'both';
 
 interface PushTemplate {
   id: string;
@@ -21,8 +21,6 @@ interface PushTemplate {
 }
 
 const SEND_CHANNEL_LABEL: Record<SendChannel, string> = {
-  'web': '웹푸시',
-  'inbox': '알림함',
   'both': '웹푸시 + 알림함'
 };
 
@@ -44,7 +42,7 @@ const mockData: PushTemplate[] = [
     name: '자금 이체 실행 반려 알림',
     content: '[하나은행] 이체 실행 건이 반려되었습니다. 사유를 확인해 주세요.',
     notifyType: '결재',
-    sendChannel: 'web',
+    sendChannel: 'both',
     targetValue: 'user_02',
     isUsed: true,
     createdAt: '2024-05-02 14:30:00',
@@ -56,7 +54,7 @@ const mockData: PushTemplate[] = [
     name: '기업 인증서 만료 안내',
     content: '[하나은행] 기업 인증서 만료가 7일 남았습니다. 갱신이 필요합니다.',
     notifyType: '시스템',
-    sendChannel: 'inbox',
+    sendChannel: 'both',
     targetValue: 'ENT_HANA_01',
     isUsed: false,
     createdAt: '2024-05-03 09:15:00',
@@ -96,7 +94,6 @@ export default function PushNotificationManagement() {
   const [searchTemplateCode, setSearchTemplateCode] = useState('');
   const [searchName, setSearchName] = useState('');
   const [searchNotifyType, setSearchNotifyType] = useState('ALL');
-  const [searchSendChannel, setSearchSendChannel] = useState('ALL');
   const [searchIsUsed, setSearchIsUsed] = useState('ALL');
 
   // Form States
@@ -114,9 +111,8 @@ export default function PushNotificationManagement() {
     const matchesCode = searchTemplateCode === '' || item.id.includes(searchTemplateCode);
     const matchesName = searchName === '' || item.name.includes(searchName);
     const matchesNotifyType = searchNotifyType === 'ALL' || item.notifyType === searchNotifyType;
-    const matchesSendChannel = searchSendChannel === 'ALL' || item.sendChannel === searchSendChannel;
     const matchesIsUsed = searchIsUsed === 'ALL' || (searchIsUsed === 'use' ? item.isUsed : !item.isUsed);
-    return matchesCode && matchesName && matchesNotifyType && matchesSendChannel && matchesIsUsed;
+    return matchesCode && matchesName && matchesNotifyType && matchesIsUsed;
   });
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,7 +199,6 @@ export default function PushNotificationManagement() {
     setSearchTemplateCode('');
     setSearchName('');
     setSearchNotifyType('ALL');
-    setSearchSendChannel('ALL');
     setSearchIsUsed('ALL');
   };
 
@@ -242,18 +237,6 @@ export default function PushNotificationManagement() {
             <option value="일정">일정</option>
             <option value="시스템">시스템</option>
             <option value="메시지">메시지</option>
-          </Select>
-        </FilterBar.Field>
-        <FilterBar.Field label="발송 채널">
-          <Select
-            value={searchSendChannel}
-            onChange={(e) => setSearchSendChannel(e.target.value)}
-            fullWidth
-          >
-            <option value="ALL">전체</option>
-            <option value="web">웹푸시</option>
-            <option value="inbox">알림함</option>
-            <option value="both">웹푸시 + 알림함</option>
           </Select>
         </FilterBar.Field>
         <FilterBar.Field label="사용여부">
@@ -470,26 +453,6 @@ export default function PushNotificationManagement() {
                           <input
                             type="radio"
                             name="sendChannel"
-                            checked={formData.sendChannel === 'web'}
-                            onChange={() => setFormData({ ...formData, sendChannel: 'web' })}
-                            className="w-4 h-4 accent-[#008d75]"
-                          />
-                          <span className="text-body text-text-body group-hover:text-text-main">웹푸시</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer group">
-                          <input
-                            type="radio"
-                            name="sendChannel"
-                            checked={formData.sendChannel === 'inbox'}
-                            onChange={() => setFormData({ ...formData, sendChannel: 'inbox' })}
-                            className="w-4 h-4 accent-[#008d75]"
-                          />
-                          <span className="text-body text-text-body group-hover:text-text-main">알림함</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer group">
-                          <input
-                            type="radio"
-                            name="sendChannel"
                             checked={formData.sendChannel === 'both'}
                             onChange={() => setFormData({ ...formData, sendChannel: 'both' })}
                             className="w-4 h-4 accent-[#008d75]"
@@ -497,7 +460,7 @@ export default function PushNotificationManagement() {
                           <span className="text-body text-text-body group-hover:text-text-main">웹푸시 + 알림함</span>
                         </label>
                       </div>
-                      <p className="text-caption text-text-sub pt-1">웹푸시는 브라우저 알림으로 즉시 노출되며, 알림함은 사용자 알림함에 누적됩니다.</p>
+                      <p className="text-caption text-text-sub pt-1">웹푸시 발송 시 알림함에도 동일한 내용이 자동으로 적재됩니다.</p>
                     </div>
 
                     <div className="space-y-2 pt-1">

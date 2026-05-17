@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Button } from './ui';
+import { Button, ConfirmModal } from './ui';
 
 interface WebPushSubscription {
   setAt: string;
@@ -141,6 +141,9 @@ export default function EnterpriseUsers() {
   const [roleFilter, setRoleFilter] = useState('all');
   const [isWebPushModalOpen, setIsWebPushModalOpen] = useState(false);
   const [webPushTargetUser, setWebPushTargetUser] = useState<EnterpriseUser | null>(null);
+  const [showPwResetConfirm, setShowPwResetConfirm] = useState(false);
+  const [showPwResetResult, setShowPwResetResult] = useState(false);
+  const [pwResetTargets, setPwResetTargets] = useState<EnterpriseUser[]>([]);
 
   const handleOpenWebPushDetail = (user: EnterpriseUser) => {
     if (!user.webPushSubscriptions || user.webPushSubscriptions.length === 0) return;
@@ -175,6 +178,22 @@ export default function EnterpriseUsers() {
 
   const handleExcelDownload = () => {
     alert('사용자 목록 엑셀 다운로드를 실행합니다.');
+  };
+
+  const handleOpenPwReset = () => {
+    if (selectedIds.length === 0) {
+      alert('비밀번호를 초기화할 사용자를 선택해주세요.');
+      return;
+    }
+    setShowPwResetConfirm(true);
+  };
+
+  const doPasswordReset = () => {
+    const targets = data.filter(d => selectedIds.includes(d.id));
+    setPwResetTargets(targets);
+    setShowPwResetConfirm(false);
+    setShowPwResetResult(true);
+    setSelectedIds([]);
   };
 
   return (
@@ -258,6 +277,13 @@ export default function EnterpriseUsers() {
             className="h-[36px] border border-border-input px-4 rounded-md text-body font-bold hover:bg-bg-gray bg-white text-text-main transition-colors shadow-sm"
           >
             상태 변경
+          </button>
+          <button
+            onClick={handleOpenPwReset}
+            disabled={selectedIds.length === 0}
+            className="h-[36px] border border-border-input px-4 rounded-md text-body font-bold transition-colors shadow-sm bg-white text-text-main hover:bg-bg-gray disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+          >
+            비밀번호 초기화
           </button>
         </div>
       </div>
@@ -346,6 +372,75 @@ export default function EnterpriseUsers() {
         }}
         user={webPushTargetUser}
       />
+
+      {/* 비밀번호 초기화 확인 모달 */}
+      <ConfirmModal
+        open={showPwResetConfirm}
+        variant="primary"
+        title="비밀번호를 초기화하시겠습니까?"
+        description={`선택한 사용자 ${selectedIds.length}명의 등록 이메일(아이디)로 임시 비밀번호가 발송됩니다.`}
+        confirmLabel="발송"
+        cancelLabel="취소"
+        onConfirm={doPasswordReset}
+        onCancel={() => setShowPwResetConfirm(false)}
+      />
+
+      {/* 비밀번호 초기화 결과 모달 */}
+      <AnimatePresence>
+        {showPwResetResult && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="relative w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[80vh]"
+            >
+              <div className="flex items-center justify-between px-6 h-[56px] border-b border-border-gray shrink-0">
+                <h3 className="font-semibold text-title-sm text-text-main">
+                  임시 비밀번호 발송 완료
+                </h3>
+                <button
+                  onClick={() => setShowPwResetResult(false)}
+                  className="p-1.5 hover:bg-bg-muted rounded-full transition-colors text-text-sub"
+                  aria-label="닫기"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto">
+                <p className="text-body text-text-body mb-4 leading-relaxed">
+                  아래 <span className="text-primary font-bold">{pwResetTargets.length}</span>명의 등록 이메일로
+                  임시 비밀번호가 발송되었습니다.
+                </p>
+                <div className="border border-border-gray rounded-lg overflow-hidden">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-bg-muted border-b border-border-gray text-text-body">
+                        <th className="h-[40px] px-4 text-body-sm font-semibold w-32 border-r border-border-gray">사용자명</th>
+                        <th className="h-[40px] px-4 text-body-sm font-semibold">아이디(이메일)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E5E8EB]">
+                      {pwResetTargets.map(u => (
+                        <tr key={u.id} className="h-[40px]">
+                          <td className="px-4 text-body-sm text-text-main border-r border-border-gray">{u.userName}</td>
+                          <td className="px-4 text-body-sm text-text-body font-mono">{u.userId}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="flex items-center justify-end px-6 py-4 border-t border-border-gray bg-gray-50">
+                <Button variant="primary" size="md" onClick={() => setShowPwResetResult(false)}>
+                  확인
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

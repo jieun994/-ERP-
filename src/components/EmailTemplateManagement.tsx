@@ -3,11 +3,14 @@ import { AlertCircle, X, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, FilterBar, DataTable, StatusBadge, ConfirmModal, Input, Select, Textarea } from './ui';
 
+type TemplateCategory = 'REQUIRED' | 'OPTIONAL';
+
 interface EmailTemplate {
   id: string;
   no: number;
   templateCode: string;
   templateName: string;
+  category: TemplateCategory;
   dispatchType: string;
   subject: string;
   body: string;
@@ -17,6 +20,7 @@ interface EmailTemplate {
 }
 
 const DISPATCH_TYPES = ['가입 완료', '승인 완료', '반려 안내', '비밀번호 재설정', '기타 안내'];
+const CATEGORY_LABELS: Record<TemplateCategory, string> = { REQUIRED: '필수', OPTIONAL: '선택' };
 
 const DEFAULT_HEADER_HTML = `<table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-bottom:1px solid #e5e8eb;">
   <tr><td style="padding:16px 24px;">
@@ -39,6 +43,7 @@ const mockTemplates: EmailTemplate[] = [
     id: '1', no: 1,
     templateCode: 'TPL_JOIN_COMP',
     templateName: '회원가입 완료 안내',
+    category: 'REQUIRED',
     dispatchType: '가입 완료',
     subject: '[하나은행] #{userName}님, 회원가입이 완료되었습니다.',
     body: `<table width="100%" cellpadding="0" cellspacing="0">
@@ -53,6 +58,7 @@ const mockTemplates: EmailTemplate[] = [
     id: '2', no: 2,
     templateCode: 'TPL_PWD_RESET',
     templateName: '비밀번호 재설정 인증코드',
+    category: 'REQUIRED',
     dispatchType: '비밀번호 재설정',
     subject: '[하나은행] 비밀번호 재설정 인증코드 안내',
     body: `<table width="100%" cellpadding="0" cellspacing="0">
@@ -62,6 +68,21 @@ const mockTemplates: EmailTemplate[] = [
   </td></tr>
 </table>`,
     isActive: true, author: 'admin2', updatedAt: '2024-05-05',
+  },
+  {
+    id: '3', no: 3,
+    templateCode: 'TPL_NOTICE_GUIDE',
+    templateName: '기타 알림성 안내',
+    category: 'OPTIONAL',
+    dispatchType: '기타 안내',
+    subject: '[하나은행] 알림 안내드립니다.',
+    body: `<table width="100%" cellpadding="0" cellspacing="0">
+  <tr><td style="padding:32px 24px;font-size:15px;color:#191F28;line-height:1.8;">
+    안녕하세요, #{userName}님.<br/><br/>
+    안내드릴 사항이 있어 메일 드립니다.
+  </td></tr>
+</table>`,
+    isActive: true, author: 'admin1', updatedAt: '2024-05-10',
   },
 ];
 
@@ -81,6 +102,7 @@ export default function EmailTemplateManagement() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchCode, setSearchCode] = useState('');
   const [searchName, setSearchName] = useState('');
+  const [searchCategory, setSearchCategory] = useState<'ALL' | TemplateCategory>('ALL');
   const [searchType, setSearchType] = useState('ALL');
   const [searchStatus, setSearchStatus] = useState('ALL');
 
@@ -88,12 +110,25 @@ export default function EmailTemplateManagement() {
   const [editItem, setEditItem] = useState<EmailTemplate | null>(null);
   const [templateCode, setTemplateCode] = useState('');
   const [templateName, setTemplateName] = useState('');
+  const [category, setCategory] = useState<TemplateCategory>('OPTIONAL');
   const [dispatchType, setDispatchType] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showCancelWarning, setShowCancelWarning] = useState(false);
+
+  const filteredData = data.filter(item => {
+    if (searchCode && !item.templateCode.toLowerCase().includes(searchCode.toLowerCase())) return false;
+    if (searchName && !item.templateName.toLowerCase().includes(searchName.toLowerCase())) return false;
+    if (searchCategory !== 'ALL' && item.category !== searchCategory) return false;
+    if (searchType !== 'ALL' && item.dispatchType !== searchType) return false;
+    if (searchStatus !== 'ALL') {
+      const isStatusActive = searchStatus === 'USE';
+      if (item.isActive !== isStatusActive) return false;
+    }
+    return true;
+  });
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) setSelectedIds(filteredData.map(d => d.id));
@@ -103,7 +138,7 @@ export default function EmailTemplateManagement() {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
   const handleResetSearch = () => {
-    setSearchCode(''); setSearchName(''); setSearchType('ALL'); setSearchStatus('ALL');
+    setSearchCode(''); setSearchName(''); setSearchCategory('ALL'); setSearchType('ALL'); setSearchStatus('ALL');
   };
   const handleToggleVisibility = () => {
     if (selectedIds.length === 0) { alert('상태를 변경할 템플릿을 선택해주세요.'); return; }
@@ -118,9 +153,11 @@ export default function EmailTemplateManagement() {
   const openForm = (item?: EmailTemplate) => {
     if (item) {
       setEditItem(item); setTemplateCode(item.templateCode); setTemplateName(item.templateName);
+      setCategory(item.category);
       setDispatchType(item.dispatchType); setIsActive(item.isActive); setSubject(item.subject); setBody(item.body);
     } else {
       setEditItem(null); setTemplateCode(''); setTemplateName('');
+      setCategory('OPTIONAL');
       setDispatchType(''); setIsActive(true); setSubject(''); setBody('');
     }
     setErrors({}); setViewMode('form');
@@ -128,9 +165,10 @@ export default function EmailTemplateManagement() {
   const closeForm = () => {
     const isDirty = editItem
       ? templateCode !== editItem.templateCode || templateName !== editItem.templateName ||
+        category !== editItem.category ||
         dispatchType !== editItem.dispatchType || isActive !== editItem.isActive ||
         subject !== editItem.subject || body !== editItem.body
-      : templateCode !== '' || templateName !== '' || dispatchType !== '' || subject !== '' || body !== '';
+      : templateCode !== '' || templateName !== '' || category !== 'OPTIONAL' || dispatchType !== '' || subject !== '' || body !== '';
     if (isDirty) setShowCancelWarning(true);
     else setViewMode('list');
   };
@@ -152,6 +190,7 @@ export default function EmailTemplateManagement() {
       id: editItem ? editItem.id : Math.random().toString(36).substr(2, 9),
       no: editItem ? editItem.no : (data.length > 0 ? Math.max(...data.map(d => d.no)) + 1 : 1),
       templateCode: templateCode.trim(), templateName: templateName.trim(),
+      category,
       dispatchType: dispatchType.trim(), subject: subject.trim(), body: body.trim(),
       isActive, author: editItem ? editItem.author : 'admin1',
       updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
@@ -164,16 +203,6 @@ export default function EmailTemplateManagement() {
       setEditItem(newObj); alert('성공적으로 등록되었습니다.');
     }
   };
-  const filteredData = data.filter(item => {
-    if (searchCode && !item.templateCode.toLowerCase().includes(searchCode.toLowerCase())) return false;
-    if (searchName && !item.templateName.toLowerCase().includes(searchName.toLowerCase())) return false;
-    if (searchType !== 'ALL' && item.dispatchType !== searchType) return false;
-    if (searchStatus !== 'ALL') {
-      const isStatusActive = searchStatus === 'USE';
-      if (item.isActive !== isStatusActive) return false;
-    }
-    return true;
-  });
 
   return (
     <div className="w-full pb-20">
@@ -274,6 +303,13 @@ export default function EmailTemplateManagement() {
             <FilterBar.Field label="템플릿명">
               <Input type="text" placeholder="템플릿명 입력" value={searchName} onChange={(e) => setSearchName(e.target.value)} fullWidth />
             </FilterBar.Field>
+            <FilterBar.Field label="구분">
+              <Select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value as 'ALL' | TemplateCategory)} fullWidth>
+                <option value="ALL">전체</option>
+                <option value="REQUIRED">필수</option>
+                <option value="OPTIONAL">선택</option>
+              </Select>
+            </FilterBar.Field>
             <FilterBar.Field label="발송 유형">
               <Select value={searchType} onChange={(e) => setSearchType(e.target.value)} fullWidth>
                 <option value="ALL">전체</option>
@@ -312,6 +348,7 @@ export default function EmailTemplateManagement() {
                         onChange={toggleSelectAll} />
                     </th>
                     <th className="h-[52px] px-4 text-body font-semibold text-center border-r border-border-gray w-20">No.</th>
+                    <th className="h-[52px] px-4 text-body font-semibold text-center border-r border-border-gray w-24">구분</th>
                     <th className="h-[52px] px-4 text-body font-semibold text-center border-r border-border-gray w-48">템플릿 코드</th>
                     <th className="h-[52px] px-4 text-body font-semibold border-r border-border-gray w-auto">템플릿명</th>
                     <th className="h-[52px] px-4 text-body font-semibold text-center border-r border-border-gray w-36">발송 유형</th>
@@ -322,7 +359,7 @@ export default function EmailTemplateManagement() {
                 </thead>
                 <tbody className="divide-y divide-[#E5E8EB]">
                   {filteredData.length === 0 ? (
-                    <tr><td colSpan={8} className="py-12 text-center text-text-sub text-body">
+                    <tr><td colSpan={9} className="py-12 text-center text-text-sub text-body">
                       등록된 이메일 템플릿이 없습니다.
                     </td></tr>
                   ) : filteredData.map((item) => (
@@ -336,6 +373,15 @@ export default function EmailTemplateManagement() {
                           onClick={(e) => e.stopPropagation()} />
                       </td>
                       <td className="px-4 text-center text-body-sm text-text-sub border-r border-border-gray font-mono">{item.no}</td>
+                      <td className="px-4 text-center border-r border-border-gray">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-caption font-semibold ${
+                          item.category === 'REQUIRED'
+                            ? 'bg-status-error/10 text-status-error'
+                            : 'bg-bg-muted text-text-body'
+                        }`}>
+                          {CATEGORY_LABELS[item.category]}
+                        </span>
+                      </td>
                       <td className="px-4 text-center text-body font-mono font-medium text-text-main border-r border-border-gray">{item.templateCode}</td>
                       <td className="px-4 text-body border-r border-border-gray">
                         <div className="font-medium text-text-main truncate max-w-sm">{item.templateName}</div>
@@ -398,6 +444,20 @@ export default function EmailTemplateManagement() {
                             </Select>
                             {errors.dispatchType && <p className="text-caption text-status-error mt-1 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {errors.dispatchType}</p>}
                           </div>
+                        </div>
+                        <div className="space-y-2 pt-1">
+                          <label className="block text-body font-semibold text-text-main">구분 <span className="text-status-error">*</span></label>
+                          <div className="flex items-center gap-6">
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                              <input type="radio" name="category" checked={category === 'REQUIRED'} onChange={() => setCategory('REQUIRED')} className="w-4 h-4 accent-[#008d75]" />
+                              <span className="text-body text-text-body group-hover:text-text-main">필수</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                              <input type="radio" name="category" checked={category === 'OPTIONAL'} onChange={() => setCategory('OPTIONAL')} className="w-4 h-4 accent-[#008d75]" />
+                              <span className="text-body text-text-body group-hover:text-text-main">선택</span>
+                            </label>
+                          </div>
+                          <p className="text-caption text-text-sub">필수 발송 이메일과 알림성 이메일을 구분하기 위한 값입니다.</p>
                         </div>
                         <div className="space-y-2 pt-1">
                           <label className="block text-body font-semibold text-text-main">사용 여부</label>
