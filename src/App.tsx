@@ -33,6 +33,7 @@ const PUBLISHING_ITEMS: PublishingItem[] = [
   // 관리자
   { no:20, label:'관리자 관리',                               view:'dashboard_admin_list',          popup:false },
   { no:21, label:'관리자 등록 / 수정 팝업',                   view:'dashboard_admin_list',          popup:true,  popupId:'admin_register_modal' },
+  { no:21.5, label:'권한 그룹 관리 (신규)',                   view:'dashboard_permission_group',    popup:false },
   // 시스템
   { no:22, label:'메뉴 관리',                                 view:'dashboard_menu',                popup:false },
   { no:23, label:'메뉴 수정 팝업',                            view:'dashboard_menu',                popup:true,  popupId:'menu_edit_modal' },
@@ -91,7 +92,8 @@ const VIEW_TO_URL: Record<string, string> = {
   'dashboard_ent_users':            '/dashboard/enterprise/ent_users',
   'dashboard_fund_status':          '/dashboard/enterprise/fund_status',
   'dashboard_exception_management': '/dashboard/enterprise/exception_management',
-  'dashboard_admin_list':           '/dashboard/admin',
+  'dashboard_admin_list':           '/dashboard/admin/admin_list',
+  'dashboard_permission_group':     '/dashboard/admin/permission_group',
   'dashboard_menu':                 '/dashboard/menu_manage',
   'dashboard_notice_list':          '/dashboard/content/notice',
   'dashboard_banner_management':    '/dashboard/content/banner',
@@ -331,7 +333,10 @@ export default function App() {
       initialSubMenu = 'exception_management';
     } else if (view === 'dashboard_admin_list') {
       initialMenu = 'admin';
-      initialSubMenu = '';
+      initialSubMenu = 'admin_list';
+    } else if (view === 'dashboard_permission_group') {
+      initialMenu = 'admin';
+      initialSubMenu = 'permission_group';
     } else if (view === 'dashboard_menu') {
       initialMenu = 'menu_manage';
       initialSubMenu = '';
@@ -522,8 +527,9 @@ export default function App() {
                         {/* 관리자 관리 */}
                         <tr className="bg-bg-muted"><td colSpan={4} className="px-4 py-2 text-caption font-bold text-text-body uppercase tracking-wide">관리자 관리</td></tr>
                         {[
-                          { no:20, label:'관리자 관리',             view:'dashboard_admin_list', popup:false },
-                          { no:21, label:'관리자 등록 / 수정 팝업', view:'dashboard_admin_list', popup:true,  popupId:'admin_register_modal' },
+                          { no:20, label:'관리자 관리',                  view:'dashboard_admin_list',      popup:false },
+                          { no:21, label:'관리자 등록 / 수정 팝업',      view:'dashboard_admin_list',      popup:true,  popupId:'admin_register_modal' },
+                          { no:21.5, label:'권한 그룹 관리 (신규) ★',   view:'dashboard_permission_group', popup:false },
                         ].map(r => (
                           <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
                             <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>

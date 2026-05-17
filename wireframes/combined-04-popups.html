@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>WF Combined - 04 팝업 그룹</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Noto Sans KR', -apple-system, sans-serif; }
+:root {
+  --line: #BDBDBD;
+  --line-light: #E0E0E0;
+  --fill: #EEEEEE;
+  --fill-mid: #D6D6D6;
+  --fill-dark: #9E9E9E;
+  --text: #424242;
+  --text-2: #757575;
+  --text-3: #9E9E9E;
+  --accent: #6B6B6B;
+}
+body {
+  width: 1920px;
+  min-height: 1080px;
+  background: rgba(60,60,60,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--text);
+}
+.popup {
+  background: #FFFFFF;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 24px 28px;
+}
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.popup-title { font-size: 18px; font-weight: 700; }
+.popup-meta { font-size: 12px; color: var(--text-2); margin-left: 12px; font-weight: 400; }
+.popup-header-left { display: flex; align-items: baseline; }
+.popup-close {
+  width: 24px; height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-2);
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+}
+.icon-x {
+  display: inline-block;
+  position: relative;
+  width: 12px; height: 12px;
+}
+.icon-x::before, .icon-x::after {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 14px; height: 1.4px; background: currentColor;
+}
+.icon-x::before { transform: translate(-50%, -50%) rotate(45deg); }
+.icon-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* Popup body */
+.popup-body { font-size: 14px; }
+
+/* Search input */
+.search-row { display: flex; gap: 8px; margin-bottom: 20px; }
+.search-input {
+  flex: 1;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  background: #FFF;
+  font-size: 14px;
+  color: var(--text-3);
+  display: flex; align-items: center;
+}
+.search-btn {
+  width: 64px; height: 40px;
+  background: var(--fill-mid);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Search history */
+.search-section-title { font-size: 13px; font-weight: 600; margin: 16px 0 8px; color: var(--text); }
+.search-history-list { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); }
+.search-result-list { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-2); margin-top: 8px; }
+
+/* No result */
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 28px 0 8px; color: var(--text-2); font-size: 13px; text-align: center; }
+.empty-icon { width: 36px; height: 36px; color: var(--text-3); }
+.ic { width: 16px; height: 16px; display: block; }
+
+/* Tables (common) */
+.popup-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.popup-table th, .popup-table td { padding: 12px 8px; border-bottom: 1px solid var(--line-light); text-align: center; }
+.popup-table thead th { background: var(--fill); border-top: 1px solid var(--line); font-weight: 600; }
+.popup-table td.left { text-align: left; }
+.popup-table td.right { text-align: right; }
+
+/* Pagination */
+.pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: 4px;
+  margin-top: 16px;
+  font-size: 13px;
+}
+.page-num {
+  width: 28px; height: 28px;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  color: var(--text-2);
+  border-radius: 4px;
+}
+.page-num.active { background: var(--fill-mid); color: var(--text); font-weight: 600; }
+.page-arrow {
+  width: 28px; height: 28px;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  color: var(--text-2);
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+}
+.chev { display: inline-block; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.4px 1.4px 0; }
+.chev-r { transform: rotate(-45deg); }
+.chev-l { transform: rotate(135deg); }
+
+/* Detail header */
+.detail-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; padding-bottom: 12px; border-bottom: 1px solid var(--line-light); }
+.detail-date { font-size: 12px; color: var(--text-2); margin-bottom: 12px; }
+.detail-body { font-size: 13px; line-height: 1.7; color: var(--text); padding: 12px 0; min-height: 120px; }
+.btn-bar { display: flex; justify-content: center; margin-top: 16px; }
+.btn-primary {
+  height: 38px;
+  padding: 0 32px;
+  background: var(--fill-mid);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Notification */
+.notif-list { display: flex; flex-direction: column; }
+.notif-item { padding: 14px 4px; border-bottom: 1px solid var(--line-light); }
+.notif-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.notif-text { font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 4px; }
+.notif-date { font-size: 11px; color: var(--text-3); }
+
+/* FAQ detail */
+.faq-q { font-size: 14px; font-weight: 700; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line-light); }
+.faq-a { font-size: 13px; line-height: 1.7; color: var(--text-2); padding: 12px 0; min-height: 140px; }
+
+
+/* 통합 페이지 전용 스타일 */
+body {
+  width: 1920px;
+  min-height: auto;
+  background: #F0F0F0;
+  display: block;
+  padding: 0;
+}
+.page-label {
+  width: 1920px;
+  padding: 28px 32px 16px;
+  background: #FAFAFA;
+  font-size: 18px;
+  font-weight: 700;
+  color: #424242;
+  border-top: 2px solid #BDBDBD;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.page-label:first-of-type { border-top: none; }
+.page-label-no { font-size: 13px; color: #757575; font-weight: 500; }
+.page-stage {
+  width: 1920px;
+  min-height: 560px;
+  background: rgba(60,60,60,0.20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="page-label"><span class="page-label-no">04-01</span> 공지사항 (리스트)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 460px;">
+  <div class="popup-header">
+    <div class="popup-header-left"><div class="popup-title">공지사항</div></div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <table class="popup-table">
+      <colgroup><col style="width:48px;"><col><col style="width:96px;"></colgroup>
+      <thead><tr><th>NO</th><th>제목</th><th>일시</th></tr></thead>
+      <tbody><tr>
+        <td>1</td>
+        <td class="left">공지사항 제목이 들어갑니다 ...</td>
+        <td>YYYY.MM.DD</td>
+      </tr><tr>
+        <td>2</td>
+        <td class="left">공지사항 제목이 들어갑니다 ...</td>
+        <td>YYYY.MM.DD</td>
+      </tr><tr>
+        <td>3</td>
+        <td class="left">공지사항 제목이 들어갑니다 ...</td>
+        <td>YYYY.MM.DD</td>
+      </tr><tr>
+        <td>4</td>
+        <td class="left">공지사항 제목이 들어갑니다 ...</td>
+        <td>YYYY.MM.DD</td>
+      </tr><tr>
+        <td>5</td>
+        <td class="left">공지사항 제목이 들어갑니다 ...</td>
+        <td>YYYY.MM.DD</td>
+      </tr><tr>
+        <td>6</td>
+        <td class="left">공지사항 제목이 들어갑니다 ...</td>
+        <td>YYYY.MM.DD</td>
+      </tr></tbody>
+    </table>
+    <div class="pagination">
+      <span class="page-arrow"><span class="chev chev-l"></span></span>
+      <span class="page-num active">1</span><span class="page-num">2</span><span class="page-num">3</span><span class="page-num">4</span><span class="page-num">5</span>
+      <span class="page-num">···</span>
+      <span class="page-num">00</span>
+      <span class="page-arrow"><span class="chev chev-r"></span></span>
+    </div>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-02</span> 공지사항 (상세)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 520px;">
+  <div class="popup-header">
+    <div class="popup-header-left"><div class="popup-title">공지사항</div></div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <div class="detail-title">[알아두기] 더 편리해진 하나은행 ERP 뱅킹을 안내드릴게요.</div>
+    <div class="detail-date">YYYY.MM.DD</div>
+    <div class="detail-body">
+      공지사항 본문 영역입니다. 여러 줄에 걸쳐<br>
+      안내 사항이 표시될 수 있습니다.<br><br>
+      안내 사항 항목 1<br>
+      안내 사항 항목 2<br>
+      안내 사항 항목 3<br>
+      안내 사항 항목 4<br>
+    </div>
+    <div class="btn-bar"><div class="btn-primary">목록</div></div>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-03</span> 검색 (기본)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 460px;">
+  <div class="popup-header">
+    <div class="popup-header-left"><div class="popup-title">검색</div></div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <div class="search-row">
+      <div class="search-input">검색어 입력</div>
+      <div class="search-btn">검색</div>
+    </div>
+    <div class="search-section-title">검색</div>
+    <div class="search-history-list">
+      <div>결재 &gt; 결재함 &gt; 결재대기</div>
+      <div>대금지급 &gt; 등록조회</div>
+    </div>
+    <div class="search-section-title" style="margin-top:20px;">내역관리/리포트</div>
+    <div class="search-result-list">
+      <div>내역관리/리포트 &gt; 거래내역조회 &gt; 이체내역 통합</div>
+      <div>내역관리/리포트 &gt; 거래내역조회 &gt; 이체내역 조회</div>
+      <div>내역관리/리포트 &gt; 거래내역조회 &gt; 외담대 결제</div>
+      <div>내역관리/리포트 &gt; 거래내역조회 &gt; 외담대 결제 외화</div>
+      <div>내역관리/리포트 &gt; 거래내역조회 &gt; 결재명 결제</div>
+      <div>내역관리/리포트 &gt; 거래내역 &gt; 처리상황</div>
+      <div>내역관리/리포트 &gt; 거래내역 &gt; 처리상황 상세</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-04</span> 검색 (입력 중)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 460px;">
+  <div class="popup-header">
+    <div class="popup-header-left"><div class="popup-title">검색</div></div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <div class="search-row">
+      <div class="search-input" style="color:var(--text);">검색어 입력 예시</div>
+      <div class="search-btn">검색</div>
+    </div>
+    <div class="search-section-title">검색</div>
+    <div class="search-history-list">
+      <div>결재 &gt; 결재함 &gt; 결재대기</div>
+      <div>대금지급 &gt; 등록조회</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-05</span> 검색 (결과 없음)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 460px;">
+  <div class="popup-header">
+    <div class="popup-header-left"><div class="popup-title">검색</div></div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <div class="search-row">
+      <div class="search-input">없는 검색어</div>
+      <div class="search-btn">검색</div>
+    </div>
+    <div class="empty-state">
+      <svg class="empty-icon ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" style="width:40px;height:40px;">
+        <path d="M8 2l6.5 11h-13z"/>
+        <line x1="8" y1="6" x2="8" y2="9.5"/>
+        <circle cx="8" cy="11.5" r="0.4" fill="currentColor" stroke="none"/>
+      </svg>
+      <div>
+        검색결과가 없습니다.<br>
+        단어를 다시 입력해 주세요.
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-06</span> 환율 (컴팩트)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 580px;">
+  <div class="popup-header">
+    <div class="popup-header-left">
+      <div class="popup-title">환율</div>
+      <div class="popup-meta">YYYY.MM.DD HH:MM (KST)</div>
+    </div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <table class="popup-table">
+      <thead>
+        <tr>
+          <th rowspan="2">통화코드<br>(통화명)</th>
+          <th rowspan="2">통화명</th>
+          <th colspan="2">인터넷</th>
+          <th colspan="2">송금</th>
+          <th rowspan="2">기준<br>환율</th>
+        </tr>
+        <tr>
+          <th>살 때</th><th>팔 때</th><th>보낼 때</th><th>받을 때</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td>USD</td>
+      <td class="left">미국 달러</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>JPY</td>
+      <td class="left">일본 100엔</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>EUR</td>
+      <td class="left">유럽연합 유로</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>CNY</td>
+      <td class="left">중국 위안</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr></tbody>
+    </table>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-07</span> 환율 (전체 통화)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 880px;">
+  <div class="popup-header">
+    <div class="popup-header-left">
+      <div class="popup-title">환율</div>
+      <div class="popup-meta">YYYY.MM.DD HH:MM (KST)</div>
+    </div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <table class="popup-table" style="font-size:12px;">
+      <thead>
+        <tr>
+          <th rowspan="3">통화코드<br>(통화명)</th>
+          <th rowspan="3">통화명</th>
+          <th colspan="4">인터넷</th>
+          <th colspan="2">송금</th>
+          <th rowspan="3">기준<br>환율</th>
+        </tr>
+        <tr>
+          <th colspan="2">살 때</th>
+          <th colspan="2">팔 때</th>
+          <th rowspan="2">보낼 때</th>
+          <th rowspan="2">받을 때</th>
+        </tr>
+        <tr>
+          <th>현찰</th><th>스프레드</th><th>현찰</th><th>스프레드</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td>USD</td>
+      <td class="left">미국 달러</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>JPY</td>
+      <td class="left">일본 100엔</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>EUR</td>
+      <td class="left">유럽연합 유로</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>CNY</td>
+      <td class="left">중국 위안</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>HKD</td>
+      <td class="left">홍콩 달러</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>TWD</td>
+      <td class="left">대만 달러</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>GBP</td>
+      <td class="left">영국 파운드</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>CHF</td>
+      <td class="left">스위스 프랑</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>CAD</td>
+      <td class="left">캐나다 달러</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr><tr>
+      <td>SGD</td>
+      <td class="left">싱가포르 달러</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0.00%</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+      <td class="right">0,000.00</td>
+    </tr></tbody>
+    </table>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-08</span> 알림함</div>
+<div class="page-stage">
+  <div class="popup" style="width: 400px;">
+  <div class="popup-header">
+    <div class="popup-header-left">
+      <div class="popup-title">알림함</div>
+    </div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <div style="font-size:12px; color:var(--text-2); margin-bottom:8px;">결재 상태 내역 등 위치 표시</div>
+    <div class="notif-list"><div class="notif-item">
+      <span class="notif-tag">반려</span>
+      <div class="notif-text">하나은행 펌뱅킹 등록일 늦게 결재를 반려합니다.</div>
+      <div class="notif-date">YYYY.MM.DD</div>
+    </div><div class="notif-item">
+      <span class="notif-tag">결재대기</span>
+      <div class="notif-text">상신하신 결제가 안되었습니다, 다시 상신해 주세요.</div>
+      <div class="notif-date">YYYY.MM.DD</div>
+    </div><div class="notif-item">
+      <span class="notif-tag">결재대기</span>
+      <div class="notif-text">하나은행 펌뱅킹 등록일 늦게 상신한 결제가 최종 승인됐습니다.</div>
+      <div class="notif-date">YYYY.MM.DD</div>
+    </div><div class="notif-item">
+      <span class="notif-tag">승인완료</span>
+      <div class="notif-text">상신하신 결제가 최종 승인 완료되었습니다.</div>
+      <div class="notif-date">YYYY.MM.DD</div>
+    </div></div>
+    <div class="pagination">
+      <span class="page-arrow"><span class="chev chev-l"></span></span>
+      <span class="page-num active">1</span><span class="page-num">2</span><span class="page-num">3</span><span class="page-num">4</span><span class="page-num">5</span>
+      <span class="page-num">···</span>
+      <span class="page-num">00</span>
+      <span class="page-arrow"><span class="chev chev-r"></span></span>
+    </div>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-09</span> FAQ (리스트)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 460px;">
+  <div class="popup-header">
+    <div class="popup-header-left"><div class="popup-title">FAQ</div></div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <table class="popup-table">
+      <colgroup><col style="width:48px;"><col></colgroup>
+      <thead><tr><th>NO</th><th>제목</th></tr></thead>
+      <tbody><tr>
+        <td>1</td>
+        <td class="left">FAQ 질문 제목이 들어갑니다 ...</td>
+      </tr><tr>
+        <td>2</td>
+        <td class="left">FAQ 질문 제목이 들어갑니다 ...</td>
+      </tr><tr>
+        <td>3</td>
+        <td class="left">FAQ 질문 제목이 들어갑니다 ...</td>
+      </tr><tr>
+        <td>4</td>
+        <td class="left">FAQ 질문 제목이 들어갑니다 ...</td>
+      </tr></tbody>
+    </table>
+    <div class="pagination">
+      <span class="page-arrow"><span class="chev chev-l"></span></span>
+      <span class="page-num active">1</span><span class="page-num">2</span><span class="page-num">3</span><span class="page-num">4</span><span class="page-num">5</span>
+      <span class="page-num">···</span>
+      <span class="page-num">00</span>
+      <span class="page-arrow"><span class="chev chev-r"></span></span>
+    </div>
+  </div>
+</div>
+</div>
+<div class="page-label"><span class="page-label-no">04-10</span> FAQ (상세)</div>
+<div class="page-stage">
+  <div class="popup" style="width: 480px;">
+  <div class="popup-header">
+    <div class="popup-header-left"><div class="popup-title">FAQ</div></div>
+    <div class="popup-close"><span class="icon-x"></span></div>
+  </div>
+  <div class="popup-body">
+    <div class="faq-q">송금인보호 즉시송금과 차이점은 무엇인가요?</div>
+    <div class="faq-a">
+      FAQ 답변 본문이 들어갑니다.<br><br>
+      • 항목 1: 답변 내용 영역입니다. 여러 줄에 걸쳐 설명될 수 있습니다.<br>
+      • 항목 2: 비교 설명이 들어갈 영역입니다. 필요 시 표나 리스트 형태로도 구성됩니다.<br>
+      • 항목 3: 부가 안내가 들어갑니다.
+    </div>
+    <div class="btn-bar"><div class="btn-primary">목록</div></div>
+  </div>
+</div>
+</div>
+</body>
+</html>

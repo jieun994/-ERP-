@@ -37,6 +37,7 @@ import FirmBankingFailureStatus from './components/FirmBankingFailureStatus';
 
 import PublishingStatus from './components/PublishingStatus';
 import AdminManagement from './components/AdminManagement';
+import PermissionGroupManagement from './components/PermissionGroupManagement';
 import MenuManagement from './components/MenuManagement';
 
 interface DashboardProps {
@@ -75,7 +76,11 @@ const menus: MenuConfig[] = [
   {
     id: 'admin',
     label: '관리자 관리',
-    icon: <Users className="w-5 h-5" />
+    icon: <Users className="w-5 h-5" />,
+    subMenus: [
+      { id: 'admin_list', label: '관리자 관리' },
+      { id: 'permission_group', label: '권한 그룹 관리' },
+    ]
   },
   {
     id: 'menu_manage',
@@ -620,6 +625,10 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
           ) : activeSubMenu === 'exception_management' ? (
             <div className="w-full space-y-6">
               <ExceptionManagement />
+            </div>
+          ) : activeMenu === 'admin' && activeSubMenu === 'permission_group' ? (
+            <div className="w-full space-y-6">
+              <PermissionGroupManagement />
             </div>
           ) : activeMenu === 'admin' ? (
             <div className="w-full space-y-6">
