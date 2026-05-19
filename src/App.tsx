@@ -56,6 +56,10 @@ const PUBLISHING_ITEMS: PublishingItem[] = [
   { no:39, label:'PUSH 알림 관리',                            view:'dashboard_push_mgmt',           popup:false },
   { no:40, label:'PUSH 템플릿 등록 / 수정 팝업',              view:'dashboard_push_mgmt',           popup:true,  popupId:'push_modal' },
   { no:41, label:'PUSH 템플릿 삭제 확인 팝업',                view:'dashboard_push_mgmt',           popup:true,  popupId:'push_delete_warning' },
+  { no:41.1, label:'팝업 관리',                                view:'dashboard_popup_management',    popup:false },
+  { no:41.2, label:'팝업 등록 / 수정 팝업',                    view:'dashboard_popup_management',    popup:true,  popupId:'popup_modal' },
+  { no:41.3, label:'팝업 작성 취소 확인 팝업',                 view:'dashboard_popup_management',    popup:true,  popupId:'popup_cancel_warning' },
+  { no:41.4, label:'팝업 삭제 확인 팝업',                      view:'dashboard_popup_management',    popup:true,  popupId:'popup_delete_warning' },
   // 코드
   { no:42, label:'코드 관리',                                 view:'dashboard_code',                popup:false },
   { no:43, label:'코드 등록 / 수정 팝업',                     view:'dashboard_code',                popup:true,  popupId:'code_modal' },
@@ -100,6 +104,7 @@ const VIEW_TO_URL: Record<string, string> = {
   'dashboard_faq_management':       '/dashboard/content/faq',
   'dashboard_email_template':       '/dashboard/content/email_template',
   'dashboard_push_mgmt':            '/dashboard/content/push_mgmt',
+  'dashboard_popup_management':     '/dashboard/content/popup',
   'dashboard_code':                 '/dashboard/code/code_manage',
   'dashboard_statistics':           '/dashboard/statistics',
   'dashboard_log_history':          '/dashboard/logs/work_history',
@@ -355,6 +360,9 @@ export default function App() {
     } else if (view === 'dashboard_push_mgmt') {
       initialMenu = 'content';
       initialSubMenu = 'push_mgmt';
+    } else if (view === 'dashboard_popup_management') {
+      initialMenu = 'content';
+      initialSubMenu = 'popup';
     } else if (view === 'dashboard_code') {
       initialMenu = 'code';
       initialSubMenu = 'code_manage';
@@ -572,6 +580,10 @@ export default function App() {
                           { no:39, label:'PUSH 알림 관리',                    view:'dashboard_push_mgmt',         popup:false },
                           { no:40, label:'PUSH 템플릿 등록 / 수정 팝업',      view:'dashboard_push_mgmt',         popup:true,  popupId:'push_modal' },
                           { no:41, label:'PUSH 템플릿 삭제 확인 팝업',        view:'dashboard_push_mgmt',         popup:true,  popupId:'push_delete_warning' },
+                          { no:41.1, label:'팝업 관리',                        view:'dashboard_popup_management',  popup:false },
+                          { no:41.2, label:'팝업 등록 / 수정 팝업',            view:'dashboard_popup_management',  popup:true,  popupId:'popup_modal' },
+                          { no:41.3, label:'팝업 작성 취소 확인 팝업',         view:'dashboard_popup_management',  popup:true,  popupId:'popup_cancel_warning' },
+                          { no:41.4, label:'팝업 삭제 확인 팝업',              view:'dashboard_popup_management',  popup:true,  popupId:'popup_delete_warning' },
                         ].map(r => (
                           <tr key={r.no} className="border-t border-bg-muted hover:bg-bg-subtle transition-colors">
                             <td className="px-4 py-3 text-text-sub text-center">{r.no}</td>

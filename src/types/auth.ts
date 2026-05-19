@@ -24,8 +24,3 @@ export const ROLE_TEXT_COLORS: Record<Role, string> = {
   ENTERPRISE_INFO_2: 'text-emerald-700',
   OTHER: 'text-[#4E5968]',
 };
-
-export const OTP_LABELS: Record<'REGISTERED' | 'UNREGISTERED', string> = {
-  REGISTERED: '등록',
-  UNREGISTERED: '미등록',
-};

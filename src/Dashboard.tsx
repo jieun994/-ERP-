@@ -28,6 +28,7 @@ import BannerManagement from './components/BannerManagement';
 import FAQManagement from './components/FAQManagement';
 import EmailTemplateManagement from './components/EmailTemplateManagement';
 import PushNotificationManagement from './components/PushNotificationManagement';
+import PopupManagement from './components/PopupManagement';
 import CodeManagement from './components/CodeManagement';
 import MessageManagement from './components/MessageManagement';
 import Statistics from './components/Statistics';
@@ -94,6 +95,7 @@ const menus: MenuConfig[] = [
     subMenus: [
       { id: 'notice', label: '공지사항 관리' },
       { id: 'banner', label: '배너 관리' },
+      { id: 'popup', label: '팝업 관리' },
       { id: 'faq', label: 'FAQ 관리' },
       { id: 'email_template', label: '이메일 템플릿 관리' },
       { id: 'push_mgmt', label: 'PUSH 알림 관리' },
@@ -657,6 +659,10 @@ export default function Dashboard({ onLogout, initialMenu = 'main', initialSubMe
           ) : activeSubMenu === 'push_mgmt' ? (
             <div className="w-full space-y-6">
               <PushNotificationManagement />
+            </div>
+          ) : activeSubMenu === 'popup' ? (
+            <div className="w-full space-y-6">
+              <PopupManagement />
             </div>
           ) : activeSubMenu === 'code_manage' ? (
             <div className="w-full space-y-6">

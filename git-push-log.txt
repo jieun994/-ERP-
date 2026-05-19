@@ -1,7 +1,27 @@
 === Git Push Log === 
-Started: 2026-05-17 16:30:14.96 
+Started: 2026-05-19 12:53:36.28 
  
+[info] Removing stale .git\index.lock 
 [info] Untracking ignored files... 
+rm 'HNBCF_RD_화면설계서_XX.전체_v0.9_260516.pdf'
+rm 'HNBCF_RD_화면설계서_XX.전체_v0.9_260517.pdf'
+rm '[내부-기획] 하나은행 펌뱅킹.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_00.공통_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_01.온보딩_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_02.유틸리티_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_03.대시보드_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_04.결재_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_05.내역관리_리포트_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_06.수기계좌_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_07.대금지급_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_08.지로_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_09.사내이체_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_10.외화이체_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_11.법인카드_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_12.업무관리_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_13.시스템 관리_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_14.메일폼_기타_v0.9_260517.pdf'
+rm 'split_pdfs/HNBCF_RD_화면설계서_15.모바일_v0.9_260517.pdf'
 rm 'wireframes/01-submitter-01-payment-current.html'
 rm 'wireframes/01-submitter-02-payment-scheduled.html'
 rm 'wireframes/02-approver-01-payment-current.html'
@@ -26,5 +46,6 @@ rm 'wireframes/combined-02-approver.html'
 rm 'wireframes/combined-03-modals.html'
 rm 'wireframes/combined-04-popups.html'
 rm 'wireframes/index.html'
+rm 'wireframes/base.css'
  
 === git add -A === 

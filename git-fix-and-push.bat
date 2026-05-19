@@ -31,9 +31,10 @@ echo.
 
 REM ====== 3) Untrack files matching .gitignore ======
 echo [3/6] Untracking document files per .gitignore...
-git rm -r --cached --ignore-unmatch "*.xlsx" "*.xlsm" "*.xls" "*.docx" "*.doc" "*.pptx" "*.ppt" >nul 2>&1
+git rm -r --cached --ignore-unmatch "*.xlsx" "*.xlsm" "*.xls" "*.docx" "*.doc" "*.pptx" "*.ppt" "*.pdf" >nul 2>&1
 git rm -r --cached --ignore-unmatch ".~lock.*" "~$*" >nul 2>&1
 git rm -r --cached --ignore-unmatch "*wireframe*.html" >nul 2>&1
+git rm -r --cached --ignore-unmatch "wireframes" "wireframes/*" >nul 2>&1
 git rm -r --cached --ignore-unmatch "_emergency_backup_*" >nul 2>&1
 git rm --cached --ignore-unmatch "tatus" >nul 2>&1
 for /f "delims=" %%f in ('git ls-files "*.md" 2^>nul') do (

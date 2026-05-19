@@ -13,9 +13,10 @@ if exist ".git\index.lock" (
 
 REM Untrack ignored files
 echo [info] Untracking ignored files... >> "%LOGFILE%"
-git rm -r --cached --ignore-unmatch "*.xlsx" "*.xlsm" "*.xls" "*.docx" "*.doc" "*.pptx" "*.ppt" >> "%LOGFILE%" 2>&1
+git rm -r --cached --ignore-unmatch "*.xlsx" "*.xlsm" "*.xls" "*.docx" "*.doc" "*.pptx" "*.ppt" "*.pdf" >> "%LOGFILE%" 2>&1
 git rm -r --cached --ignore-unmatch ".~lock.*" "~$*" >> "%LOGFILE%" 2>&1
 git rm -r --cached --ignore-unmatch "*wireframe*.html" >> "%LOGFILE%" 2>&1
+git rm -r --cached --ignore-unmatch "wireframes" "wireframes/*" >> "%LOGFILE%" 2>&1
 git rm -r --cached --ignore-unmatch "_emergency_backup_*" >> "%LOGFILE%" 2>&1
 git rm --cached --ignore-unmatch "tatus" >> "%LOGFILE%" 2>&1
 for /f "delims=" %%f in ('git ls-files "*.md" 2^>nul') do (

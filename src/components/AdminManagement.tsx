@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AdminRegisterModal from './AdminRegisterModal';
 import { Button, FilterBar, DataTable, StatusBadge, PageLayout, Select, Input, ConfirmModal } from './ui';
-import { Role, ROLES, ROLE_LABELS, ROLE_TEXT_COLORS, OTP_LABELS } from '../types/auth';
+import { Role, ROLES, ROLE_LABELS, ROLE_TEXT_COLORS } from '../types/auth';
 
 interface AdminUser {
   id: number;
@@ -9,16 +9,15 @@ interface AdminUser {
   name: string;
   role: Role;
   isUsed: boolean;
-  otpStatus: 'REGISTERED' | 'UNREGISTERED';
   createdAt: string;
 }
 
 const mockAdmins: AdminUser[] = [
-  { id: 1, loginId: 'super@etribe.co.kr',      name: '김슈퍼', role: 'SUPER',             isUsed: true,  otpStatus: 'REGISTERED',   createdAt: '2026-01-15' },
-  { id: 2, loginId: 'enterprise@etribe.co.kr', name: '이기업', role: 'ENTERPRISE_INFO',   isUsed: true,  otpStatus: 'REGISTERED',   createdAt: '2026-02-03' },
-  { id: 3, loginId: 'interface@etribe.co.kr',  name: '박인터', role: 'ENTERPRISE_INFO_2', isUsed: true,  otpStatus: 'UNREGISTERED', createdAt: '2026-04-22' },
-  { id: 4, loginId: 'other@etribe.co.kr',      name: '최기타', role: 'OTHER',             isUsed: false, otpStatus: 'REGISTERED',   createdAt: '2026-05-10' },
-  { id: 5, loginId: 'jung.dam@etribe.co.kr',   name: '정담당', role: 'ENTERPRISE_INFO',   isUsed: true,  otpStatus: 'REGISTERED',   createdAt: '2026-05-15' },
+  { id: 1, loginId: 'super@etribe.co.kr',      name: '김슈퍼', role: 'SUPER',             isUsed: true,  createdAt: '2026-01-15' },
+  { id: 2, loginId: 'enterprise@etribe.co.kr', name: '이기업', role: 'ENTERPRISE_INFO',   isUsed: true,  createdAt: '2026-02-03' },
+  { id: 3, loginId: 'interface@etribe.co.kr',  name: '박인터', role: 'ENTERPRISE_INFO_2', isUsed: true,  createdAt: '2026-04-22' },
+  { id: 4, loginId: 'other@etribe.co.kr',      name: '최기타', role: 'OTHER',             isUsed: false, createdAt: '2026-05-10' },
+  { id: 5, loginId: 'jung.dam@etribe.co.kr',   name: '정담당', role: 'ENTERPRISE_INFO',   isUsed: true,  createdAt: '2026-05-15' },
 ];
 
 export default function AdminManagement() {
@@ -111,13 +110,6 @@ export default function AdminManagement() {
             {ROLES.map(r => (<option key={r} value={r}>{ROLE_LABELS[r]}</option>))}
           </Select>
         </FilterBar.Field>
-        <FilterBar.Field label="OTP">
-          <Select fullWidth>
-            <option value="ALL">전체</option>
-            <option value="REGISTERED">등록</option>
-            <option value="UNREGISTERED">미등록</option>
-          </Select>
-        </FilterBar.Field>
         <FilterBar.Field label="사용여부">
           <Select fullWidth>
             <option value="ALL">전체</option>
@@ -148,14 +140,13 @@ export default function AdminManagement() {
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">관리자명</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB]">이메일(아이디)</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold border-r border-[#E5E8EB] w-48">권한 그룹</th>
-                <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-28">OTP</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center border-r border-[#E5E8EB] w-28">사용여부</th>
                 <th className="h-[52px] px-4 text-[14px] font-semibold text-center w-36">등록일</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E8EB]">
               {admins.length === 0 ? (
-                <tr><td colSpan={7} className="py-20 text-center text-[14px] text-[#8B95A1]">조회된 관리자가 없습니다.</td></tr>
+                <tr><td colSpan={6} className="py-20 text-center text-[14px] text-[#8B95A1]">조회된 관리자가 없습니다.</td></tr>
               ) : admins.map(admin => (
                 <tr key={admin.id} onClick={() => handleRowClick(admin)}
                   className={`h-[52px] transition-colors cursor-pointer hover:bg-[#F2F9F7] ${selectedIds.includes(admin.id) ? 'bg-[#008d7508]' : 'bg-white'}`}>
@@ -167,12 +158,6 @@ export default function AdminManagement() {
                   <td className="px-4 text-[14px] text-[#4E5968] border-r border-[#E5E8EB]">{admin.loginId}</td>
                   <td className="px-4 border-r border-[#E5E8EB]">
                     <span className={`text-[14px] font-medium ${ROLE_TEXT_COLORS[admin.role]}`}>{ROLE_LABELS[admin.role]}</span>
-                  </td>
-                  <td className="px-4 text-center border-r border-[#E5E8EB]">
-                    <StatusBadge status={OTP_LABELS[admin.otpStatus]}
-                      colorClass={admin.otpStatus === 'REGISTERED'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-gray-100 text-gray-500 border border-gray-200'} />
                   </td>
                   <td className="px-4 text-center border-r border-[#E5E8EB]">
                     <StatusBadge status={admin.isUsed ? 'ON' : 'OFF'} />

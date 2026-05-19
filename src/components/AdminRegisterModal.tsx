@@ -10,7 +10,6 @@ interface AdminUser {
   name: string;
   role: Role;
   isUsed: boolean;
-  otpStatus: 'REGISTERED' | 'UNREGISTERED';
   createdAt: string;
 }
 
@@ -23,12 +22,12 @@ interface Props {
 
 export default function AdminRegisterModal({ isOpen, onClose, onSave, adminToEdit }: Props) {
   const [formData, setFormData] = useState<Partial<AdminUser>>({
-    name: '', loginId: '', role: 'OTHER', isUsed: true, otpStatus: 'UNREGISTERED',
+    name: '', loginId: '', role: 'OTHER', isUsed: true,
   });
 
   useEffect(() => {
     if (adminToEdit) setFormData(adminToEdit);
-    else setFormData({ name: '', loginId: '', role: 'OTHER', isUsed: true, otpStatus: 'UNREGISTERED' });
+    else setFormData({ name: '', loginId: '', role: 'OTHER', isUsed: true });
   }, [adminToEdit, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -40,7 +39,6 @@ export default function AdminRegisterModal({ isOpen, onClose, onSave, adminToEdi
       name: formData.name || '',
       role,
       isUsed: formData.isUsed ?? true,
-      otpStatus: formData.otpStatus || 'UNREGISTERED',
       createdAt: formData.createdAt || new Date().toISOString().split('T')[0],
     });
     onClose();

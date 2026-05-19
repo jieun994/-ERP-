@@ -18,6 +18,7 @@ coverage/
 *.doc
 *.pptx
 *.ppt
+*.pdf
 
 # Office 임시/락 파일
 .~lock.*
@@ -27,6 +28,7 @@ coverage/
 *wireframe*.html
 *와이어프레임*.html
 *목업*.html
+wireframes/
 
 # 한글 작업 문서 (.md) - README.md는 유지
 *.md
